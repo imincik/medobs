@@ -5,8 +5,8 @@ from django.core.management.base import NoArgsCommand
 from django.db import transaction
 from django.db.models import Q
 
-from djcode.reservations.models import Day_status, Medical_office, Visit_disable_rule
-from djcode.reservations.models import Visit_reservation, Visit_template
+from medobs.reservations.models import Day_status, Medical_office, Visit_disable_rule
+from medobs.reservations.models import Visit_reservation, Visit_template
 
 class Command(NoArgsCommand):
 	help = "Pregenerate Visit_reservation records by Visit_template"

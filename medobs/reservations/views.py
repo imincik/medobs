@@ -1,5 +1,5 @@
+import json
 from datetime import datetime, date, time, timedelta
-import simplejson as json
 from view_utils import get_offices, is_reservation_on_date, send_notification
 
 from django.conf import settings
@@ -13,9 +13,9 @@ from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
-from djcode.reservations.forms import Patient_form, Patient_detail_form
-from djcode.reservations.models import Day_status, Medical_office, Patient, Visit_reservation
-from djcode.reservations.models import get_hexdigest
+from medobs.reservations.forms import Patient_form, Patient_detail_form
+from medobs.reservations.models import Day_status, Medical_office, Patient, Visit_reservation
+from medobs.reservations.models import get_hexdigest
 
 def front_page(request):
 	try:

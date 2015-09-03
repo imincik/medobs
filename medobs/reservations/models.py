@@ -1,12 +1,13 @@
+from hashlib import sha1
 from datetime import datetime, date, time, timedelta
 
 from django.conf import settings
 from django.db import models
-from django.utils.hashcompat import sha_constructor
 from django.utils.translation import ugettext_lazy as _
 
+
 def get_hexdigest(user_input):
-	return sha_constructor(settings.SECRET_KEY + user_input).hexdigest()
+	return sha1(settings.SECRET_KEY + user_input).hexdigest()
 
 class Patient(models.Model):
 	first_name = models.CharField(_("first name"), max_length=100)

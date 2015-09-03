@@ -8,7 +8,8 @@ import sys
 import datetime
 
 from django.core.management.base import BaseCommand, CommandError
-from djcode.reservations.models import Medical_office, Visit_template
+
+from medobs.reservations.models import Medical_office, Visit_template
 
 
 TEMPLATE_VALID_SINCE = '2000-01-01'

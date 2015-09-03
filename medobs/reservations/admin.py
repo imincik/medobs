@@ -3,8 +3,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from django.contrib.sites.models import Site
 
-from djcode.reservations.models import Examination_kind, Medical_office, Office_phone, Patient
-from djcode.reservations.models import Visit_disable_rule, Visit_reservation, Visit_template
+from medobs.reservations.models import Examination_kind, Medical_office, Office_phone, Patient
+from medobs.reservations.models import Visit_disable_rule, Visit_reservation, Visit_template
 
 class Visit_reservation_Admin(admin.ModelAdmin):
 	list_display = ("starting_time", "office", "status", "authenticated_only", "patient")

@@ -1,13 +1,15 @@
 from django import forms
-from django.contrib.localflavor.cz.forms import CZBirthNumberField
 from django.utils.translation import ugettext_lazy as _
+from localflavor.cz.forms import CZBirthNumberField
 
-from djcode.reservations.models import Examination_kind, Patient, Visit_reservation
+from medobs.reservations.models import Examination_kind, Patient, Visit_reservation
+
 
 class Patient_form(forms.ModelForm):
 	label_suffix = ":"
 	class Meta:
 		model = Patient
+		exclude = ()
 
 	ident_hash = CZBirthNumberField(label=_("Birth number"))
 	phone_number = forms.RegexField(

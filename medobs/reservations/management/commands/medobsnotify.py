@@ -7,7 +7,8 @@ from django.template.loader import render_to_string
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 
-from djcode.reservations.models import Medical_office
+from medobs.reservations.models import Medical_office
+
 
 class Command(NoArgsCommand):
 	help = "Sends notification emails about tomorrow reservations"

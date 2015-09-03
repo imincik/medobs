@@ -5,7 +5,7 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
-from djcode.reservations.models import Day_status, Medical_office
+from medobs.reservations.models import Day_status, Medical_office
 
 def is_reservation_on_date(for_date, office):
 	""" Checks if reservations exist on selected date. """

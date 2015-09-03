@@ -1,13 +1,12 @@
-#!/usr/bin/python
-""" Automaticaly unhold holded 'visit reservations' done before given expire time """
-
 import datetime
 
 from django.core.management.base import BaseCommand, CommandError
-from djcode.reservations.models import Visit_reservation
+
+from medobs.reservations.models import Visit_reservation
+
 
 class Command(BaseCommand):
-	help = __doc__
+	help = "Automaticaly unhold holded 'visit reservations' done before given expire time"
 	args = "expiretime(MM)"
 	
 	def handle(self, *args, **options):

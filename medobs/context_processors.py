@@ -1,8 +1,12 @@
 from django.conf import settings
-from djcode.version import get_version
+
+from medobs import VERSION
+
+
+_MEDOBS_VERSION = ".".join(map(str, VERSION))
 
 def version(request):
-	return {"VERSION": get_version()}
+	return {"VERSION": _MEDOBS_VERSION}
 
 
 def datepicker_i18n_file(request):
