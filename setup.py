@@ -21,7 +21,7 @@ exclude_from_packages = [
 ]
 
 # setup
-setup(name='gislab-medobs',
+setup(name='medobs',
 	version=".".join(map(str, __import__('medobs').VERSION)),
 	description='GIS.lab Web application',
 	author='Peter Hyben, Marcel Dancak, Ivan Mincik',
