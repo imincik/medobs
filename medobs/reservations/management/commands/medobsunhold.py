@@ -17,11 +17,11 @@ class Command(BaseCommand):
 		expiretime = datetime.datetime.now() - datetime.timedelta(minutes=expire)
 		
 		print 'I: UnHolding reservations done before %s' % (expiretime)
-		for reservation in Visit_reservation.objects.filter(booked_at__lte=(expiretime), status=4):
+		for reservation in Visit_reservation.objects.filter(reservation_time__lte=(expiretime), status=Visit_reservation.STATUS_IN_HELD):
 			print 'I: UnHolding reservation: ', reservation
-			reservation.status = 2
-			reservation.booked_at = None
-			reservation.booked_by = ""
+			reservation.status = Visit_reservation.STATUS_ENABLED
+			reservation.reservation_time = None
+			reservation.reservated_by = ""
 			reservation.save()
 
 # vim: set ts=8 sts=8 sw=8 noet:

@@ -29,7 +29,8 @@ class Patient(models.Model):
 	full_name = property(_get_full_name)
 
 	def has_reservation(self):
-		if self.visit_reservations.filter(starting_time__gte=datetime.now()).exists():
+		current_time = datetime.now()
+		if self.visit_reservations.filter(day__gte=date.today(), time__gte=time(current_time.day, current_time.minute)).exists():
 			return True
 		else:
 			return False
@@ -64,14 +65,12 @@ class Medical_office(models.Model):
 
 	def reservations(self, for_date):
 		""" Returns all reservations in office for selected day. """
-		since = datetime.combine(for_date, time(0, 0, 0))
-		until = datetime.combine(for_date, time(23, 59, 59))
-		return self.visit_reservations.filter(starting_time__range=(since, until)).order_by("starting_time")
+		return self.visit_reservations.filter(day=for_date).order_by("time")
 
 	def days_status(self, start_date, end_date):
 		""" Returns dict with day and status for day from start date to end date. """
-		status_set = self.day_status_set.filter(day__range=(start_date, end_date))
-		return dict([(self._date2str(d.day), d.has_reservations) for d in status_set])
+		days = Visit_reservation.objects.filter(day__range=(start_date, end_date)).dates("day", "day")
+		return dict([(self._date2str(day), True) for day in days])
 
 	def _date2str(self, actual_date):
 		""" Returns date as string yyyy-m-d (without leading zeros in month and day. """
@@ -130,12 +129,9 @@ class Visit_template(models.Model):
 		unique_together = (("office", "day", "starting_time"),)
 
 	def __unicode__(self):
-		return _("%(day_name)s at %(time)s") % {
-			"day_name": self.get_day_display(),
-			"time": self.starting_time,
-		}
+		return unicode(_(u"{0} at {1}".format(self.get_day_display(), self.starting_time)))
 
-class Visit_disable_rule(models.Model):
+class Visit_reservation_exception(models.Model):
 	office = models.ForeignKey(Medical_office, verbose_name=_("medical office"),
 			related_name="disables")
 	begin = models.DateTimeField(_("begin"),
@@ -145,19 +141,16 @@ class Visit_disable_rule(models.Model):
 	note = models.TextField(_("note"), blank=True)
 
 	class Meta:
-		verbose_name = _("visit disable rule")
-		verbose_name_plural = _("visit disable rules")
+		verbose_name = _("reservation exception")
+		verbose_name_plural = _("reservation exceptions")
 		unique_together = (("office", "begin", "end"),)
 
 	def __unicode__(self):
-		return _("From %(begin)s to %(end)s") % {
-			"begin": self.begin,
-			"end": self.end
-		}
+		return unicode(_(u"From {0} to {1}".format(self.begin, self.end)))
 
 class Examination_kind(models.Model):
 	title = models.TextField(_("title"), unique=True)
-	office = models.ManyToManyField(Medical_office, verbose_name=_("medical office"),
+	office = models.ForeignKey(Medical_office, verbose_name=_("medical office"),
 			related_name="exam_kinds")
 	order = models.PositiveIntegerField(_("order"), help_text=_("Order of examination kinds in patient input form."))
 	note = models.TextField(_("note"), blank=True)
@@ -171,13 +164,17 @@ class Examination_kind(models.Model):
 		return self.title
 
 class Visit_reservation(models.Model):
+	STATUS_DISABLED = 1
+	STATUS_ENABLED = 2
+	STATUS_IN_HELD = 4
 	STATUS_CHOICES = (
 		(1, _("disabled")),
 		(2, _("enabled")),
-		(3, _("booked")),
 		(4, _("in held")),
 	)
-	starting_time = models.DateTimeField(_("time"))
+	#starting_time = models.DateTimeField(_("time"))
+	day = models.DateField(_("day"))
+	time = models.TimeField(_("time"))
 	office = models.ForeignKey(Medical_office, verbose_name=_("medical office"),
 			related_name="visit_reservations")
 	authenticated_only = models.BooleanField(_("authenticated only"),
@@ -187,20 +184,17 @@ class Visit_reservation(models.Model):
 	exam_kind = models.ForeignKey(Examination_kind, verbose_name=_("examination kind"),
 			null=True, blank=True)
 	status = models.PositiveSmallIntegerField(_("status"), default=2, choices=STATUS_CHOICES)
-	booked_at = models.DateTimeField(_("booked at"), null=True, blank=True)
-	booked_by = models.CharField(_("booked by"), max_length=100, blank=True)
+	reservation_time = models.DateTimeField(_("reservation time"), null=True, blank=True)
+	reservated_by = models.CharField(_("reservated by"), max_length=100, blank=True)
 
 	class Meta:
 		verbose_name = _("visit reservation")
 		verbose_name_plural = _("visit reservations")
-		ordering = ("-starting_time",)
-		unique_together = (("starting_time", "office"),)
+		ordering = ("-day", "-time")
+		unique_together = ("day", "time", "office")
 
 	def __unicode__(self):
-		return _("%(starting_time)s at %(office_name)s") % {
-			"starting_time": self.starting_time,
-			"office_name": self.office.name
-		}
+		return u"{0} - {1}".format(self.starting_time.strftime("%H:%M - %d.%m.%Y"), self.office.name)
 
 	def _passed(self):
 		if self.starting_time < datetime.now():
@@ -209,83 +203,14 @@ class Visit_reservation(models.Model):
 			return False
 	passed = property(_passed)
 
-class Day_status(models.Model):
-	day = models.DateField(_("day"))
-	office = models.ForeignKey(Medical_office, verbose_name=_("office"))
-	has_reservations = models.BooleanField(_("has reservations"))
+	@property
+	def starting_time(self):
+		return datetime(self.day.year, self.day.month, self.day.day, self.time.hour, self.time.minute)
 
-	class Meta:
-		verbose_name = _("day status")
-		verbose_name_plural = _("days statuses")
-		unique_together = (("day", "office"),)
+	@property
+	def is_reservated(self):
+		return self.status != self.STATUS_DISABLED and self.patient is not None
 
-	def __unicode__(self):
-		return self.day.__str__()
-
-def enable_day_status(sender, instance, created, **kwargs):
-	for_date = instance.starting_time.date()
-	day_status, day_status_created = Day_status.objects.get_or_create(
-		day=for_date,
-		office=instance.office,
-		defaults={"has_reservations": True})
-	if not day_status_created:
-		day_status.has_reservations = True
-		day_status.save()
-
-def update_day_status(sender, instance, **kwargs):
-	for_date = instance.starting_time.date()
-	start = datetime.combine(for_date, time(0, 0, 0))
-	end = datetime.combine(for_date, time(23, 59, 59))
-
-	status = Visit_reservation.objects.filter(
-			starting_time__range=(start, end),
-			office=instance.office
-		).exists()
-
-	day_status, day_status_created = Day_status.objects.get_or_create(
-		day=for_date,
-		office=instance.office,
-		defaults={"has_reservations": status})
-	if not day_status_created:
-		day_status.has_reservations = status
-		day_status.save()
-
-def moved_day_status(sender, instance, **kwargs):
-	if instance.pk:
-		actual_record = Visit_reservation.objects.get(pk=instance.pk)
-
-		for_date = actual_record.starting_time.date()
-		start = datetime.combine(for_date, time(0, 0, 0))
-		end = datetime.combine(for_date, time(23, 59, 59))
-
-		reservation_count = Visit_reservation.objects.filter(
-				starting_time__range=(start, end),
-				office=actual_record.office
-			).count()
-
-		if reservation_count == 1:
-			day_status, day_status_created = Day_status.objects.get_or_create(
-				day=for_date,
-				office=actual_record.office,
-				defaults={"has_reservations": False})
-			if not day_status_created:
-				day_status.has_reservations = False
-				day_status.save()
-
-models.signals.pre_save.connect(moved_day_status, sender=Visit_reservation)
-models.signals.post_save.connect(enable_day_status, sender=Visit_reservation)
-models.signals.post_delete.connect(update_day_status, sender=Visit_reservation)
-
-def gen_days_statuses(sender, instance, created, **kwargs):
-	if created:
-		actual_date = date.today()
-		end_date = actual_date + timedelta(instance.days_to_generate)
-
-		while actual_date <= end_date:
-			day_status, day_status_created = Day_status.objects.get_or_create(
-				day=actual_date,
-				office=instance,
-				defaults={"has_reservations": False})
-			actual_date += timedelta(1)
-
-models.signals.post_save.connect(gen_days_statuses, sender=Medical_office)
+	@property
+	def needs_reschedule(self):
+		return self.status == self.STATUS_DISABLED and self.patient is not None

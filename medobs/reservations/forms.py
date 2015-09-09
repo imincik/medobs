@@ -5,7 +5,7 @@ from localflavor.cz.forms import CZBirthNumberField
 from medobs.reservations.models import Examination_kind, Patient, Visit_reservation
 
 
-class Patient_form(forms.ModelForm):
+class PatientForm(forms.ModelForm):
 	label_suffix = ":"
 	class Meta:
 		model = Patient
@@ -37,7 +37,7 @@ class Patient_form(forms.ModelForm):
 			data = data[:6] + data[7:]
 		return data
 
-class Patient_detail_form(forms.Form):
+class PatientDetailForm(forms.Form):
 	ident_hash = CZBirthNumberField()
 
 	def clean_ident_hash(self):
@@ -45,3 +45,9 @@ class Patient_detail_form(forms.Form):
 		if data[6] == "/":
 			data = data[:6] + data[7:]
 		return data
+
+class VisitReservationForm(forms.ModelForm):
+	time = forms.TimeField(widget=forms.TimeInput(format='%H:%M'))
+	class Meta:
+		model = Visit_reservation
+		exclude = ()

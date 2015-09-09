@@ -5,7 +5,7 @@ from django.core.management.base import NoArgsCommand
 from django.db import transaction
 from django.db.models import Q
 
-from medobs.reservations.models import Day_status, Medical_office, Visit_disable_rule
+from medobs.reservations.models import Medical_office, Visit_reservation_exception
 from medobs.reservations.models import Visit_reservation, Visit_template
 
 class Command(NoArgsCommand):
@@ -22,17 +22,12 @@ class Command(NoArgsCommand):
 				sid = transaction.savepoint()
 
 				try:
-					day = Visit_reservation.objects.filter(office = office).latest("starting_time").starting_time.date()
+					day = Visit_reservation.objects.filter(office = office).latest("day").day
 				except Visit_reservation.DoesNotExist:
 					day = datetime.date.today()
 				day += datetime.timedelta(1)
 
 				while day <= end_day:
-					day_status, day_status_created = Day_status.objects.get_or_create(
-						day=day,
-						office=office,
-						defaults={"has_reservations": False})
-
 					templates = Visit_template.objects.filter(day = day.isoweekday())
 					templates = templates.filter(office = office, valid_since__lte = day)
 					templates = templates.filter(Q(valid_until__exact=None) | Q(valid_until__gt=day))
@@ -40,15 +35,16 @@ class Command(NoArgsCommand):
 					for tmp in templates:
 						starting_time = datetime.datetime.combine(day, tmp.starting_time)
 
-						if Visit_disable_rule.objects.filter(begin__lte = starting_time,
+						if Visit_reservation_exception.objects.filter(begin__lte = starting_time,
 								end__gte = starting_time, office = office):
-							status = 1 # disabled
+							status = Visit_reservation.STATUS_DISABLED
 						else:
-							status = 2 # enabled
+							status = Visit_reservation.STATUS_ENABLED
 
 						print 'I: Creating reservation: %s' % (starting_time)
 						Visit_reservation.objects.create(
-							starting_time=starting_time,
+							day=day,
+							time=tmp.starting_time,
 							office=office,
 							status=status,
 							authenticated_only=tmp.authenticated_only

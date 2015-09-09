@@ -6,7 +6,7 @@ from medobs.reservations.models import Medical_office
 
 
 urlpatterns = [
-	url(r"^$", "front_page"),
+	url(r"^$", views.front_page),
 	url(r"^android/login/$", views.login),
 	url(r"^android/logout/$", views.logout),
 	url(r"^office/(?P<office_id>\d+)/(?P<for_date>\d{4}-\d{2}-\d{2})/$", views.office_page),

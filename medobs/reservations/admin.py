@@ -1,58 +1,128 @@
-from django.contrib import admin
-from django.utils.translation import ugettext_lazy as _
+from datetime import datetime
 
+from django.db import models
+from django.contrib import admin
+from django.conf import settings
+from django.forms import Textarea
+from django.utils.translation import ugettext_lazy as _
 from django.contrib.sites.models import Site
 
+from medobs.reservations import filters
+from medobs.reservations.forms import VisitReservationForm
 from medobs.reservations.models import Examination_kind, Medical_office, Office_phone, Patient
-from medobs.reservations.models import Visit_disable_rule, Visit_reservation, Visit_template
+from medobs.reservations.models import Visit_reservation_exception, Visit_reservation, Visit_template
 
-class Visit_reservation_Admin(admin.ModelAdmin):
+
+class VisitReservationAdmin(admin.ModelAdmin):
 	list_display = ("starting_time", "office", "status", "authenticated_only", "patient")
-	readonly_fields = ("booked_by",)
-	list_filter = ("status", "office", "starting_time")
-	ordering = ("starting_time", "office")
+	readonly_fields = ("reservation_time", "reservated_by")
+	list_filter = ("office", "time", "day", "authenticated_only", filters.ReservationStatusFilter)
+	ordering = ("day", "time", "office")
 	search_fields = ["^patient__first_name", "^patient__last_name"]
+	form = VisitReservationForm
 	fieldsets = (
-		(None, {"fields": ("office", "starting_time", "status", "authenticated_only")}),
-		(_("Booking data"), {"fields": ("patient", "exam_kind", "booked_at", "booked_by")}),
+		(None, {"fields": ("office", "day", "time", "status", "authenticated_only")}),
+		(_("Booking data"), {"fields": ("patient", "exam_kind", "reservation_time", "reservated_by")}),
 	)
-admin.site.register(Visit_reservation, Visit_reservation_Admin)
+	def save_model(self, request, obj, form, change):
+		if obj.is_reservated:
+			obj.reservated_by = request.user.get_full_name() or request.user.username
+			obj.reservation_time = datetime.now()
+		else:
+			obj.reservation_time = None
+		return super(VisitReservationAdmin, self).save_model(request, obj, form, change)
 
-class Patient_Admin(admin.ModelAdmin):
+	class Media:
+		css = {
+			"all": ("%scss/filters.css" % settings.STATIC_URL, ),
+		}
+
+admin.site.register(Visit_reservation, VisitReservationAdmin)
+
+class VisitReservationInline(admin.TabularInline):
+	model = Visit_reservation
+	readonly_fields = ("day", "time", "office", "authenticated_only", "exam_kind", "status", "reservation_time", "reservated_by")
+	can_delete = False
+	extra = 0
+	def has_add_permission(self, request):
+		return False
+
+class PatientAdmin(admin.ModelAdmin):
 	list_display = ("full_name", "phone_number", "email", "ident_hash", "has_reservation")
-	readonly_fields = ("ident_hash",)
-	search_fields = ("last_name",)
+	search_fields = ("last_name", "first_name")
 	ordering = ("last_name", "first_name")
-admin.site.register(Patient, Patient_Admin)
+	inlines = (VisitReservationInline, )
 
-class Visit_template_Admin(admin.ModelAdmin):
+	def get_form(self, request, obj=None, **kwargs):
+		self.readonly_fields = () if obj is None else ("ident_hash",)
+		form = super(PatientAdmin, self).get_form(request, obj=obj, **kwargs)
+		if obj is None:
+			form.base_fields['ident_hash'].label = _('Identification number')
+		return form
+
+admin.site.register(Patient, PatientAdmin)
+
+class VisitTemplateAdmin(admin.ModelAdmin):
 	list_display = ("__unicode__", "office", "starting_time", "valid_since", "valid_until", "authenticated_only")
-	list_filter = ("office", "day")
+	list_filter = ("office", "day", "starting_time", "authenticated_only", filters.ExpirationFilter)
 	ordering = ("day", "starting_time", "office")
-admin.site.register(Visit_template, Visit_template_Admin)
 
-class Visit_disable_rule_Admin(admin.ModelAdmin):
+	class Media:
+		css = {
+			"all": ("%scss/filters.css" % settings.STATIC_URL, ),
+		}
+
+admin.site.register(Visit_template, VisitTemplateAdmin)
+
+class VisitReservationExceptionAdmin(admin.ModelAdmin):
 	list_display = ("begin", "end", "office")
-	list_filter = ("office", "begin")
+	list_filter = ("office", filters.ReservationExceptionDateFilter)
 	ordering = ("begin", "office")
-admin.site.register(Visit_disable_rule, Visit_disable_rule_Admin)
 
-class Office_phone_Inline(admin.TabularInline):
+	class Media:
+		css = {
+			"all": ("%scss/filters.css" % settings.STATIC_URL, ),
+		}
+
+admin.site.register(Visit_reservation_exception, VisitReservationExceptionAdmin)
+
+class ExaminationKindInline(admin.TabularInline):
+	model = Examination_kind
+	extra = 0
+	formfield_overrides = {
+		models.TextField: {
+			'widget': Textarea(attrs={
+						'rows': 2,
+						'cols': 70,
+						'style': 'height: 2.5em;'
+					})},
+	}
+
+class OfficePhoneInline(admin.TabularInline):
     model = Office_phone
+    extra = 1
 
-class Medical_office_Admin(admin.ModelAdmin):
+class MedicalOfficeAdmin(admin.ModelAdmin):
 	list_display = ("name", "order", "street", "zip_code", "city", "email", "days_to_generate", "published", "public")
-	inlines = [Office_phone_Inline,]
+	inlines = (ExaminationKindInline, OfficePhoneInline)
 	ordering = ("name",)
 	fieldsets = (
 		(None, {"fields": ("name", "street", "zip_code", "city", "email", "note")}),
 		(_("Settings"), {"fields": ("order", "days_to_generate", "published", "public")}),
 	)
-admin.site.register(Medical_office, Medical_office_Admin)
+	formfield_overrides = {
+		models.TextField: {
+			'widget': Textarea(attrs={
+						'rows': 4,
+						'cols': 80,
+						'style': 'height: 5em;'
+					})},
+	}
+admin.site.register(Medical_office, MedicalOfficeAdmin)
 
-class Examination_kind_Admin(admin.ModelAdmin):
-	list_display = ("title", "order")
-	ordering = ("title",)
-admin.site.register(Examination_kind, Examination_kind_Admin)
 
 admin.site.unregister(Site)
+
+# register filters
+admin.FieldListFilter.register(lambda f: f and isinstance(f, models.TimeField), filters.TimeRangeFilter, True)
+admin.FieldListFilter.register(lambda f: f and isinstance(f, models.DateField), filters.DateRangeFilter, True)

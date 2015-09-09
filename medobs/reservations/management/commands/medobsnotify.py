@@ -18,7 +18,7 @@ class Command(NoArgsCommand):
 		actual_date = date.today() + timedelta(1)
 		for office in Medical_office.objects.all():
 			for r in office.reservations(actual_date):
-				if r.status == 3 and r.patient.email:
+				if r.is_reservated and r.patient.email:
 					send_mail(
 						_("Notification about upcoming visit reservation"),
 						render_to_string(

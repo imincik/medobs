@@ -69,8 +69,8 @@
 				<span class="patient-name">{{ r.patient.full_name }}</span><span class="term-exam-kind">, {{ r.exam_kind }}</span>
 			{% endif %}
 			{% if user.is_authenticated %}
-			{% if r.booked_by or r.booked_at %}
-				<span class="term-info" title="{{ r.booked_by }} {{ r.booked_at|date:"d.m.Y H:i" }}">[ {{ r.booked_by }} ]</span>
+			{% if r.reservated_by or r.reservation_time %}
+				<span class="term-info" title="{{ r.reservated_by }} {{ r.reservation_time|date:"d.m.Y H:i" }}">[ {{ r.reservated_by }} ]</span>
 			{% endif %}
 			{% endif %}
 			{% if not user.is_authenticated  %}
@@ -334,11 +334,11 @@ $(function() {
 			);
 		}
 
-		if(r.booked_by != "" || r.booked_at != ""){
+		if(r.reservated_by != "" || r.reservation_time != ""){
 			ritem.append($("<span></span>")
 				.addClass("term-info")
-				.html(" [ "+ r.booked_by +" ]")
-				.attr("title", r.booked_by + " " + r.booked_at)
+				.html(" [ "+ r.reservated_by +" ]")
+				.attr("title", r.reservated_by + " " + r.reservation_time)
 			);
 		}
 	}

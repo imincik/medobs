@@ -13,9 +13,10 @@ from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
-from medobs.reservations.forms import Patient_form, Patient_detail_form
-from medobs.reservations.models import Day_status, Medical_office, Patient, Visit_reservation
+from medobs.reservations.forms import PatientForm, PatientDetailForm
+from medobs.reservations.models import Medical_office, Patient, Visit_reservation
 from medobs.reservations.models import get_hexdigest
+
 
 def front_page(request):
 	try:
@@ -61,7 +62,7 @@ def office_page(request, office_id, for_date=None):
 	reservation_id = 0
 
 	if request.method == 'POST':
-		form = Patient_form(request.POST)
+		form = PatientForm(request.POST)
 		form.fields["exam_kind"].queryset = office.exam_kinds.all()
 		if form.is_valid():
 			try:
@@ -70,10 +71,10 @@ def office_page(request, office_id, for_date=None):
 				reservation_id = reservation.id
 
 				if request.user.is_authenticated():
-					if reservation.status not in (2, 4):
+					if reservation.status not in (Visit_reservation.STATUS_ENABLED, Visit_reservation.STATUS_IN_HELD):
 						raise BadStatus()
 				else:
-					if reservation.status != 2:
+					if reservation.status != Visit_reservation.STATUS_ENABLED:
 						raise BadStatus()
 
 				datetime_limit = datetime.combine(date.today() + timedelta(1), time(0, 0))
@@ -106,9 +107,9 @@ def office_page(request, office_id, for_date=None):
 
 				reservation.patient = patient
 				reservation.exam_kind = form.cleaned_data["exam_kind"]
-				reservation.status = 3
-				reservation.booked_at = datetime.now()
-				reservation.booked_by = request.user.username
+				reservation.status = Visit_reservation.STATE_ENABLED # clean 'in held' state
+				reservation.reservation_time = datetime.now()
+				reservation.reservated_by = request.user.username
 				reservation.save()
 
 				if patient.email:
@@ -131,7 +132,7 @@ def office_page(request, office_id, for_date=None):
 				reservation_id = int(r_val)
 				actual_date = Visit_reservation.objects.get(pk=reservation_id).starting_time.date()
 	else:
-		form = Patient_form()
+		form = PatientForm()
 		form.fields["exam_kind"].queryset = office.exam_kinds.all()
 
 	office_data = {
@@ -169,8 +170,8 @@ def date_reservations(request, for_date, office_id):
 			"phone_number": r.patient.phone_number.replace(" ", "") if r.patient else "",
 			"email": r.patient.email if r.patient else "",
 			"exam_kind": r.exam_kind.title if r.exam_kind else "",
-			"booked_by": r.booked_by,
-			"booked_at": r.booked_at.strftime("%d.%m.%Y %H:%M") if r.booked_at else "",
+			"reservated_by": r.reservated_by,
+			"reservation_time": r.reservation_time.strftime("%d.%m.%Y %H:%M") if r.reservation_time else "",
 			"auth_only": r.authenticated_only,
 		} for r in office.reservations(for_date)]
 	else:
@@ -202,7 +203,7 @@ def patient_details(request):
 	}
 
 	if request.method == 'POST':
-		form = Patient_detail_form(request.POST)
+		form = PatientDetailForm(request.POST)
 		if form.is_valid():
 			hexdigest = get_hexdigest(form.cleaned_data["ident_hash"])
 			try:
@@ -220,10 +221,10 @@ def patient_details(request):
 @login_required
 def hold_reservation(request, r_id):
 	reservation = get_object_or_404(Visit_reservation, pk=r_id)
-	if reservation.status == 2:
-		reservation.status = 4
-		reservation.booked_at = datetime.now()
-		reservation.booked_by = request.user.username
+	if reservation.status == Visit_reservation.STATUS_ENABLED:
+		reservation.status = Visit_reservation.STATUS_IN_HELD
+		reservation.reservation_time = datetime.now()
+		reservation.reservated_by = request.user.username
 		reservation.save()
 		response_data = {"status_ok": True}
 	else:
@@ -236,10 +237,10 @@ def hold_reservation(request, r_id):
 @login_required
 def unhold_reservation(request, r_id):
 	reservation = get_object_or_404(Visit_reservation, pk=r_id)
-	if reservation.status == 4:
-		reservation.status = 2
-		reservation.booked_at = None
-		reservation.booked_by = ""
+	if reservation.status == Visit_reservation.STATUS_IN_HELD:
+		reservation.status = Visit_reservation.STATUS_DISABLED
+		reservation.reservation_time = None
+		reservation.reservated_by = ""
 		reservation.save()
 		response_data = {"status_ok": True}
 	else:
@@ -252,12 +253,12 @@ def unhold_reservation(request, r_id):
 @login_required
 def unbook_reservation(request, r_id):
 	reservation = get_object_or_404(Visit_reservation, pk=r_id)
-	if reservation.status == 3:
-		reservation.status = 2
+	if reservation.is_reservated:
+		reservation.status = Visit_reservation.STATUS_ENABLED
 		reservation.patient = None
 		reservation.exam_kind = None
-		reservation.booked_at = None
-		reservation.booked_by = ""
+		reservation.reservation_time = None
+		reservation.reservated_by = ""
 		reservation.save()
 		response_data = {"status_ok": True}
 	else:
@@ -270,10 +271,10 @@ def unbook_reservation(request, r_id):
 @login_required
 def disable_reservation(request, r_id):
 	reservation = get_object_or_404(Visit_reservation, pk=r_id)
-	if reservation.status in (2, 4) and request.user.is_staff:
-		reservation.status = 1
-		reservation.booked_at = datetime.now()
-		reservation.booked_by = request.user.username
+	if reservation.status in (Visit_reservation.STATUS_ENABLED, Visit_reservation.STATUS_IN_HELD) and request.user.is_staff:
+		reservation.status = Visit_reservation.STATUS_DISABLED
+		reservation.reservation_time = datetime.now()
+		reservation.reservated_by = request.user.username
 		reservation.save()
 		response_data = {"status_ok": True}
 	else:
@@ -286,10 +287,10 @@ def disable_reservation(request, r_id):
 @login_required
 def enable_reservation(request, r_id):
 	reservation = get_object_or_404(Visit_reservation, pk=r_id)
-	if reservation.status == 1 and request.user.is_staff:
-		reservation.status = 2
-		reservation.booked_at = None
-		reservation.booked_by = ""
+	if reservation.status == Visit_reservation.STATUS_DISABLED and request.user.is_staff:
+		reservation.status = Visit_reservation.STATUS_ENABLED
+		reservation.reservation_time = None
+		reservation.reservated_by = ""
 		reservation.save()
 		response_data = {"status_ok": True}
 	else:
@@ -336,7 +337,7 @@ def patient_reservations(request):
 	response_data = {"patient": None}
 
 	if request.method == 'POST':
-		form = Patient_detail_form(request.POST)
+		form = PatientDetailForm(request.POST)
 		if form.is_valid():
 			hexdigest = get_hexdigest(form.cleaned_data["ident_hash"])
 			try:

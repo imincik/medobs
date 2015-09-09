@@ -1,0 +1,17 @@
+#changelist-filter {
+	width: 200px;
+	border-bottom: 2px solid #DDDDDD;
+}
+
+.change-list .filtered .results, .change-list .filtered .paginator, .filtered #toolbar, .filtered div.xfull {
+	margin-right: 200px !important;
+}
+
+.filtered .actions {
+	margin-right: 200px !important;
+}
+
+.change-list .filtered {
+	background: repeat-y scroll right top #FFFFFF !important;
+	min-height: 543px;
+}
