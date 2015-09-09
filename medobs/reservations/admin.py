@@ -18,12 +18,14 @@ class VisitReservationAdmin(admin.ModelAdmin):
 	readonly_fields = ("reservation_time", "reservated_by")
 	list_filter = ("office", "time", "day", "authenticated_only", filters.ReservationStatusFilter)
 	ordering = ("day", "time", "office")
-	search_fields = ["^patient__first_name", "^patient__last_name"]
+	search_fields = ("^patient__first_name", "^patient__last_name")
+	actions = ("enable_reservations", "disable_reservations")
 	form = VisitReservationForm
 	fieldsets = (
 		(None, {"fields": ("office", "day", "time", "status", "authenticated_only")}),
 		(_("Booking data"), {"fields": ("patient", "exam_kind", "reservation_time", "reservated_by")}),
 	)
+
 	def save_model(self, request, obj, form, change):
 		if obj.is_reservated:
 			obj.reservated_by = request.user.get_full_name() or request.user.username
@@ -31,6 +33,14 @@ class VisitReservationAdmin(admin.ModelAdmin):
 		else:
 			obj.reservation_time = None
 		return super(VisitReservationAdmin, self).save_model(request, obj, form, change)
+
+	def enable_reservations(self, request, queryset):
+		queryset.update(status=Visit_reservation.STATUS_ENABLED)
+	enable_reservations.short_description = "Mark selected reservation times as enabled"
+
+	def disable_reservations(self, request, queryset):
+		queryset.update(status=Visit_reservation.STATUS_DISABLED)
+	disable_reservations.short_description = "Mark selected reservation times as disabled"
 
 	class Media:
 		css = {
