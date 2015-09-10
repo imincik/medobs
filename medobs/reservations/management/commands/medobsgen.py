@@ -21,12 +21,7 @@ class Command(NoArgsCommand):
 
 				sid = transaction.savepoint()
 
-				try:
-					day = Visit_reservation.objects.filter(office = office).latest("day").day
-				except Visit_reservation.DoesNotExist:
-					day = datetime.date.today()
-				day += datetime.timedelta(1)
-
+				day = datetime.date.today()
 				while day <= end_day:
 					templates = Visit_template.objects.filter(day = day.isoweekday())
 					templates = templates.filter(office = office, valid_since__lte = day)
@@ -41,14 +36,24 @@ class Command(NoArgsCommand):
 						else:
 							status = Visit_reservation.STATUS_ENABLED
 
-						print 'I: Creating reservation: %s' % (starting_time)
-						Visit_reservation.objects.create(
+						obj, created = Visit_reservation.objects.get_or_create(
 							day=day,
 							time=tmp.starting_time,
-							office=office,
-							status=status,
-							authenticated_only=tmp.authenticated_only
+							defaults={
+								'office': office,
+								'status': status,
+								'authenticated_only': tmp.authenticated_only
+							}
 						)
+						if created:
+							print 'I: Creating reservation: %s' % (starting_time)
+						else:
+							if status == Visit_reservation.STATUS_DISABLED and obj.status != status:
+								print 'I: Disabling reservation: %s' % (starting_time)
+								obj.status = status
+								obj.save()
+							else:
+								print 'I: Reservation already exists, skipping it: %s' % (starting_time)
 
 					day += datetime.timedelta(1)
 
