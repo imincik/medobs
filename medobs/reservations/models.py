@@ -30,7 +30,7 @@ class Patient(models.Model):
 
 	def has_reservation(self):
 		current_time = datetime.now()
-		if self.visit_reservations.filter(day__gte=date.today(), time__gte=time(current_time.day, current_time.minute)).exists():
+		if self.visit_reservations.filter(date__gte=date.today(), time__gte=time(current_time.day, current_time.minute)).exists():
 			return True
 		else:
 			return False
@@ -65,11 +65,11 @@ class Medical_office(models.Model):
 
 	def reservations(self, for_date):
 		""" Returns all reservations in office for selected day. """
-		return self.visit_reservations.filter(day=for_date).order_by("time")
+		return self.visit_reservations.filter(date=for_date).order_by("time")
 
 	def days_status(self, start_date, end_date):
 		""" Returns dict with day and status for day from start date to end date. """
-		days = Visit_reservation.objects.filter(day__range=(start_date, end_date)).dates("day", "day")
+		days = Visit_reservation.objects.filter(date__range=(start_date, end_date)).dates("date", "day")
 		return dict([(self._date2str(day), True) for day in days])
 
 	def _date2str(self, actual_date):
@@ -173,7 +173,7 @@ class Visit_reservation(models.Model):
 		(4, _("in held")),
 	)
 	#starting_time = models.DateTimeField(_("time"))
-	day = models.DateField(_("day"))
+	date = models.DateField(_("date"))
 	time = models.TimeField(_("time"))
 	office = models.ForeignKey(Medical_office, verbose_name=_("medical office"),
 			related_name="visit_reservations")
@@ -190,8 +190,8 @@ class Visit_reservation(models.Model):
 	class Meta:
 		verbose_name = _("visit reservation")
 		verbose_name_plural = _("visit reservations")
-		ordering = ("-day", "-time")
-		unique_together = ("day", "time", "office")
+		ordering = ("-date", "-time")
+		unique_together = ("date", "time", "office")
 
 	def __unicode__(self):
 		return u"{0} - {1}".format(self.starting_time.strftime("%H:%M - %d.%m.%Y"), self.office.name)
@@ -205,7 +205,7 @@ class Visit_reservation(models.Model):
 
 	@property
 	def starting_time(self):
-		return datetime(self.day.year, self.day.month, self.day.day, self.time.hour, self.time.minute)
+		return datetime(self.date.year, self.date.month, self.date.day, self.time.hour, self.time.minute)
 
 	@property
 	def is_reservated(self):

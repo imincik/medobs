@@ -16,13 +16,13 @@ from medobs.reservations.models import Visit_reservation_exception, Visit_reserv
 class VisitReservationAdmin(admin.ModelAdmin):
 	list_display = ("starting_time", "office", "status", "authenticated_only", "patient")
 	readonly_fields = ("reservation_time", "reservated_by")
-	list_filter = ("office", "time", "day", "authenticated_only", filters.ReservationStatusFilter)
-	ordering = ("day", "time", "office")
+	list_filter = ("office", "time", "date", "authenticated_only", filters.ReservationStatusFilter)
+	ordering = ("date", "time", "office")
 	search_fields = ("^patient__first_name", "^patient__last_name")
 	actions = ("enable_reservations", "disable_reservations")
 	form = VisitReservationForm
 	fieldsets = (
-		(None, {"fields": ("office", "day", "time", "status", "authenticated_only")}),
+		(None, {"fields": ("office", "date", "time", "status", "authenticated_only")}),
 		(_("Booking data"), {"fields": ("patient", "exam_kind", "reservation_time", "reservated_by")}),
 	)
 
@@ -51,7 +51,7 @@ admin.site.register(Visit_reservation, VisitReservationAdmin)
 
 class VisitReservationInline(admin.TabularInline):
 	model = Visit_reservation
-	readonly_fields = ("day", "time", "office", "authenticated_only", "exam_kind", "status", "reservation_time", "reservated_by")
+	readonly_fields = ("date", "time", "office", "authenticated_only", "exam_kind", "status", "reservation_time", "reservated_by")
 	can_delete = False
 	extra = 0
 	def has_add_permission(self, request):

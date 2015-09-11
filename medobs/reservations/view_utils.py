@@ -9,7 +9,7 @@ from medobs.reservations.models import Medical_office
 
 def is_reservation_on_date(for_date, office):
 	""" Checks if reservations exist on selected date. """
-	return Visit_reservation.objects.filter(day=for_date, office=office).exists()
+	return Visit_reservation.objects.filter(date=for_date, office=office).exists()
 
 def get_offices(user):
 	if user.is_authenticated():

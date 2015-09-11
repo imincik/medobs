@@ -37,7 +37,7 @@ class Command(NoArgsCommand):
 							status = Visit_reservation.STATUS_ENABLED
 
 						obj, created = Visit_reservation.objects.get_or_create(
-							day=day,
+							date=day,
 							time=tmp.starting_time,
 							defaults={
 								'office': office,
