@@ -69,7 +69,7 @@ class Medical_office(models.Model):
 
 	def days_status(self, start_date, end_date):
 		""" Returns dict with day and status for day from start date to end date. """
-		days = Visit_reservation.objects.filter(date__range=(start_date, end_date)).dates("date", "day")
+		days = self.visit_reservations.filter(date__range=(start_date, end_date)).dates("date", "day")
 		return dict([(self._date2str(day), True) for day in days])
 
 	def _date2str(self, actual_date):
