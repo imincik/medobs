@@ -52,7 +52,7 @@ class ReservationStatusFilter(SimpleListFilter):
 		elif self.value() == '3':
 			return queryset.filter(status=Visit_reservation.STATUS_IN_HELD)
 		elif self.value() == '4':
-			return queryset.filter(status=Visit_reservation.STATUS_DISABLED, patient__isnull=True)
+			return queryset.filter(status=Visit_reservation.STATUS_DISABLED, patient__isnull=False)
 		elif self.value() == '5':
 			return queryset.filter(status=Visit_reservation.STATUS_DISABLED)
 
