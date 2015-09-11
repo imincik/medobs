@@ -65,7 +65,7 @@
 			{% endif %}{% endspaceless %}">
 			<input type="hidden" value="{{ r.id }}" />
 			{{ r.starting_time|date:"H:i" }}
-			{% if user.is_authenticated and r.status == 3 %}
+			{% if user.is_authenticated and r.is_reservated %}
 				<span class="patient-name">{{ r.patient.full_name }}</span><span class="term-exam-kind">, {{ r.exam_kind }}</span>
 			{% endif %}
 			{% if user.is_authenticated %}

@@ -15,7 +15,7 @@
 <table>
 <tbody>
 	{% for r in reservations %}
-	{% if r.status == 3 %}
+	{% if r.is_reservated %}
 	<tr>
 		<td>{{ r.starting_time|date:"H:i" }}</td>
 		<td>{{ r.patient.full_name }}</td>
