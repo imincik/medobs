@@ -16,7 +16,7 @@ from medobs.reservations.models import Visit_reservation_exception, Visit_reserv
 class VisitReservationAdmin(admin.ModelAdmin):
 	list_display = ("starting_time", "office", "status", "authenticated_only", "patient")
 	readonly_fields = ("reservation_time", "reservated_by")
-	list_filter = ("office", "time", "date", "authenticated_only", filters.ReservationStatusFilter)
+	list_filter = ("office", "date", "time", filters.ReservationStatusFilter)
 	ordering = ("date", "time", "office")
 	search_fields = ("^patient__first_name", "^patient__last_name")
 	actions = ("enable_reservations", "disable_reservations")
@@ -74,7 +74,7 @@ admin.site.register(Patient, PatientAdmin)
 
 class VisitTemplateAdmin(admin.ModelAdmin):
 	list_display = ("__unicode__", "office", "starting_time", "valid_since", "valid_until", "authenticated_only")
-	list_filter = ("office", "day", "starting_time", "authenticated_only", filters.ExpirationFilter)
+	list_filter = ("office", "day", "starting_time", filters.ExpirationFilter)
 	ordering = ("day", "starting_time", "office")
 
 	class Media:
