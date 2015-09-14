@@ -82,9 +82,9 @@ INSTALLED_APPS = (
 	'django.contrib.sites',
 	'django.contrib.staticfiles',
 	'django.contrib.messages',
-	'django.contrib.admin',
 	'localflavor',
 	'medobs.reservations',
+	'django.contrib.admin',
 )
 
 TEMPLATES = [{
