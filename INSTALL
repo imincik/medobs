@@ -1,5 +1,5 @@
-Install webgis Python module:
-=============================
+Install Medobs
+==============
 $ python setup.py install
 
 
