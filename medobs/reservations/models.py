@@ -56,8 +56,8 @@ class Medical_office(models.Model):
 	note = models.TextField(_("note"), blank=True)
 
 	class Meta:
-		verbose_name = _("medical office")
-		verbose_name_plural = _("medical offices")
+		verbose_name = _("office")
+		verbose_name_plural = _("offices")
 		ordering = ("order",)
 
 	def __unicode__(self):
@@ -124,8 +124,8 @@ class Visit_template(models.Model):
 	note = models.TextField(_("note"), blank=True)
 
 	class Meta:
-		verbose_name = _("visit template")
-		verbose_name_plural = _("visit templates")
+		verbose_name = _("template")
+		verbose_name_plural = _("templates")
 		unique_together = (("office", "day", "starting_time"),)
 
 	def __unicode__(self):
@@ -141,8 +141,8 @@ class Visit_reservation_exception(models.Model):
 	note = models.TextField(_("note"), blank=True)
 
 	class Meta:
-		verbose_name = _("reservation exception")
-		verbose_name_plural = _("reservation exceptions")
+		verbose_name = _("exception")
+		verbose_name_plural = _("exceptions")
 		unique_together = (("office", "begin", "end"),)
 
 	def __unicode__(self):
@@ -188,8 +188,8 @@ class Visit_reservation(models.Model):
 	reservated_by = models.CharField(_("reservated by"), max_length=100, blank=True)
 
 	class Meta:
-		verbose_name = _("visit reservation")
-		verbose_name_plural = _("visit reservations")
+		verbose_name = _("reservation")
+		verbose_name_plural = _("reservations")
 		ordering = ("-date", "-time")
 		unique_together = ("date", "time", "office")
 
