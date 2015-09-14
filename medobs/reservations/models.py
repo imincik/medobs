@@ -149,7 +149,7 @@ class Visit_reservation_exception(models.Model):
 		return unicode(_(u"From {0} to {1}".format(self.begin, self.end)))
 
 class Examination_kind(models.Model):
-	title = models.TextField(_("title"), unique=True)
+	title = models.TextField(_("title"))
 	office = models.ForeignKey(Medical_office, verbose_name=_("medical office"),
 			related_name="exam_kinds")
 	order = models.PositiveIntegerField(_("order"), help_text=_("Order of examination kinds in patient input form."))
