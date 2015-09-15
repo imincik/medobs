@@ -107,7 +107,7 @@ def office_page(request, office_id, for_date=None):
 
 				reservation.patient = patient
 				reservation.exam_kind = form.cleaned_data["exam_kind"]
-				reservation.status = Visit_reservation.STATE_ENABLED # clean 'in held' state
+				reservation.status = Visit_reservation.STATUS_ENABLED # clean 'in held' state
 				reservation.reservation_time = datetime.now()
 				reservation.reservated_by = request.user.username
 				reservation.save()
@@ -238,7 +238,7 @@ def hold_reservation(request, r_id):
 def unhold_reservation(request, r_id):
 	reservation = get_object_or_404(Visit_reservation, pk=r_id)
 	if reservation.status == Visit_reservation.STATUS_IN_HELD:
-		reservation.status = Visit_reservation.STATUS_DISABLED
+		reservation.status = Visit_reservation.STATUS_ENABLED
 		reservation.reservation_time = None
 		reservation.reservated_by = ""
 		reservation.save()
