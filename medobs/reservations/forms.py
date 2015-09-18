@@ -52,7 +52,12 @@ class PatientDetailForm(forms.Form):
 
 class PatientSearchWidget(forms.Select):
 	def label_for_value(self, value):
-		return unicode(Patient.objects.get(pk=value))
+		if value is not None:
+			try:
+				return unicode(Patient.objects.get(pk=value))
+			except Patient.DoesNotExist:
+				pass
+		return ''
 
 	def render(self, name, value, attrs=None, choices=()):
 		data = {
