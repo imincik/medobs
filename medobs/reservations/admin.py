@@ -6,6 +6,7 @@ from django.conf import settings
 from django.forms import Textarea
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.sites.models import Site
+from localflavor.cz.forms import CZBirthNumberField
 
 from medobs.reservations import filters
 from medobs.reservations.forms import VisitReservationForm
@@ -14,7 +15,7 @@ from medobs.reservations.models import Visit_reservation_exception, Visit_reserv
 
 
 class VisitReservationAdmin(admin.ModelAdmin):
-	list_display = ("starting_time", "office", "status", "authenticated_only", "patient")
+	list_display = ("starting_time", "office", "status_display_name", "authenticated_only", "patient")
 	readonly_fields = ("reservation_time", "reservated_by")
 	list_filter = ("office", "date", "time", filters.ReservationStatusFilter)
 	ordering = ("date", "time", "office")
@@ -42,11 +43,6 @@ class VisitReservationAdmin(admin.ModelAdmin):
 		queryset.update(status=Visit_reservation.STATUS_DISABLED)
 	disable_reservations.short_description = "Mark selected reservation times as disabled"
 
-	class Media:
-		css = {
-			"all": ("%scss/filters.css" % settings.STATIC_URL, ),
-		}
-
 admin.site.register(Visit_reservation, VisitReservationAdmin)
 
 class VisitReservationInline(admin.TabularInline):
@@ -67,7 +63,7 @@ class PatientAdmin(admin.ModelAdmin):
 		self.readonly_fields = () if obj is None else ("ident_hash",)
 		form = super(PatientAdmin, self).get_form(request, obj=obj, **kwargs)
 		if obj is None:
-			form.base_fields['ident_hash'].label = _('Identification number')
+			form.base_fields['ident_hash'] = CZBirthNumberField(label=_('Identification number'), widget=form.base_fields['ident_hash'].widget)
 		return form
 
 admin.site.register(Patient, PatientAdmin)
@@ -77,22 +73,12 @@ class VisitTemplateAdmin(admin.ModelAdmin):
 	list_filter = ("office", "day", "starting_time", filters.ExpirationFilter)
 	ordering = ("day", "starting_time", "office")
 
-	class Media:
-		css = {
-			"all": ("%scss/filters.css" % settings.STATIC_URL, ),
-		}
-
 admin.site.register(Visit_template, VisitTemplateAdmin)
 
 class VisitReservationExceptionAdmin(admin.ModelAdmin):
 	list_display = ("begin", "end", "office")
 	list_filter = ("office", filters.ReservationExceptionDateFilter)
 	ordering = ("begin", "office")
-
-	class Media:
-		css = {
-			"all": ("%scss/filters.css" % settings.STATIC_URL, ),
-		}
 
 admin.site.register(Visit_reservation_exception, VisitReservationExceptionAdmin)
 

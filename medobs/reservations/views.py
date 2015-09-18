@@ -209,6 +209,7 @@ def patient_details(request):
 			try:
 				patient = Patient.objects.get(ident_hash=hexdigest)
 				response_data = {
+					"pk": patient.pk,
 					"first_name": patient.first_name,
 					"last_name": patient.last_name,
 					"phone_number": patient.phone_number,

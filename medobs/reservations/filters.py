@@ -46,7 +46,7 @@ class ReservationStatusFilter(SimpleListFilter):
 
 	def queryset(self, request, queryset):
 		if self.value() == '1':
-			return queryset.filter(status=Visit_reservation.STATUS_ENABLED)
+			return queryset.filter(status=Visit_reservation.STATUS_ENABLED, patient__isnull=True)
 		elif self.value() == '2':
 			return queryset.filter(status__in=[Visit_reservation.STATUS_ENABLED, Visit_reservation.STATUS_IN_HELD], patient__isnull=False)
 		elif self.value() == '3':
@@ -54,7 +54,7 @@ class ReservationStatusFilter(SimpleListFilter):
 		elif self.value() == '4':
 			return queryset.filter(status=Visit_reservation.STATUS_DISABLED, patient__isnull=False)
 		elif self.value() == '5':
-			return queryset.filter(status=Visit_reservation.STATUS_DISABLED)
+			return queryset.filter(status=Visit_reservation.STATUS_DISABLED, patient__isnull=True)
 
 
 class DateRangeForm(forms.Form):
@@ -64,10 +64,10 @@ class DateRangeForm(forms.Form):
 		data = kwargs.get('data', {})
 		super(DateRangeForm, self).__init__(*args, **kwargs)
 
-		self.fields['%s__gte' % field_name] = forms.DateField(label='Od', localize=True, required=False,
+		self.fields['%s__gte' % field_name] = forms.DateField(label=_('From'), localize=True, required=False,
 			widget=AdminDateWidget(attrs={'placeholder': ''}))
 
-		self.fields['%s__lte' % field_name] = forms.DateField(label='Do', localize=True, required=False,
+		self.fields['%s__lte' % field_name] = forms.DateField(label=_('To'), localize=True, required=False,
 			widget=AdminDateWidget(attrs={'placeholder': ''}))
 
 		for param_name, value in data.iteritems():
@@ -191,10 +191,10 @@ class TimeRangeForm(forms.Form):
 		data = kwargs.get('data', {})
 		super(TimeRangeForm, self).__init__(*args, **kwargs)
 		
-		self.fields['%s__gte' % field_name] = forms.TimeField(label='Od', localize=True, required=False,
+		self.fields['%s__gte' % field_name] = forms.TimeField(label=_('From'), localize=True, required=False,
 			widget=forms.TimeInput(format='%H:%M', attrs={'placeholder': ''}))
 
-		self.fields['%s__lte' % field_name] = forms.TimeField(label='Do', localize=True, required=False,
+		self.fields['%s__lte' % field_name] = forms.TimeField(label=_('To'), localize=True, required=False,
 			widget=forms.TimeInput(format='%H:%M', attrs={'placeholder': ''}))
 
 		for param_name, value in data.iteritems():

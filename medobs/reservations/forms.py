@@ -1,5 +1,8 @@
 from django import forms
+from django.forms.widgets import Media
+from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.admin.templatetags.admin_static import static
 from localflavor.cz.forms import CZBirthNumberField
 
 from medobs.reservations.models import Examination_kind, Patient, Visit_reservation
@@ -46,8 +49,31 @@ class PatientDetailForm(forms.Form):
 			data = data[:6] + data[7:]
 		return data
 
+
+class PatientSearchWidget(forms.Select):
+	def label_for_value(self, value):
+		return unicode(Patient.objects.get(pk=value))
+
+	def render(self, name, value, attrs=None, choices=()):
+		data = {
+			'label_attrs': self.build_attrs(id="id_patient_label", value=self.label_for_value(value)),
+			'field_attrs': self.build_attrs(attrs, name=name, value=value),
+			'search_attrs': self.build_attrs(id="id_patient_ident", type="text")
+		}
+		return render_to_string("admin/reservations/visit_reservation/patient_search_field.html", data)
+
+	@property
+	def media(self):
+		media = Media(js=[static('js/patient_search_widget.js')])
+		media.add_css({'all': [static('css/patient_search_widget.css')]})
+		return media
+
+
 class VisitReservationForm(forms.ModelForm):
 	time = forms.TimeField(widget=forms.TimeInput(format='%H:%M'))
 	class Meta:
 		model = Visit_reservation
 		exclude = ()
+		widgets = {
+			'patient': PatientSearchWidget
+		}

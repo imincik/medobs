@@ -1,0 +1,50 @@
+.pacient-search-field input[readonly=readonly] {
+	background-color: #DDDDDD;
+}
+
+form .pacient-search-field p.help, form .pacient-search-field p.search-error {
+	padding-left: 0!important;
+	margin-left: 0!important;
+	position: absolute;
+	white-space: nowrap;
+}
+
+form .pacient-search-field p.search-error {
+	left: 105%;
+	top: 0;
+	color: #cc3434;
+	display: none;
+}
+
+.field-patient .related-widget-wrapper-link.change-related {
+	display: none;
+}
+.field-patient .related-widget-wrapper-link.add-related {
+	vertical-align: top;
+	line-height: 18px;
+}
+div.pacient-search-field {
+	display: inline-block;
+}
+.pacient-search-field .search-row {
+	position: relative;
+	padding-bottom: 16px;
+	overflow: visible;
+}
+
+.field-patient a {
+	margin: 3px;
+}
+.field-patient .deletelink {
+	margin-left: 6px;
+}
+
+.searchlink {
+    background: rgba(0, 0, 0, 0) url("../images/selector-search.gif") no-repeat scroll 0 0.0em;
+    padding-left: 16px;
+    padding-top: 2px;
+}
+
+.field-patient .related-widget-wrapper {
+	overflow: visible;
+}

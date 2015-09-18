@@ -3,16 +3,19 @@
 {{ spec.form.media }}
 <style>
     .calendarbox {
-        margin-left: -200px;
-        z-index: 1000;
+      margin-left: -200px;
+      z-index: 1000;
     }
     li p {
-        margin-bottom: 0px;
+      margin-bottom: 0px;
     }
     .submit-link {
-        margin-left: 10px;
+      margin-left: 10px;
     }
-    
+    .daterange_form label {
+      display: inline-block;
+      min-width: 35px;
+    }
 </style>
 
 <form id="id_{{spec.field.name}}" class='daterange_form' method="GET" action="">

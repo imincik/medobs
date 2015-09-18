@@ -212,5 +212,18 @@ class Visit_reservation(models.Model):
 		return self.status != self.STATUS_DISABLED and self.patient is not None
 
 	@property
-	def needs_reschedule(self):
+	def reschedule_required(self):
 		return self.status == self.STATUS_DISABLED and self.patient is not None
+
+	@property
+	def status_display_name(self):
+		if self.is_reservated:
+			return _('Reservated')
+		elif self.reschedule_required:
+			return _('Reschedule required')
+		elif self.status == self.STATUS_DISABLED:
+			return _('Disabled')
+		elif self.status == self.STATUS_ENABLED:
+			return ('Available')
+		else:
+			return _('In held')
