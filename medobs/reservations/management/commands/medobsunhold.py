@@ -7,13 +7,12 @@ from medobs.reservations.models import Visit_reservation
 
 class Command(BaseCommand):
 	help = "Automaticaly unhold holded 'visit reservations' done before given expire time"
-	args = "expiretime(MM)"
-	
-	def handle(self, *args, **options):
-		if len(args) != 1:
-			raise CommandError("Missing command parameter.")
 
-		expire = float(args[0])
+	def add_arguments(self, parser):
+		parser.add_argument('expiretime', type=float, help='Format: MM')
+
+	def handle(self, *args, **options):
+		expire = options['expiretime']
 		expiretime = datetime.datetime.now() - datetime.timedelta(minutes=expire)
 		
 		print 'I: UnHolding reservations done before %s' % (expiretime)

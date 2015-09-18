@@ -2,7 +2,7 @@ from datetime import date, timedelta
 
 from django.conf import settings
 from django.core.mail import send_mail
-from django.core.management.base import NoArgsCommand
+from django.core.management.base import BaseCommand
 from django.template.loader import render_to_string
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
@@ -10,10 +10,10 @@ from django.utils.translation import ugettext_lazy as _
 from medobs.reservations.models import Medical_office
 
 
-class Command(NoArgsCommand):
+class Command(BaseCommand):
 	help = "Sends notification emails about tomorrow reservations"
 
-	def handle_noargs(self, **options):
+	def handle(self, *args, **options):
 		translation.activate(settings.LANGUAGE_CODE)
 		actual_date = date.today() + timedelta(1)
 		for office in Medical_office.objects.all():

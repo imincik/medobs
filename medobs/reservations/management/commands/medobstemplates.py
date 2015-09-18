@@ -36,19 +36,24 @@ def create_visit_template(office, starttime, endtime, interval):
 
 class Command(BaseCommand):
 	help = __doc__
-	args = "officename starttime(HH:MM) endtime(HH:MM) interval(MM)"
-	
+
+	def add_arguments(self, parser):
+		parser.add_argument('officename', type=str, nargs='?', help='Name of the medical office')
+		parser.add_argument('starttime', type=str, nargs='?', help='Format: HH:MM')
+		parser.add_argument('endtime', type=str, nargs='?', help='Format: HH:MM')
+		parser.add_argument('interval', type=int, nargs='?', help='Format: MM')
+
 	def handle(self, *args, **options):
-		if len(args) == 0:
+		if options.get('officename') is None:
 			print_offices_list()
 			sys.exit(0)
-		elif len(args) in range(1, 4):
-			raise CommandError("Missing some command parameters.")
-		
-		officename = args[0]
-		starttime = datetime.datetime.strptime(args[1], '%H:%M')
-		endtime = datetime.datetime.strptime(args[2], '%H:%M')
-		interval = int(args[3])
+		try:
+			officename = options['officename']
+			starttime = datetime.datetime.strptime(options['starttime'], '%H:%M')
+			endtime = datetime.datetime.strptime(options['endtime'], '%H:%M')
+			interval = options['interval']
+		except:
+			raise CommandError("Invalid command parameters.")
 		
 		if Medical_office.objects.filter(name=officename):
 			office = Medical_office.objects.get(name=officename)
