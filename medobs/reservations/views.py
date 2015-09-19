@@ -163,7 +163,7 @@ def office_page(request, office_id, for_date=None):
 	office_data = {
 		"id": office.id,
 		"name": office.name,
-		"reservations": json.dumps(get_reservations_data(office.reservations(actual_date))),
+		"reservations": json.dumps(get_reservations_data(office.reservations(actual_date), all_attrs=request.user.is_authenticated())),
 		"days_status": json.dumps(office.days_status(start_date, end_date))
 	}
 
