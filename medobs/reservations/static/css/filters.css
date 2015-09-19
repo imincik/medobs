@@ -1,17 +1,18 @@
 #changelist-filter {
-	width: 220px!important;
+	width: 225px!important;
 	border-bottom: 2px solid #DDDDDD!important;
+	bottom: 0;
 }
 
-.change-list .filtered .results, .change-list .filtered .paginator, .filtered #toolbar, .filtered div.xfull {
-	margin-right: 220px !important;
+.change-list .filtered form .results, .change-list .filtered form .paginator, .filtered #toolbar, .filtered div.xfull {
+	margin-right: 225px !important;
 }
 
-.filtered .actions {
-	margin-right: 220px !important;
+.filtered form .actions {
+	margin-right: 225px !important;
 }
 
 .change-list .filtered {
 	background: repeat-y scroll right top #FFFFFF !important;
-	min-height: 543px!important;
+	min-height: 610px!important;
 }
