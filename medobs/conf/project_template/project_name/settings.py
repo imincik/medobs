@@ -54,7 +54,7 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Europe/Bratislava'
 USE_I18N = True
 USE_L10N = True
-USE_TZ = True
+USE_TZ = False
 # jQuery UI datepicker localization file name
 # The localization files are also available in the UI svn:
 # http://jquery-ui.googlecode.com/svn/trunk/ui/i18n/
