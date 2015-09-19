@@ -196,13 +196,9 @@ class Visit_reservation(models.Model):
 	def __unicode__(self):
 		return u"{0} - {1}".format(self.starting_time.strftime("%H:%M - %d.%m.%Y"), self.office.name)
 
-	def _passed(self):
-		if self.starting_time < datetime.now():
-			return True
-		else:
-			return False
-	passed = property(_passed)
-
+	@property
+	def passed(self):
+		return self.starting_time < datetime.now()
 	@property
 	def starting_time(self):
 		return datetime(self.date.year, self.date.month, self.date.day, self.time.hour, self.time.minute)
@@ -224,6 +220,14 @@ class Visit_reservation(models.Model):
 		elif self.status == self.STATUS_DISABLED:
 			return _('Disabled')
 		elif self.status == self.STATUS_ENABLED:
-			return ('Available')
+			return _('Available')
 		else:
 			return _('In held')
+
+	def unbook(self):
+		if self.status != self.STATUS_DISABLED:
+			self.status = self.STATUS_ENABLED
+		self.patient = None
+		self.exam_kind = None
+		self.reservation_time = None
+		self.reservated_by = ""

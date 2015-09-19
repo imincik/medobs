@@ -28,11 +28,12 @@ class VisitReservationAdmin(admin.ModelAdmin):
 	)
 
 	def save_model(self, request, obj, form, change):
-		if obj.is_reservated:
+		if obj.is_reservated or obj.status == Visit_reservation.STATUS_IN_HELD:
 			obj.reservated_by = request.user.get_full_name() or request.user.username
 			obj.reservation_time = datetime.now()
 		else:
 			obj.reservation_time = None
+			obj.reservated_by = ""
 		return super(VisitReservationAdmin, self).save_model(request, obj, form, change)
 
 	def enable_reservations(self, request, queryset):

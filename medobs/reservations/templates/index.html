@@ -1,88 +1,82 @@
 {% extends "base.html" %}
 {% load i18n %}
 
-{% block head_css %}
-<style type="text/css">
-	{% if user.is_authenticated %}
-	#ui-selectable .ui-status-1 { color: #CCC; }
-	#ui-selectable .ui-status-3 { color: #0A0; }
-	#ui-selectable .ui-status-4 { color: #A00; }
-	#reload { position: absolute; top: 0; right: 0; }
-	{% else %}
-	#ui-selectable .ui-disabled { color: #CCC; }
-	{% endif %}
-</style>
-{% endblock %}
-
-
 {% block page_container %}
 <div class="grid_12 ui-tabs ui-widget ui-widget-content ui-corner-all">
 <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">
 {% for o in offices %}
-	<li class="ui-state-default ui-corner-top{% if o.id == office.id %} ui-tabs-selected ui-state-active{% endif %}">
-		<a href="/office/{{ o.id }}/">{{ o.name }}</a>
+	<li class="{% if reschedule_mode and reservation.office.id != o.id %}ui-state-disabled{% endif %} ui-state-default ui-corner-top{% if o.id == office.id %} ui-tabs-selected ui-state-active{% endif %}">
+		<a href={% if not reschedule_mode %}"/office/{{ o.id }}/"{% else %}javascript:void(0){% endif %}>{{ o.name }}</a>
 	</li>
 {% endfor %}
 </ul>
 <div class="ui-tabs-panel ui-widget-content ui-corner-bottom">
-<form class="grid_4" action="." method="post">
-	<fieldset id="person_part">
-		{% if message %}<p class="error-message">{{ message }}</p>{% endif %}
-		{% if form.errors %}<p class="error-message">{% trans "Fill all required fields to complete reservation" %}</p>{% endif %}
+<form action="." method="post">
+	<div class="grid_4">
 		{% csrf_token %}
-		<span class="req"><label for="id_ident_hash"><span class="astr">*</span> {{ form.ident_hash.label }}</label>{{ form.ident_hash }}{{ form.ident_hash.errors }}</span>
-		{% if user.is_authenticated %}<button id="all-reservations"><img src="{{ STATIC_URL }}images/table.png" /></button>{% endif %}
-		<span class="req"><label for="id_first_name"><span class="astr">*</span> {{ form.first_name.label }}</label>{{ form.first_name }}{{ form.first_name.errors }}</span>
-		<span class="req"><label for="id_last_name"><span class="astr">*</span> {{ form.last_name.label }}</label>{{ form.last_name }}{{ form.last_name.errors }}</span>
-		<span class="req"><label for="id_phone_number"><span class="astr">*</span> {{ form.phone_number.label }}</label>{{ form.phone_number }}{{ form.phone_number.errors }}</span>
-		{{ form.email.label_tag }}{{ form.email }}{{ form.email.errors }}
-	</fieldset>
-	<fieldset id="visit_part">
-		{{ form.reservation }}
-		<label for="id_exam_kind"><span class="astr">*</span> {{ form.exam_kind.label }}</label>
-		{{ form.exam_kind }}{{ form.exam_kind.errors }}
-	</fieldset>
-	<p><span class="astr">*</span> {% trans "Required fields" %}</p>
-	<div id="datepicker"></div>
-	<button type="submit">{% trans "Book reservation" %}</button>
-	<button type="reset">{% trans "Reset" %}</button>
+		{% if reschedule_mode %}
+		<h3>{% trans "Reservation to reschedule" %}:</h3>
+		<fieldset id="person_part">
+			<label>{{ form.first_name.label }}</label><input type="text" readonly="readonly" value="{{ reservation.patient.first_name }}" maxlength="100"/>
+			<label>{{ form.last_name.label }}</label><input type="text" readonly="readonly" value="{{ reservation.patient.last_name }}" maxlength="100"/>
+			<label>{{ form.phone_number.label }}</label><input type="text" readonly="readonly" value="{{ reservation.patient.phone_number }}" maxlength="100"/>
+		</fieldset>
+		{% else %}
+		<fieldset id="person_part">
+			{% if message %}<p class="error-message">{{ message }}</p>{% endif %}
+			{% if form.errors %}<p class="error-message">{% trans "Fill all required fields to complete reservation" %}</p>{% endif %}
+			<span class="req"><label for="id_ident_hash"><span class="astr">*</span> {{ form.ident_hash.label }}</label>{{ form.ident_hash }}{{ form.ident_hash.errors }}</span>
+			{% if user.is_authenticated %}<button id="all-reservations"><img src="{{ STATIC_URL }}images/table.png" /></button>{% endif %}
+			<span class="req"><label for="id_first_name"><span class="astr">*</span> {{ form.first_name.label }}</label>{{ form.first_name }}{{ form.first_name.errors }}</span>
+			<span class="req"><label for="id_last_name"><span class="astr">*</span> {{ form.last_name.label }}</label>{{ form.last_name }}{{ form.last_name.errors }}</span>
+			<span class="req"><label for="id_phone_number"><span class="astr">*</span> {{ form.phone_number.label }}</label>{{ form.phone_number }}{{ form.phone_number.errors }}</span>
+			{{ form.email.label_tag }}{{ form.email }}{{ form.email.errors }}
+		</fieldset>
+		{% endif %}
+		{% if not reschedule_mode %}
+		<fieldset id="visit_part">
+			{{ form.reservation }}
+			<label for="id_exam_kind"><span class="astr">*</span> {{ form.exam_kind.label }}</label>
+			{{ form.exam_kind }}{{ form.exam_kind.errors }}
+		</fieldset>
+		<p><span class="astr">*</span> {% trans "Required fields" %}</p>
+		{% else %}
+		<fieldset id="reschedule_part">
+			{{ form.reservation }}
+			<input id="id_old_reservation" type="hidden" name="old_reservation" value="{{ reservation.pk }}" />
+			<label>{% trans "Date"%}</label><input type="text" readonly="readonly" value="{{ reservation.date }}" maxlength="100"/>
+			<label>{% trans "Time"%}</label><input type="text" readonly="readonly" value="{{ reservation.time }}" maxlength="100"/>
+			<label>{{ form.exam_kind.label }}</label><input type="text" readonly="readonly" value="{{ reservation.exam_kind.title }}" maxlength="100"/>
+		</fieldset>
+		{% endif %}
+		<div id="datepicker"></div>
+		</div>
+
+	<div class="grid_7" id="datetime">
+		<h3>{% trans "Day:" %} <span id="actual-date">{{ actual_date|date:"d.m.Y" }}</span></h3>
+		{% if user.is_authenticated %}
+		<p id="list-r"><a href="#">{% trans "List of reservations" %}</a></p>
+		<button id="reload" type="button">{% trans "Reload" %}</button>
+		{% endif %}
+		{{ form.reservation.errors }}
+		<ol id="ui-selectable"></ol>
+		{% if not reschedule_mode %}
+		<button id="book-button" disabled="true" type="submit" name="action" value="book">{% trans "Book reservation" %}</button>
+		{% endif %}
+		{% if user.is_authenticated %}
+		{% if reschedule_mode %}
+		<button id="reschedule-button" disabled="true" type="submit" name="action" value="reschedule">{% trans "Reschedule reservation" %}</button>
+		{% else %}
+		<button id="unbook-button" disabled="true" type="button">{% trans "Unbook" %}</button>
+		{% endif %}
+		{% endif %}
+		{% if reschedule_mode %}
+		<button id="cancel-button" type="button">{% trans "Cancel" %}</button>
+		{% else %}
+		<button type="reset">{% trans "Reset" %}</button>
+		{% endif %}
+	</div>
 </form>
-
-<div class="grid_7" id="datetime">
-	<h3>{% trans "Day:" %} <span id="actual-date">{{ actual_date|date:"d.m.Y" }}</span></h3>
-	{% if user.is_authenticated %}
-	<p id="list-r"><a href="#">{% trans "List of reservations" %}</a></p>
-	<button id="reload">{% trans "Reload" %}</button>
-	{% endif %}
-	{{ form.reservation.errors }}
-	<ol id="ui-selectable">
-		{% for r in office.reservations %}
-		<li class="ui-widget-content ui-selectee{% if r.id == reservation_id %} ui-selected{% endif %} {% spaceless %}
-			{% if user.is_authenticated %}
-				ui-status-{{ r.status }}{% if r.authenticated_only %} ui-auth-only{% endif %}
-			{% else %}
-				{% if r.status != 2 or r.authenticated_only %}ui-disabled{% endif %}
-			{% endif %}{% endspaceless %}">
-			<input type="hidden" value="{{ r.id }}" />
-			{{ r.starting_time|date:"H:i" }}
-			{% if user.is_authenticated and r.is_reservated %}
-				<span class="patient-name">{{ r.patient.full_name }}</span><span class="term-exam-kind">, {{ r.exam_kind }}</span>
-			{% endif %}
-			{% if user.is_authenticated %}
-			{% if r.reservated_by or r.reservation_time %}
-				<span class="term-info" title="{{ r.reservated_by }} {{ r.reservation_time|date:"d.m.Y H:i" }}">[ {{ r.reservated_by }} ]</span>
-			{% endif %}
-			{% endif %}
-			{% if not user.is_authenticated  %}
-			{% if r.status != 2 or r.authenticated_only %}
-				<span class="term-info">{% trans "Appointment already booked or unavailable" %}</span>
-			{% endif %}
-			{% endif %}
-		</li>
-		{% endfor %}
-	</ol>
-</div>
-
 </div>
 </div>
 {% endblock %}
@@ -91,7 +85,19 @@
 {% if DATEPICKER_I18N_FILE %}<script type="text/javascript" src="{{ STATIC_URL }}{{ DATEPICKER_I18N_FILE }}"></script>{% endif %}
 <script type="text/javascript">
 $(function() {
-	function select_reservation(elem){
+	function display_message(title, text) {
+		$("<div></div>")
+			.html(text)
+			.appendTo("body")
+			.dialog({
+				title: title,
+				close: function(event, ui) {
+					$(this).dialog("destroy").remove();
+				}
+			});
+	}
+
+	function select_reservation(elem) {
 		$(".ui-selected").removeClass("ui-selected");
 		elem.addClass("ui-selected");
 		$("#id_reservation").val($("input[type='hidden']", elem).val());
@@ -121,10 +127,133 @@ $(function() {
 		}
 	});
 
-	$("#all-reservations").click(function(){
+	function make_reservation_item(r, rlist) {
+		var ritem = $("<li></li>")
+			.attr("id", "id_reservation_item_"+r.id)
+			.attr("status", r.status)
+			.addClass("ui-widget-content ui-selectee")
+			.html(r.time)
+			.prepend($("<input>").attr({
+				type: "hidden",
+				value: r.id
+			}));
+		if (r.patient) {
+			ritem.append($("<span></span>").addClass("patient-name").html(" "+ r.patient));
+		}
+
+		if (r.auth_only) {
+			ritem.addClass("ui-auth-only");
+		}
+
+		if (r.exam_kind) {
+			ritem.append($("<span></span>")
+				.addClass("term-exam-kind")
+				.html(", " + r.exam_kind)
+			);
+		}
+
+		if (r.reservated_by || r.reservation_time) {
+			ritem.append($("<span></span>")
+				.addClass("term-info")
+				.html(" [ "+ r.reservated_by +" ]")
+				.attr("title", r.reservated_by + " " + r.reservation_time)
+			);
+		}
+		var actions_elem = $("<div></div>")
+			.addClass("reservation-actions")
+			.append($("<button></button>")
+				.addClass("unhold-button")
+				.html("U")
+				.click(function(evt) {
+					var elem = $(this).parent().parent();
+					var tab = elem.parent().parent();
+					$.getJSON("/reservations/"+ r.id +"/unhold/", function(data) {
+						if (data.status_ok) {
+							elem.attr("status", "enabled");
+							$(".term-info", elem).remove();
+							$(".ui-selected", tab).removeClass("ui-selected");
+						} else {
+							display_message(
+								"{% trans "Message" %}",
+								"{% trans "The unhold operation failed" %}"
+							);
+						}
+					});
+					return false;
+				})
+			)
+			{% if user.is_staff %}
+			.append($("<button></button>")
+				.addClass("enable-button")
+				.html("E")
+				.click(function(evt) {
+					var elem = $(this).parent().parent();
+					var tab = elem.parent().parent();
+					$.getJSON("/reservations/"+ r.id +"/enable/", function(data) {
+						if (data.status_ok) {
+							var status = (elem.attr("status") === "disabled-reservated")? "reservated" : "enabled";
+							elem.attr("status", status);
+							$(".ui-selected", tab).removeClass("ui-selected");
+						} else {
+							display_message(
+								"{% trans "Message" %}",
+								"{% trans "The enable operation failed" %}"
+							);
+						}
+					});
+					return false;
+				})
+			)
+			.append($("<button></button>")
+				.addClass("disable-button")
+				.html("D")
+				.click(function(evt) {
+					var elem = $(this).parent().parent();
+					var tab = elem.parent().parent();
+					$.getJSON("/reservations/"+ r.id +"/disable/", function(data) {
+						if (data.status_ok) {
+							var status = (elem.attr("status") === "reservated")? "disabled-reservated" : "disabled";
+							elem.attr("status", status);
+							$(".ui-selected", tab).removeClass("ui-selected");
+							$(".term-info", elem).remove();
+						} else {
+							display_message(
+								"{% trans "Message" %}",
+								"{% trans "The disable operation failed" %}"
+							);
+						}
+					});
+					return false;
+				})
+			)
+			{% endif %};
+			{% if not reschedule_mode %}
+			if (r.status === "reservated" || r.status === "disabled-reservated") {
+				/*
+				actions_elem.prepend($("<a></a>")
+					.addClass("reschedule-button")
+					.attr("href", "?reschedule="+r.id)
+					.html("R")
+				);*/
+				actions_elem.prepend($("<button></button>")
+					.addClass("reschedule-button")
+					.html("R")
+					.click(function(evt) {
+						window.location.href = "?reschedule="+r.id;
+						return false;
+					})
+				);
+			}
+			{% endif %};
+			actions_elem.appendTo(ritem);
+
+		ritem.appendTo(rlist)
+	};
+
+	$("#all-reservations").click(function() {
 		var ident_hash = $("#id_ident_hash").val();
-		if(ident_hash != ""){
-			$.post("/patient/reservations/", {ident_hash: ident_hash}, function(data){
+		if (ident_hash != "") {
+			$.post("/patient/reservations/", {ident_hash: ident_hash}, function(data) {
 				var title = $("#id_first_name").val() +" "+ $("#id_last_name").val();
 
 				$("<div></div>")
@@ -134,7 +263,7 @@ $(function() {
 						width: 530,
 						height: 200,
 						title: title,
-						close: function(event, ui){
+						close: function(event, ui) {
 							$(this).dialog("destroy").remove();
 						}
 					});
@@ -143,79 +272,55 @@ $(function() {
 		return false;
 	});
 
-	$("#list-r a").click(function(){
+	$("#list-r a").click(function() {
 		var date_str = $.datepicker.formatDate("yy-mm-dd", $("#datepicker").datepicker("getDate"));
 		var url = "/reservations/"+ date_str +"/list/{{ office.id }}/";
 		window.open(url, "");
 		return false;
 	});
 
-	$("#id_ident_hash").focusout(function(){
+	$("#id_ident_hash").focusout(function() {
 		var ident_hash = $(this).val();
-		if(ident_hash != ""){
-			$.post("/patient/", {ident_hash: ident_hash}, function(data){
-				if(data.first_name){
+		if (ident_hash != "") {
+			$.post("/patient/", {ident_hash: ident_hash}, function(data) {
+				if (data.first_name) {
 					$("#id_first_name").val(data.first_name);
 					$("#all-reservations").show();
 				}
-				if(data.last_name) $("#id_last_name").val(data.last_name);
-				if(data.phone_number) $("#id_phone_number").val(data.phone_number);
-				if(data.email) $("#id_email").val(data.email);
+				if (data.last_name) $("#id_last_name").val(data.last_name);
+				if (data.phone_number) $("#id_phone_number").val(data.phone_number);
+				if (data.email) $("#id_email").val(data.email);
 			});
 		}
 	});
 
-	$("#ui-selectable li").live("click", function(e){
+	$(document).delegate("#ui-selectable li", "click", function(e) {
 		var elem = $(this);
 		var tab = elem.parent().parent();
 		var r_id = $("input[type='hidden']", elem).val();
 
 		if (e.metaKey) {
 			if (elem.hasClass("ui-auth-only")) {
-				$.getJSON("/reservations/"+ r_id +"/auth-off/", function(data){
-					if(data.status_ok){
+				$.getJSON("/reservations/"+ r_id +"/auth-off/", function(data) {
+					if (data.status_ok) {
 						elem.removeClass("ui-auth-only");
 					}
 				});
 			} else {
-				$.getJSON("/reservations/"+ r_id +"/auth-on/", function(data){
-					if(data.status_ok){
+				$.getJSON("/reservations/"+ r_id +"/auth-on/", function(data) {
+					if (data.status_ok) {
 						elem.addClass("ui-auth-only");
 					}
 				});
 			}
-
-			return
+			return ;
 		}
 
-		$(".act-button", tab).remove();
-
-		function add_button(text, func){
-			$("<button></button>")
-				.html(text)
-				.addClass("act-button")
-				.appendTo(tab)
-				.button()
-				.click(func);
-		}
-
-		function display_message(title, text){
-			$("<div></div>")
-				.html(text)
-				.appendTo("body")
-				.dialog({
-					title: title,
-					close: function(event, ui){
-						$(this).dialog("destroy").remove();
-					}
-				});
-		}
-
-		if(elem.hasClass("ui-status-2")){
-			$.getJSON("/reservations/"+ r_id +"/hold/", function(data){
-				if(data.status_ok){
-					elem.removeClass("ui-status-2")
-						.addClass("ui-status-4");
+		var status = elem.attr("status");
+		if (status === "enabled") {
+			$.getJSON("/reservations/"+ r_id +"/hold/", function(data) {
+				if (data.status_ok) {
+					elem.attr("status", "hold");
 				} else {
 					display_message(
 						"{% trans "Message" %}",
@@ -227,169 +332,99 @@ $(function() {
 
 		select_reservation($(this));
 
-		{% if user.is_staff %}
-		if(elem.hasClass("ui-status-1")){
-			add_button("{% trans "Enable" %}", function(){
-				$.getJSON("/reservations/"+ r_id +"/enable/", function(data){
-					if(data.status_ok){
-						elem.removeClass("ui-status-1").addClass("ui-status-2");
-						$(".ui-selected", tab).removeClass("ui-selected");
-						$(".act-button", tab).remove();
-					} else {
-						display_message(
-							"{% trans "Message" %}",
-							"{% trans "The enable operation failed" %}"
-						);
-					}
-				});
-			});
-		}
-		{% endif %}
-
-		if(elem.hasClass("ui-status-3")){
-			$.getJSON("/reservations/"+ r_id +"/details/", function(data){
+		{% if reschedule_mode %}
+		$("#reschedule-button").attr('disabled', status !== "enabled" && status !== "hold");
+		{% else %};
+		$("#book-button").attr('disabled', (status !== "enabled" && status !== "hold") || !$("#id_ident_hash").val());
+		$("#unbook-button").attr('disabled', status !== "reservated" && status !== "disabled-reservated");
+		{% endif %};
+	});
+	$(document).delegate("#ui-selectable li", "dblclick", function(e) {
+		var elem = $(this);
+		var r_id = $("input[type='hidden']", elem).val();
+		var status = elem.attr("status");
+		if (status === "reservated") {
+			$.getJSON("/reservations/"+ r_id +"/details/", function(data) {
 				var person_part = $("#person_part");
+				$("#id_ident_hash", person_part).val("");
 				$("#id_first_name", person_part).val(data.first_name);
 				$("#id_last_name", person_part).val(data.last_name);
 				$("#id_phone_number", person_part).val(data.phone_number);
 				$("#id_email", person_part).val(data.email);
 				$("input[type='radio'][value='"+ data.exam_kind +"']").click();
 			});
-			add_button("{% trans "Unbook" %}", function(){
-				$.getJSON("/reservations/"+ r_id +"/unbook/", function(data){
-					if(data.status_ok){
-						elem.removeClass("ui-status-3").addClass("ui-status-2");
-						$(".patient-name", elem).remove();
-						$(".term-exam-kind", elem).remove();
-						$(".term-info", elem).remove();
-						$(".ui-selected", tab).removeClass("ui-selected");
-						$(".act-button", tab).remove();
-
-					} else {
-						display_message(
-							"{% trans "Message" %}",
-							"{% trans "The unbook operation failed" %}"
-						);
-					}
-				});
-
-			});
-		}
-
-		if(elem.hasClass("ui-status-4")){
-			add_button("{% trans "Unhold" %}", function(){
-				$.getJSON("/reservations/"+ r_id +"/unhold/", function(data){
-					if(data.status_ok){
-						elem.removeClass("ui-status-4").addClass("ui-status-2");
-						$(".term-info", elem).remove();
-						$(".ui-selected", tab).removeClass("ui-selected");
-						$(".act-button", tab).remove();
-					} else {
-						display_message(
-							"{% trans "Message" %}",
-							"{% trans "The unhold operation failed" %}"
-						);
-					}
-				});
-			});
-			{% if user.is_staff %}
-			add_button("{% trans "Disable" %}", function(){
-				$.getJSON("/reservations/"+ r_id +"/disable/", function(data){
-					if(data.status_ok){
-						elem.removeClass("ui-status-4").addClass("ui-status-1");
-						$(".ui-selected", tab).removeClass("ui-selected");
-						$(".act-button", tab).remove();
-					} else {
-						display_message(
-							"{% trans "Message" %}",
-							"{% trans "The disable operation failed" %}"
-						);
-					}
-				});
-
-			});
-			{% endif %}
 		}
 	});
-
-	function make_reservation_item(r, rlist){
-		var ritem = $("<li></li>")
-			.addClass("ui-widget-content ui-selectee ui-status-"+ r.status)
-			.html(r.time)
-			.appendTo(rlist)
-			.prepend($("<input>").attr({
-				type: "hidden",
-				value: r.id
-			}))
-			.append($("<span></span>").addClass("patient-name").html(" "+ r.patient));
-
-		if (r.auth_only) {
-			ritem.addClass("ui-auth-only");
-		}
-
-		if(r.exam_kind != ""){
-			ritem.append($("<span></span>")
-				.addClass("term-exam-kind")
-				.html(", " + r.exam_kind)
-			);
-		}
-
-		if(r.reservated_by != "" || r.reservation_time != ""){
-			ritem.append($("<span></span>")
-				.addClass("term-info")
-				.html(" [ "+ r.reservated_by +" ]")
-				.attr("title", r.reservated_by + " " + r.reservation_time)
-			);
-		}
-	}
 
 	$("#reload").button({
 		icons: {primary: "ui-icon-refresh"},
 		text: false
-	}).click(function(){
+	}).click(function() {
 		var date_str = $.datepicker.formatDate("yy-mm-dd", $("#datepicker").datepicker("getDate"));
 		var url = "/reservations/"+ date_str +"/{{ office.id }}/";
-		$.getJSON(url, function(data){
+		$.getJSON(url, function(data) {
 			var rlist = $("#ui-selectable");
 			rlist.empty();
-			$.each(data, function(i, r){
+			$.each(data, function(i, r) {
 				make_reservation_item(r, rlist);
 			});
+		});
+	});
+	$("#cancel-button").click(function() {
+		window.location.href = "?";
+	});
+	$("#unbook-button").click(function() {
+		var elem = $("li.ui-selected");
+		var tab = elem.parent().parent();
+		var r_id = $("input[type='hidden']", elem).val();
+		$.getJSON("/reservations/"+ r_id +"/unbook/", function(data) {
+			if (data.status_ok) {
+				var status = (elem.attr("status") === "disabled-reservated")? "disabled" : "enabled";
+				elem.attr("status", status);
+				$(".patient-name", elem).remove();
+				$(".term-exam-kind", elem).remove();
+				$(".term-info", elem).remove();
+				$(".ui-selected", tab).removeClass("ui-selected");
 
-			$(".act-button", $("#datetime")).remove();
+			} else {
+				display_message(
+					"{% trans "Message" %}",
+					"{% trans "The unbook operation failed" %}"
+				);
+			}
 		});
 	});
 
 	{% else %}
-
-	$("#ui-selectable li").live("click", function(){
-		if(!$(this).hasClass("ui-disabled")){ select_reservation($(this)); }
-	});
-
-	function make_reservation_item(r, rlist){
-		var disabled_class = r.disabled ? " ui-disabled" : "";
+	function make_reservation_item(r, rlist) {
 		var ritem = $("<li></li>")
-			.addClass("ui-widget-content ui-selectee"+ disabled_class)
+			.attr("status", r.status)
+			.addClass("ui-widget-content ui-selectee")
 			.html(r.time)
 			.appendTo(rlist)
 			.prepend($("<input>").attr({
 				type: "hidden",
 				value: r.id
 			}));
-		if(r.disabled){
+		if (r.status === "disabled") {
 			ritem.append($("<span></span>")
 				.addClass("term-info")
 				.html(" {% trans "Appointment already booked or unavailable" %}")
 			);
 		}
 	}
+	$(document).delegate("#ui-selectable li", "click", function(e) {
+		var status = $(this).attr("status");
+		if (status === "enabled") {
+			select_reservation($(this));
+		}
+		$("#book-button").attr('disabled', (status !== "enabled" && status !== "hold") || !$("#id_ident_hash").val());
+	});
 	{% endif %}
 
-	$("button[type='reset']").click(function(){
+	$("button[type='reset']").click(function() {
 		$("#id_reservation").val("");
-		$(".ui-selected").removeClass("ui-selected");
-		$(".act-button").remove();
-
+		$("li.ui-selected").removeClass("ui-selected");
 	});
 
 	var day_status = {{ office.days_status|safe }};
@@ -399,15 +434,15 @@ $(function() {
 		minDate: "{{ start_date|date:"Y-m-d" }}",
 		maxDate: "{{ end_date|date:"Y-m-d" }}",
 		dateFormat: "yy-mm-dd",
-		onSelect: function(dateText, inst){
+		onSelect: function(dateText, inst) {
 			var date_str = $.datepicker.formatDate("dd.mm.yy", $(this).datepicker("getDate"));
 			var url = "/reservations/"+ dateText +"/{{ office.id }}/";
-			$.getJSON(url, function(data){
+			$.getJSON(url, function(data) {
 				$("#actual-date").html(date_str);
 
 				var rlist = $("#ui-selectable");
 				rlist.empty();
-				$.each(data, function(i, r){
+				$.each(data, function(i, r) {
 					make_reservation_item(r, rlist);
 				});
 			});
@@ -416,9 +451,16 @@ $(function() {
 			var date_str = date.getFullYear() +"-"+ (date.getMonth()+1) +"-"+ date.getDate();
 			var dstat = day_status[date_str];
 
-			if(dstat == undefined) return [false];
+			if (dstat == undefined) return [false];
 			return [dstat];
 		}
+	});
+
+	var rlist = $("#ui-selectable");
+	var reservations = {{ office.reservations|safe }};
+	rlist.empty();
+	$.each(reservations, function(i, r) {
+		make_reservation_item(r, rlist);
 	});
 
 });

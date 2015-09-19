@@ -25,7 +25,7 @@ label {
 	font-size: 90%;
 	width: 105px;
 }
-input[type="text"] {
+input[type="text"], input[type="email"] {
 	width: 144px;
 	border: 1px solid #AAA;
 	margin: 1px 0;
@@ -35,7 +35,7 @@ form p { font-size: 90%; }
 .req input { background-color: #FFD; }
 
 #person_part { position: relative; }
-#person_part label {
+#person_part label, #reschedule_part label {
 	float: left;
 	display: block;
 	line-height: 22px;
@@ -114,3 +114,52 @@ form ul { list-style: none; }
 .term-info { font-size: 14px;  }
 
 #phones { margin: .5em 2em; font-size: 14px; }
+
+
+.reservation-actions {
+	display: inline-block;
+	position: absolute;
+	right: 0;
+	top: 15%;
+	height: 70%;
+}
+li.ui-selectee {
+	position: relative;
+}
+.reservation-actions button {
+	height: 100%;
+	font-size: 14px;
+}
+button.unhold-button, button.enable-button, button.disable-button, button.reschedule-button {
+	display: none;
+}
+li[status=hold] button.unhold-button {
+	display: inline-block;
+}
+li[status=disabled] button.enable-button, li[status=disabled-reservated] button.enable-button {
+	display: inline-block;
+}
+li[status=enabled] button.disable-button, li[status=hold]  button.disable-button, li[status=reservated] button.disable-button {
+	display: inline-block;
+}
+li[status=disabled-reservated] button.reschedule-button, li[status=reservated] button.reschedule-button {
+	display: inline-block;	
+}
+
+#ui-selectable li[status=disabled] {
+	color: #CCC;
+}
+#ui-selectable li[status=disabled-reservated] {
+	color: #00C;
+}
+#ui-selectable li[status=reservated] {
+	color: #0A0;
+}
+#ui-selectable li[status=hold] {
+	color: #A00;
+}
+#reload {
+	position: absolute;
+	top: 0;
+	right: 0;
+}

@@ -1,6 +1,6 @@
 import json
 from datetime import datetime, date, time, timedelta
-from view_utils import get_offices, is_reservation_on_date, send_notification
+from view_utils import get_offices, is_reservation_on_date, send_notification, get_reservations_data
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -42,6 +42,14 @@ def office_page(request, office_id, for_date=None):
 	if not request.user.is_authenticated() and not office.public: # forbidden office
 		return HttpResponseRedirect("/")
 
+	reschedule_reservation = request.GET.get('reschedule')
+	if reschedule_reservation:
+		try:
+			reschedule_reservation = Visit_reservation.objects.get(pk=reschedule_reservation)
+		except Visit_reservation.DoesNotExist:
+			raise Http404
+
+	form = None
 	message = None
 	start_date = date.today()
 	end_date = start_date + timedelta(office.days_to_generate)
@@ -62,126 +70,126 @@ def office_page(request, office_id, for_date=None):
 	reservation_id = 0
 
 	if request.method == 'POST':
-		form = PatientForm(request.POST)
-		form.fields["exam_kind"].queryset = office.exam_kinds.all()
-		if form.is_valid():
-			try:
-				reservation = form.cleaned_data["reservation"]
-				actual_date = reservation.starting_time.date()
-				reservation_id = reservation.id
-
-				if request.user.is_authenticated():
-					if reservation.status not in (Visit_reservation.STATUS_ENABLED, Visit_reservation.STATUS_IN_HELD):
-						raise BadStatus()
-				else:
-					if reservation.status != Visit_reservation.STATUS_ENABLED:
-						raise BadStatus()
-
-				datetime_limit = datetime.combine(date.today() + timedelta(1), time(0, 0))
-				if reservation.starting_time < datetime_limit:
-					raise DateInPast()
-
-				hexdigest = get_hexdigest(form.cleaned_data["ident_hash"])
-				patient, patient_created = Patient.objects.get_or_create(ident_hash=hexdigest,
-						defaults={
-							"first_name": form.cleaned_data["first_name"],
-							"last_name": form.cleaned_data["last_name"],
-							"ident_hash": form.cleaned_data["ident_hash"],
-							"phone_number": form.cleaned_data["phone_number"],
-							"email": form.cleaned_data["email"],
-						})
-
-				if not patient_created and patient.has_reservation():
-					messages.error(request, render_to_string("messages/cancel.html", {
-							"reservation": patient.visit_reservations.get(starting_time__gte=datetime.now()),
-							"user": request.user,
-						}))
-					return HttpResponseRedirect("/cancel/%d/" % reservation.office_id)
-
-				if not patient_created:
-					patient.first_name = form.cleaned_data["first_name"]
-					patient.last_name = form.cleaned_data["last_name"]
-					patient.phone_number = form.cleaned_data["phone_number"]
-					patient.email = form.cleaned_data["email"]
-					patient.save()
-
-				reservation.patient = patient
-				reservation.exam_kind = form.cleaned_data["exam_kind"]
-				reservation.status = Visit_reservation.STATUS_ENABLED # clean 'in held' state
-				reservation.reservation_time = datetime.now()
-				reservation.reservated_by = request.user.username
-				reservation.save()
-
-				if patient.email:
-					send_notification(reservation)
-
-				messages.success(request, render_to_string("messages/booked.html", {
-						"reservation": reservation,
-					}))
-				return HttpResponseRedirect("/booked/%d/%s/" % (
-							reservation.office_id,
-							actual_date.strftime("%Y-%m-%d")))
-			except DateInPast:
-				message = _("You cannot make reservation for today or date in the past.")
-			except BadStatus:
-				message = _("The reservation has been already booked. Please try again.")
-				reservation_id = 0
+		action = request.POST.get("action")
+		if action == "reschedule":
+			old_reservation = get_object_or_404(Visit_reservation, pk=request.POST.get("old_reservation"))
+			new_reservation = get_object_or_404(Visit_reservation, pk=request.POST.get("reservation"))
+			actual_date = new_reservation.date
+			new_reservation.patient = old_reservation.patient
+			new_reservation.exam_kind = old_reservation.exam_kind
+			old_reservation.unbook()
+			new_reservation.save()
+			old_reservation.save()
+			messages.success(request, render_to_string("messages/booked.html", {
+				"reservation": new_reservation,
+			}))
+			return HttpResponseRedirect("/booked/%d/%s/" % (
+								new_reservation.office_id,
+								actual_date.strftime("%Y-%m-%d")))
 		else:
-			r_val = form["reservation"].value()
-			if r_val:
-				reservation_id = int(r_val)
-				actual_date = Visit_reservation.objects.get(pk=reservation_id).starting_time.date()
-	else:
+			form = PatientForm(request.POST)
+			form.fields["exam_kind"].queryset = office.exam_kinds.all()
+			if form.is_valid():
+				try:
+					reservation = form.cleaned_data["reservation"]
+					actual_date = reservation.date
+					reservation_id = reservation.id
+
+					if request.user.is_authenticated():
+						if reservation.status not in (Visit_reservation.STATUS_ENABLED, Visit_reservation.STATUS_IN_HELD):
+							raise BadStatus()
+					else:
+						if reservation.status != Visit_reservation.STATUS_ENABLED:
+							raise BadStatus()
+
+					datetime_limit = datetime.combine(date.today() + timedelta(1), time(0, 0))
+					if reservation.starting_time < datetime_limit:
+						raise DateInPast()
+
+					hexdigest = get_hexdigest(form.cleaned_data["ident_hash"])
+					patient, patient_created = Patient.objects.get_or_create(ident_hash=hexdigest,
+							defaults={
+								"first_name": form.cleaned_data["first_name"],
+								"last_name": form.cleaned_data["last_name"],
+								"ident_hash": form.cleaned_data["ident_hash"],
+								"phone_number": form.cleaned_data["phone_number"],
+								"email": form.cleaned_data["email"],
+							})
+
+					if not patient_created and patient.has_reservation():
+						messages.error(request, render_to_string("messages/cancel.html", {
+								"reservation": patient.visit_reservations.get(starting_time__gte=datetime.now()),
+								"user": request.user,
+							}))
+						return HttpResponseRedirect("/cancel/%d/" % reservation.office_id)
+
+					if not patient_created:
+						patient.first_name = form.cleaned_data["first_name"]
+						patient.last_name = form.cleaned_data["last_name"]
+						patient.phone_number = form.cleaned_data["phone_number"]
+						patient.email = form.cleaned_data["email"]
+						patient.save()
+
+					reservation.patient = patient
+					reservation.exam_kind = form.cleaned_data["exam_kind"]
+					reservation.status = Visit_reservation.STATUS_ENABLED # clean 'in held' state
+					reservation.reservation_time = datetime.now()
+					reservation.reservated_by = request.user.username
+					reservation.save()
+
+					if patient.email:
+						send_notification(reservation)
+
+					messages.success(request, render_to_string("messages/booked.html", {
+							"reservation": reservation,
+						}))
+					return HttpResponseRedirect("/booked/%d/%s/" % (
+								reservation.office_id,
+								actual_date.strftime("%Y-%m-%d")))
+				except DateInPast:
+					message = _("You cannot make reservation for today or date in the past.")
+				except BadStatus:
+					message = _("The reservation has been already booked. Please try again.")
+					reservation_id = 0
+			else:
+				r_val = form["reservation"].value()
+				if r_val:
+					reservation_id = int(r_val)
+					actual_date = Visit_reservation.objects.get(pk=reservation_id).date
+	if form is None:
 		form = PatientForm()
 		form.fields["exam_kind"].queryset = office.exam_kinds.all()
 
 	office_data = {
 		"id": office.id,
 		"name": office.name,
-		"reservations": office.reservations(actual_date),
+		"reservations": json.dumps(get_reservations_data(office.reservations(actual_date))),
 		"days_status": json.dumps(office.days_status(start_date, end_date))
 	}
 
-	return render_to_response(
-		"index.html",
-		{
-			"offices": get_offices(request.user),
-			"office": office_data,
-			"form": form,
-			"message": message,
-			"start_date": start_date,
-			"actual_date": actual_date,
-			"end_date": end_date,
-			"reservation_id": reservation_id,
-		},
-		context_instance=RequestContext(request)
-	)
+	data = {
+		"offices": get_offices(request.user),
+		"office": office_data,
+		"form": form,
+		"message": message,
+		"start_date": start_date,
+		"actual_date": actual_date,
+		"end_date": end_date,
+		"reservation_id": reservation_id,
+		"reschedule_mode": reschedule_reservation is not None
+	}
+	if reschedule_reservation:
+		data.update({
+			"reschedule_mode": True,
+			"reservation": reschedule_reservation
+		})
+	return render_to_response("index.html", data, context_instance=RequestContext(request))
 
 def date_reservations(request, for_date, office_id):
 	office = get_object_or_404(Medical_office, pk=office_id)
 	for_date = datetime.strptime(for_date, "%Y-%m-%d").date()
-
-	if request.user.is_authenticated():
-		response_data = [{
-			"id": r.id,
-			"time": r.starting_time.time().strftime("%H:%M"),
-			"status": r.status,
-			"patient": r.patient.full_name if r.patient else "",
-			"phone_number": r.patient.phone_number.replace(" ", "") if r.patient else "",
-			"email": r.patient.email if r.patient else "",
-			"exam_kind": r.exam_kind.title if r.exam_kind else "",
-			"reservated_by": r.reservated_by,
-			"reservation_time": r.reservation_time.strftime("%d.%m.%Y %H:%M") if r.reservation_time else "",
-			"auth_only": r.authenticated_only,
-		} for r in office.reservations(for_date)]
-	else:
-		response_data = [{
-			"id": r.id,
-			"time": r.starting_time.time().strftime("%H:%M"),
-			"disabled": True if r.status != 2 or r.authenticated_only else False,
-		} for r in office.reservations(for_date)]
-
-	response = HttpResponse(json.dumps(response_data), "application/json")
+	data = get_reservations_data(office.reservations(for_date), all_attrs=request.user.is_authenticated())
+	response = HttpResponse(json.dumps(data), "application/json")
 	response["Cache-Control"] = "no-cache"
 	return response
 
@@ -201,7 +209,6 @@ def patient_details(request):
 		"phone_number": "",
 		"email": "",
 	}
-
 	if request.method == 'POST':
 		form = PatientDetailForm(request.POST)
 		if form.is_valid():
@@ -254,12 +261,8 @@ def unhold_reservation(request, r_id):
 @login_required
 def unbook_reservation(request, r_id):
 	reservation = get_object_or_404(Visit_reservation, pk=r_id)
-	if reservation.is_reservated:
-		reservation.status = Visit_reservation.STATUS_ENABLED
-		reservation.patient = None
-		reservation.exam_kind = None
-		reservation.reservation_time = None
-		reservation.reservated_by = ""
+	if reservation.is_reservated or reservation.reschedule_required:
+		reservation.unbook()
 		reservation.save()
 		response_data = {"status_ok": True}
 	else:
