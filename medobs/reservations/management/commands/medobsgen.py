@@ -22,7 +22,6 @@ class Command(BaseCommand):
 				sid = transaction.savepoint()
 
 				day = datetime.date.today()
-				print Visit_template.objects.filter(office=office).count()
 
 				# create cache of existing reservations with this structure
 				# { date_string -> { time_string -> { pk: p, status: s } }
