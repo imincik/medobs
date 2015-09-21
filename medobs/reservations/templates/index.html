@@ -162,6 +162,25 @@ $(function() {
 		var actions_elem = $("<div></div>")
 			.addClass("reservation-actions")
 			.append($("<button></button>")
+				.addClass("hold-button")
+				.html("H")
+				.click(function(evt) {
+					var elem = $(this).parent().parent();
+					var tab = elem.parent().parent();
+					$.getJSON("/reservations/"+ r.id +"/hold/", function(data) {
+						if (data.status_ok) {
+							elem.attr("status", "hold");
+						} else {
+							display_message(
+								"{% trans "Message" %}",
+								"{% trans "The hold operation failed" %}"
+							);
+						}
+					});
+					return false;
+				})
+			)
+			.append($("<button></button>")
 				.addClass("unhold-button")
 				.html("U")
 				.click(function(evt) {
@@ -193,6 +212,7 @@ $(function() {
 						if (data.status_ok) {
 							var status = (elem.attr("status") === "disabled-reservated")? "reservated" : "enabled";
 							elem.attr("status", status);
+							$(".term-info", elem).remove();
 							$(".ui-selected", tab).removeClass("ui-selected");
 						} else {
 							display_message(
@@ -317,19 +337,6 @@ $(function() {
 		}
 
 		var status = elem.attr("status");
-		if (status === "enabled") {
-			$.getJSON("/reservations/"+ r_id +"/hold/", function(data) {
-				if (data.status_ok) {
-					elem.attr("status", "hold");
-				} else {
-					display_message(
-						"{% trans "Message" %}",
-						"{% trans "The hold operation failed" %}"
-					);
-				}
-			});
-		}
-
 		select_reservation($(this));
 
 		{% if reschedule_mode %}

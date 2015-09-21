@@ -130,7 +130,7 @@ li.ui-selectee {
 	height: 100%;
 	font-size: 14px;
 }
-button.unhold-button, button.enable-button, button.disable-button, button.reschedule-button {
+button.hold-button, button.unhold-button, button.enable-button, button.disable-button, button.reschedule-button {
 	display: none;
 }
 li[status=hold] button.unhold-button {
@@ -144,6 +144,9 @@ li[status=enabled] button.disable-button, li[status=hold]  button.disable-button
 }
 li[status=disabled-reservated] button.reschedule-button, li[status=reservated] button.reschedule-button {
 	display: inline-block;	
+}
+li[status=enabled] button.hold-button {
+	display: inline-block;
 }
 
 #ui-selectable li[status=disabled] {
