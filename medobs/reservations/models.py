@@ -170,7 +170,7 @@ class Visit_reservation(models.Model):
 	STATUS_CHOICES = (
 		(1, _("disabled")),
 		(2, _("enabled")),
-		(4, _("in held")),
+		(4, _("hold")),
 	)
 	#starting_time = models.DateTimeField(_("time"))
 	date = models.DateField(_("date"))
@@ -216,13 +216,13 @@ class Visit_reservation(models.Model):
 		if self.is_reservated:
 			return _('Reservated')
 		elif self.reschedule_required:
-			return _('Reschedule required')
+			return _('Reschedule')
 		elif self.status == self.STATUS_DISABLED:
 			return _('Disabled')
 		elif self.status == self.STATUS_ENABLED:
 			return _('Available')
 		else:
-			return _('In held')
+			return _('Hold')
 
 	def unbook(self):
 		if self.status != self.STATUS_DISABLED:

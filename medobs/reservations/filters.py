@@ -39,8 +39,8 @@ class ReservationStatusFilter(SimpleListFilter):
 		return (
 			('1', _('Available')),
 			('2', _('Reservated')),
-			('3', _('In held')),
-			('4', _('Reschedule required')),
+			('3', _('Hold')),
+			('4', _('Reschedule')),
 			('5', _('Disabled')),
 		)
 
