@@ -1,6 +1,6 @@
 #!/usr/bin/python
 """
-Automaticaly generate Medobs 'visit template' by selecting office, start/end times and interval.
+Automaticaly generate MEDOBS 'visit template' by selecting office, start/end times and interval.
 Running without any arguments prints list of available offices.
 """
 

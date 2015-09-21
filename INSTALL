@@ -1,4 +1,4 @@
-Install Medobs
+Install MEDOBS
 ==============
 $ python setup.py install
 
