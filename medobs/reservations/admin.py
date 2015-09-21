@@ -38,11 +38,11 @@ class VisitReservationAdmin(admin.ModelAdmin):
 
 	def enable_reservations(self, request, queryset):
 		queryset.update(status=Visit_reservation.STATUS_ENABLED)
-	enable_reservations.short_description = "Mark selected reservation times as enabled"
+	enable_reservations.short_description = "Enable selected reservations"
 
 	def disable_reservations(self, request, queryset):
 		queryset.update(status=Visit_reservation.STATUS_DISABLED)
-	disable_reservations.short_description = "Mark selected reservation times as disabled"
+	disable_reservations.short_description = "Disable selected reservations"
 
 admin.site.register(Visit_reservation, VisitReservationAdmin)
 
