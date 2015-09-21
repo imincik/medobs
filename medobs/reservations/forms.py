@@ -20,12 +20,12 @@ class PatientForm(forms.ModelForm):
 		min_length=5,
 		max_length=100,
 		regex = r"\d+",
-		error_messages={"invalid": _(u"Enter a valid 'phone number' consisting of numbers only.")}
+		error_messages={"invalid": _(u"Enter a valid phone number containing numbers only.")}
 	)
 	reservation = forms.ModelChoiceField(
 		queryset=Visit_reservation.objects.all(),
 		widget=forms.HiddenInput(),
-		error_messages={"required": _("Please select time of visit reservation")}
+		error_messages={"required": _("Select reservation time")}
 	)
 	exam_kind = forms.ModelChoiceField(
 		empty_label=None,

@@ -20,7 +20,7 @@ class Command(BaseCommand):
 			for r in office.reservations(actual_date):
 				if r.is_reservated and r.patient.email:
 					send_mail(
-						_("Notification about upcoming visit reservation"),
+						_("Upcoming reservation notification"),
 						render_to_string(
 							"email/second_notification.html",
 							{"reservation": r}

@@ -20,7 +20,7 @@ def get_offices(user):
 def send_notification(reservation):
 	try:
 		send_mail(
-			_("Visit reservation confirmation"),
+			_("Confirmation of reservation"),
 			render_to_string(
 				"email/first_notification.html",
 				{"reservation": reservation}

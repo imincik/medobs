@@ -147,9 +147,9 @@ def office_page(request, office_id, for_date=None):
 								reservation.office_id,
 								actual_date.strftime("%Y-%m-%d")))
 				except DateInPast:
-					message = _("You cannot make reservation for today or date in the past.")
+					message = _("Forbidden to make reservation for today or date in the past.")
 				except BadStatus:
-					message = _("The reservation has been already booked. Please try again.")
+					message = _("Can't make reservation. Please try again.")
 					reservation_id = 0
 			else:
 				r_val = form["reservation"].value()

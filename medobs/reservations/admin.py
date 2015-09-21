@@ -24,7 +24,7 @@ class VisitReservationAdmin(admin.ModelAdmin):
 	form = VisitReservationForm
 	fieldsets = (
 		(None, {"fields": ("office", "date", "time", "status", "authenticated_only")}),
-		(_("Booking data"), {"fields": ("patient", "exam_kind", "reservation_time", "reservated_by")}),
+		(_("Reservation data"), {"fields": ("patient", "exam_kind", "reservation_time", "reservated_by")}),
 	)
 
 	def save_model(self, request, obj, form, change):
@@ -64,7 +64,7 @@ class PatientAdmin(admin.ModelAdmin):
 		self.readonly_fields = () if obj is None else ("ident_hash",)
 		form = super(PatientAdmin, self).get_form(request, obj=obj, **kwargs)
 		if obj is None:
-			form.base_fields['ident_hash'] = CZBirthNumberField(label=_('Identification number'), widget=form.base_fields['ident_hash'].widget)
+			form.base_fields['ident_hash'] = CZBirthNumberField(label=_('Birth number'), widget=form.base_fields['ident_hash'].widget)
 		return form
 
 admin.site.register(Patient, PatientAdmin)

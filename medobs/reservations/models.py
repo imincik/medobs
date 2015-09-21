@@ -47,12 +47,12 @@ class Medical_office(models.Model):
 	zip_code = models.CharField(_("zip code"), max_length=20)
 	city = models.CharField(_("city"), max_length=100)
 	email = models.EmailField(_("e-mail"), blank=True)
-	order = models.PositiveIntegerField(_("order"), help_text=_("Order of medical offices tabs on the webpage."))
+	order = models.PositiveIntegerField(_("order"), help_text=_("Order of medical offices on reservation page."))
 	public = models.BooleanField(_("public"),
-		help_text=_("Check if you want to make this medical office accessible for not authorized visitors."))
+		help_text=_("Check if you want to make this medical office to be visible without authentication."))
 	published = models.BooleanField(_("published"), default=True,
-		help_text=_("Check if you want to make this medical office published."))
-	days_to_generate = models.PositiveSmallIntegerField(_("days to generate"), default=7, help_text=_("Number of days to generate."))
+		help_text=_("Check if you want to make this medical office to be published."))
+	days_to_generate = models.PositiveSmallIntegerField(_("days to generate"), default=7, help_text=_("Number of days to generate reservations."))
 	note = models.TextField(_("note"), blank=True)
 
 	class Meta:
@@ -151,8 +151,8 @@ class Visit_reservation_exception(models.Model):
 class Examination_kind(models.Model):
 	title = models.TextField(_("title"))
 	office = models.ForeignKey(Medical_office, verbose_name=_("medical office"),
-			related_name="exam_kinds")
-	order = models.PositiveIntegerField(_("order"), help_text=_("Order of examination kinds in patient input form."))
+		related_name="exam_kinds")
+	order = models.PositiveIntegerField(_("order"), help_text=_("Order of examination kinds."))
 	note = models.TextField(_("note"), blank=True)
 
 	class Meta:
