@@ -19,6 +19,12 @@ Users actions
 
 Development
 -----------
+Create Python virtualenv
+```
+$ mkvirtualenv medobs
+$ pip install -r ./requirements.txt
+```
+
 Run following commands in source code directory to create development project:
 ```
 $ export PYTHONPATH=$(pwd)
@@ -37,8 +43,8 @@ $ python ./manage.py createsuperuser --username admin --email admin@dev.io
 Create offices and generate reservations
 ```
 $ python ./manage.py loaddata ../medobs/reservations/fixtures/offices.json
-$ python ./manage.py medobstemplates "First Office" "08:00" "16:00" 15
-$ python ./manage.py medobstemplates "Second Office" "08:00" "16:00" 15
+$ python ./manage.py medobstemplates "First Office" "08:00" "16:00" 30
+$ python ./manage.py medobstemplates "Second Office" "08:00" "16:00" 30
 $ python ./manage.py medobsgen
 ```
 
