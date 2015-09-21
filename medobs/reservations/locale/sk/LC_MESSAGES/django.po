@@ -385,7 +385,7 @@ msgid "Confirmation of reservation"
 msgstr "Potvrdenie rezervácie"
 
 #: views.py:150
-msgid "Forbidden to make reservation for today or date in the past."
+msgid "Forbidden to make reservation for today or for date in the past."
 msgstr "Nie je možné rezervovať termín na dnes alebo na deň v minulosti."
 
 #: views.py:152
