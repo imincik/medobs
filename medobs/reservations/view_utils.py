@@ -18,16 +18,19 @@ def get_offices(user):
 		return Medical_office.objects.filter(published=True, public=True)
 
 def send_notification(reservation):
-	send_mail(
-		_("Visit reservation confirmation"),
-		render_to_string(
-			"email/first_notification.html",
-			{"reservation": reservation}
-		),
-		settings.DEFAULT_FROM_EMAIL,
-		[reservation.patient.email],
-		fail_silently=False
-	)
+	try:
+		send_mail(
+			_("Visit reservation confirmation"),
+			render_to_string(
+				"email/first_notification.html",
+				{"reservation": reservation}
+			),
+			settings.DEFAULT_FROM_EMAIL,
+			[reservation.patient.email],
+			fail_silently=False
+		)
+	except:
+		pass
 
 # Possible states of visit reservation:
 # * disabled
