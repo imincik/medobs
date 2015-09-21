@@ -61,13 +61,13 @@
 		{{ form.reservation.errors }}
 		<ol id="ui-selectable"></ol>
 		{% if not reschedule_mode %}
-		<button id="book-button" disabled="true" type="submit" name="action" value="book">{% trans "Book reservation" %}</button>
+		<button id="book-button" disabled="true" type="submit" name="action" value="book">{% trans "Make reservation" %}</button>
 		{% endif %}
 		{% if user.is_authenticated %}
 		{% if reschedule_mode %}
 		<button id="reschedule-button" disabled="true" type="submit" name="action" value="reschedule">{% trans "Reschedule reservation" %}</button>
 		{% else %}
-		<button id="unbook-button" disabled="true" type="button">{% trans "Unbook" %}</button>
+		<button id="unbook-button" disabled="true" type="button">{% trans "Cancel reservation" %}</button>
 		{% endif %}
 		{% endif %}
 		{% if reschedule_mode %}
