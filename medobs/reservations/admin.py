@@ -26,6 +26,7 @@ class VisitReservationAdmin(admin.ModelAdmin):
 		(None, {"fields": ("office", "date", "time", "status", "authenticated_only")}),
 		(_("Reservation data"), {"fields": ("patient", "exam_kind", "reservation_time", "reservated_by")}),
 	)
+	save_as = True
 
 	def save_model(self, request, obj, form, change):
 		if obj.is_reservated or obj.status == Visit_reservation.STATUS_IN_HELD:
@@ -73,6 +74,7 @@ class VisitTemplateAdmin(admin.ModelAdmin):
 	list_display = ("__unicode__", "office", "starting_time", "valid_since", "valid_until", "authenticated_only")
 	list_filter = ("office", "day", "starting_time", filters.ExpirationFilter)
 	ordering = ("day", "starting_time", "office")
+	save_as = True
 
 admin.site.register(Visit_template, VisitTemplateAdmin)
 
