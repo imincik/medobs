@@ -73,3 +73,5 @@ def get_reservations_data(reservations, all_attrs=True):
 			"status": "enabled" if not r.is_reservated and r.status == Visit_reservation.STATUS_ENABLED and not r.authenticated_only else "disabled",
 		} for r in reservations]
 	return data
+
+# vim: set ts=4 sts=4 sw=4 noet:

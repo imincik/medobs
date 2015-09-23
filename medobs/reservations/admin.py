@@ -125,3 +125,5 @@ admin.site.unregister(Site)
 # register filters
 admin.FieldListFilter.register(lambda f: f and isinstance(f, models.TimeField), filters.TimeRangeFilter, True)
 admin.FieldListFilter.register(lambda f: f and isinstance(f, models.DateField), filters.DateRangeFilter, True)
+
+# vim: set ts=4 sts=4 sw=4 noet:

@@ -32,3 +32,5 @@ urlpatterns = [
 	}),
 	url(r"^offices/$", views.list_offices),
 ]
+
+# vim: set ts=4 sts=4 sw=4 noet:

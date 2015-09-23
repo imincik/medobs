@@ -12,3 +12,5 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "{{ project_name }}.settings")
 
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
+
+# vim: set ts=4 sts=4 sw=4 noet:

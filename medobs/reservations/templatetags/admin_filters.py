@@ -11,3 +11,5 @@ def model_filter(apps, arg):
 				if model.get('object_name') == model_name:
 					return model
 	return ''
+
+# vim: set ts=4 sts=4 sw=4 noet:

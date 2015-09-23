@@ -84,3 +84,5 @@ class VisitReservationForm(forms.ModelForm):
 		widgets = {
 			'patient': PatientSearchWidget
 		}
+
+# vim: set ts=4 sts=4 sw=4 noet:

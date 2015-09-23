@@ -231,3 +231,5 @@ class Visit_reservation(models.Model):
 		self.exam_kind = None
 		self.reservation_time = None
 		self.reservated_by = ""
+
+# vim: set ts=4 sts=4 sw=4 noet:

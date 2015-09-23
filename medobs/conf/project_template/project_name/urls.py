@@ -21,3 +21,5 @@ urlpatterns = [
 
 urlpatterns += staticfiles_urlpatterns()
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# vim: set ts=4 sts=4 sw=4 noet:

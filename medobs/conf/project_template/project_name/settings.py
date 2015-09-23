@@ -117,5 +117,4 @@ try:
 except ImportError:
 	pass
 
-
-# vim: set syntax=sh ts=4 sts=4 sw=4 noet
+# vim: set ts=4 sts=4 sw=4 noet:

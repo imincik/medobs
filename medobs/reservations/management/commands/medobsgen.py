@@ -82,3 +82,5 @@ class Command(BaseCommand):
 				transaction.savepoint_commit(sid)
 		except ValueError:
 			transaction.savepoint_rollback(sid)
+
+# vim: set ts=4 sts=4 sw=4 noet:

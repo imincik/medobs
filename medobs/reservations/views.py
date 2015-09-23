@@ -429,3 +429,5 @@ def disable_auth_only(request, r_id):
 	response = HttpResponse(json.dumps(response_data), "application/json")
 	response["Cache-Control"] = "no-cache"
 	return response
+
+# vim: set ts=4 sts=4 sw=4 noet:

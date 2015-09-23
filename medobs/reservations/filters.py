@@ -388,3 +388,5 @@ class ReservationExceptionDateFilter(admin.filters.ListFilter):
 				return queryset.exclude(end__lt=since)
 		else:
 			return queryset
+
+# vim: set ts=4 sts=4 sw=4 noet:

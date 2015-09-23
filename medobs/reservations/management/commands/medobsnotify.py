@@ -29,3 +29,5 @@ class Command(BaseCommand):
 						[r.patient.email],
 						fail_silently=False
 					)
+
+# vim: set ts=4 sts=4 sw=4 noet:
