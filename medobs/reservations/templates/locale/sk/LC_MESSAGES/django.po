@@ -5,9 +5,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Medobs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-21 22:56+0200\n"
+"POT-Creation-Date: 2015-09-23 09:57+0200\n"
 "PO-Revision-Date: 2011-05-24 11:55+0200\n"
-"Last-Translator: Peter Hyben <hugis@tag.sk>\n"
+"Last-Translator: Ivan Mincik <ivan.mincik@gmail.com>\n"
 "Language-Team: Slovak <None>\n"
 "Language: sk\n"
 "MIME-Version: 1.0\n"
@@ -15,102 +15,87 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2\n"
 
-#: templates/admin/base_site.html:4
-#, fuzzy
-#| msgid "Medobs site admin"
-msgid "MEDOBS site admin"
-msgstr "Administrácia webu Medobs"
-
-#: templates/admin/base_site.html:12
-#, fuzzy
-#| msgid "Medobs administration"
+#: templates/admin/base_site.html:4 templates/admin/base_site.html.py:12
 msgid "MEDOBS administration"
-msgstr "Medobs administrácia"
+msgstr "MEDOBS administrácia"
 
 #: templates/admin/date_filter.html:34
 msgid "Submit date"
-msgstr ""
+msgstr "Zvoliť dátum"
 
 #: templates/admin/filter.html:2
 #, python-format
 msgid " %(filter_title)s "
-msgstr ""
+msgstr " %(filter_title)s "
 
 #: templates/admin/index.html:19
 msgid "Authentication"
-msgstr ""
+msgstr "Autentifikácia"
 
 #: templates/admin/index.html:23 templates/admin/index.html.py:40
 #: templates/admin/index.html:47 templates/admin/index.html.py:54
 #: templates/admin/index.html:68 templates/admin/index.html.py:75
 msgid "Add"
-msgstr ""
+msgstr "Pridať"
 
 #: templates/admin/index.html:24 templates/admin/index.html.py:41
 #: templates/admin/index.html:48 templates/admin/index.html.py:55
 #: templates/admin/index.html:69 templates/admin/index.html.py:76
 msgid "Change"
-msgstr ""
+msgstr "Zmeniť"
 
 #: templates/admin/index.html:35
 msgid "Configuration"
-msgstr ""
+msgstr "Konfigurácia"
 
 #: templates/admin/index.html:63
-#, fuzzy
-#| msgid "Book reservation"
 msgid "Reservations"
-msgstr "Rezervovať temín"
+msgstr "Rezervácie"
 
 #: templates/admin/index.html:89
 msgid "Recent Actions"
-msgstr ""
+msgstr "Posledné zmeny"
 
 #: templates/admin/index.html:90
 msgid "My Actions"
-msgstr ""
+msgstr "Moje zmeny"
 
 #: templates/admin/index.html:94
 msgid "None available"
-msgstr ""
+msgstr "Prázdny"
 
 #: templates/admin/index.html:108
 msgid "Unknown content"
-msgstr ""
+msgstr "Neznámy obsah"
 
 #: templates/admin/reservations/visit_reservation/patient_search_field.html:6
-#, fuzzy
-#| msgid "List of reservations"
-msgid "Remove patient from reservation"
-msgstr "Zoznam rezervovaných termínov"
+#: templates/index.html:70
+msgid "Cancel reservation"
+msgstr "Zrušiť rezerváciu"
 
 #: templates/admin/reservations/visit_reservation/patient_search_field.html:11
-msgid "Patient with given ID does not exists"
-msgstr ""
+msgid "Patient with this birth number doesn't exist"
+msgstr "Pacient s týmto rodným číslom neexistuje"
 
 #: templates/admin/reservations/visit_reservation/patient_search_field.html:12
-msgid "Find patient by identification number."
-msgstr ""
+msgid "Find patient by birth number."
+msgstr "Vyhľadať pacienta podľa rodného čísla"
 
 #: templates/admin/time_filter.html:30
 msgid "Submit time"
-msgstr ""
+msgstr "Zvoliť čas"
 
-#: templates/base.html:6
-#, fuzzy
-#| msgid "Medobs &ndash; medical reservation system"
+#: templates/base.html:6 templates/base.html.py:22
 msgid "MEDOBS &ndash; medical reservation system"
-msgstr "Medobs &ndash; medicínsky rezervačný systém"
+msgstr "MEDOBS &ndash; medicínsky rezervačný systém"
 
 #: templates/base.html:22
-#, fuzzy
-#| msgid "Medobs &ndash; medical reservation system"
-msgid "MEDOBS &ndash; medical reservation system (version "
-msgstr "Medobs &ndash; medicínsky rezervačný systém"
+msgid "version"
+msgstr "verzia"
 
 #: templates/base.html:24
 msgid "logout"
-msgstr "odhlásiť"
+msgstr "odhlásiť sa"
 
 #: templates/base.html:26
 msgid "login"
@@ -126,24 +111,24 @@ msgstr ""
 
 #: templates/booked.html:22 templates/cancel.html:24
 msgid "Back to front page"
-msgstr "Späť na úvodnú stranu"
+msgstr "Späť na úvodnú stránku"
 
 #: templates/cancel.html:13
-msgid "This patient has already booked reservation."
-msgstr "Tento pacient už má rezervovaný termín."
+msgid "This patient has already created active reservation."
+msgstr "Tento pacient už má vytvorenú aktívnu rezerváciu."
 
 #: templates/cancel.html:16
-msgid "You have already booked reservation."
-msgstr "Už máte rezervovaný termín."
+msgid "You have already created active reservation."
+msgstr "Už máte vytvorenú aktívnu rezerváciu."
 
 #: templates/email/first_notification.html:3
 #, python-format
 msgid ""
 "\n"
-"Your reservation has been booked on %(rdate)s at %(rtime)s.\n"
+"Your reservation has been created on %(rdate)s at %(rtime)s.\n"
 msgstr ""
 "\n"
-"Vaša rezervácia %(rdate)s o %(rtime)s bola vytvorená.\n"
+"Vaša rezervácia bola vytvorená na %(rdate)s o %(rtime)s.\n"
 
 #: templates/email/second_notification.html:3
 #, python-format
@@ -158,8 +143,8 @@ msgstr ""
 "čísla:"
 
 #: templates/index.html:18
-msgid "Reservation to reschedule"
-msgstr ""
+msgid "Reschedule"
+msgstr "Preobjednať"
 
 #: templates/index.html:27
 msgid "Fill all required fields to complete reservation"
@@ -183,33 +168,23 @@ msgstr "Deň:"
 
 #: templates/index.html:58
 msgid "List of reservations"
-msgstr "Zoznam rezervovaných termínov"
+msgstr "Zoznam rezervácií"
 
 #: templates/index.html:59
 msgid "Reload"
 msgstr "Obnoviť"
 
 #: templates/index.html:64
-#, fuzzy
-#| msgid "Book reservation"
 msgid "Make reservation"
-msgstr "Rezervovať temín"
+msgstr "Vytvoriť rezerváciu"
 
 #: templates/index.html:68
-#, fuzzy
-#| msgid "Book reservation"
 msgid "Reschedule reservation"
-msgstr "Rezervovať temín"
-
-#: templates/index.html:70
-#, fuzzy
-#| msgid "Book reservation"
-msgid "Cancel reservation"
-msgstr "Rezervovať temín"
+msgstr "Preobjednať"
 
 #: templates/index.html:74
 msgid "Cancel"
-msgstr ""
+msgstr "Zrušiť"
 
 #: templates/index.html:76
 msgid "Reset"
@@ -222,28 +197,28 @@ msgid "Message"
 msgstr "Správa"
 
 #: templates/index.html:176
-msgid "The hold operation failed"
-msgstr "Pokus o podržanie termínu zlyhal."
+msgid "Hold operation failed"
+msgstr "Podržanie termínu zlyhalo"
 
 #: templates/index.html:197
-msgid "The unhold operation failed"
-msgstr "Zručenie podržania zlyhalo"
+msgid "Unhold operation failed"
+msgstr "Zrušenie podržania termínu zlyhalo"
 
 #: templates/index.html:220
-msgid "The enable operation failed"
-msgstr "Zapnutie termínu zlyhalo."
+msgid "Enable operation failed"
+msgstr "Zapnutie termínu zlyhalo"
 
 #: templates/index.html:242
-msgid "The disable operation failed"
+msgid "Disable operation failed"
 msgstr "Vypnutie termínu zlyhalo"
 
 #: templates/index.html:399
-msgid "The unbook operation failed"
-msgstr "Zrušenie rezervácie zlyhalo"
+msgid "Cancel operation failed"
+msgstr "Zrušenie termínu zlyhalo"
 
 #: templates/index.html:419
-msgid "Appointment already booked or unavailable"
-msgstr "Termín je už obsadený alebo nedostupný"
+msgid "Reservation is not available"
+msgstr "Rezervácia nie je dostupná"
 
 #: templates/messages/booked.html:2
 #, python-format
@@ -279,9 +254,7 @@ msgstr ""
 "strong>\n"
 
 #: templates/missing_config.html:12
-#, fuzzy
-#| msgid "Missing basic configuration."
-msgid "Missing basic configuration or no published office."
+msgid "Missing basic configuration."
 msgstr "Chýba základná konfigurácia."
 
 #: templates/patient_reservations.html:7
@@ -294,27 +267,12 @@ msgstr "Typ vyšetrenia"
 
 #: templates/registration/login.html:19
 msgid "Username:"
-msgstr ""
+msgstr "Meno"
 
 #: templates/registration/login.html:22
 msgid "Password:"
-msgstr ""
+msgstr "Heslo"
 
 #: templates/registration/login.html:26
 msgid "Log in"
-msgstr ""
-
-#~ msgid "Medical Reservation System"
-#~ msgstr "Medicínsky rezervačný systém"
-
-#~ msgid "Enable"
-#~ msgstr "Zapnúť"
-
-#~ msgid "Unbook"
-#~ msgstr "Zrušiť rezerváciu"
-
-#~ msgid "Unhold"
-#~ msgstr "Zrušiť podržanie"
-
-#~ msgid "Disable"
-#~ msgstr "Vypnúť"
+msgstr "Prihlásiť sa"

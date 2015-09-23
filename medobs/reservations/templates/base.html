@@ -19,7 +19,7 @@
 <div class="container_12">
 {% block page_container %}{% endblock %}
 <div id="footer" class="grid_12">
-	{% trans "MEDOBS &ndash; medical reservation system (version " %} {{ VERSION }}) |
+	{% trans "MEDOBS &ndash; medical reservation system" %} ({% trans "version" %} {{ VERSION }}) |
 	{% if user.is_authenticated %}
 	{{ user.get_full_name }} | <a href="/accounts/logout/?next=/">{% trans "logout" %}</a>
 	{% else %}

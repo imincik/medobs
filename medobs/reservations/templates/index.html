@@ -15,7 +15,7 @@
 	<div class="grid_4">
 		{% csrf_token %}
 		{% if reschedule_mode %}
-		<h3>{% trans "Reservation to reschedule" %}:</h3>
+		<h3>{% trans "Reschedule" %}:</h3>
 		<fieldset id="person_part">
 			<label>{{ form.first_name.label }}</label><input type="text" readonly="readonly" value="{{ reservation.patient.first_name }}" maxlength="100"/>
 			<label>{{ form.last_name.label }}</label><input type="text" readonly="readonly" value="{{ reservation.patient.last_name }}" maxlength="100"/>
@@ -173,7 +173,7 @@ $(function() {
 						} else {
 							display_message(
 								"{% trans "Message" %}",
-								"{% trans "The hold operation failed" %}"
+								"{% trans "Hold operation failed" %}"
 							);
 						}
 					});
@@ -194,7 +194,7 @@ $(function() {
 						} else {
 							display_message(
 								"{% trans "Message" %}",
-								"{% trans "The unhold operation failed" %}"
+								"{% trans "Unhold operation failed" %}"
 							);
 						}
 					});
@@ -217,7 +217,7 @@ $(function() {
 						} else {
 							display_message(
 								"{% trans "Message" %}",
-								"{% trans "The enable operation failed" %}"
+								"{% trans "Enable operation failed" %}"
 							);
 						}
 					});
@@ -239,7 +239,7 @@ $(function() {
 						} else {
 							display_message(
 								"{% trans "Message" %}",
-								"{% trans "The disable operation failed" %}"
+								"{% trans "Disable operation failed" %}"
 							);
 						}
 					});
@@ -396,7 +396,7 @@ $(function() {
 			} else {
 				display_message(
 					"{% trans "Message" %}",
-					"{% trans "The unbook operation failed" %}"
+					"{% trans "Cancel operation failed" %}"
 				);
 			}
 		});
@@ -416,7 +416,7 @@ $(function() {
 		if (r.status === "disabled") {
 			ritem.append($("<span></span>")
 				.addClass("term-info")
-				.html(" {% trans "Appointment already booked or unavailable" %}")
+				.html(" {% trans "Reservation is not available" %}")
 			);
 		}
 	}
