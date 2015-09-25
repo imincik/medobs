@@ -8,5 +8,5 @@ button { display: none; }
 .ui-tabs-nav li { display: none; }
 .ui-tabs-hide { display: none; }
 .reservation-actions { display: none; }
-li[status=disabled-reservated] .patient-name { display: none; }
+li[status=reschedule] .patient-name { display: none; }
 #list-r { display: none; }

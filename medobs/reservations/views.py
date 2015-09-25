@@ -53,13 +53,13 @@ def office_page(request, office_id, for_date=None):
 	message = None
 	start_date = date.today()
 	end_date = start_date + timedelta(office.days_to_generate)
+	dates = list(Visit_reservation.objects.filter(date__gte=date.today()).dates("date", "day"))
 
-	if not request.user.is_authenticated():
-		start_date += timedelta(1)
-		while not is_reservation_on_date(start_date, office):
-			start_date += timedelta(1)
-			if start_date == end_date:
-				break
+	if dates:
+		if not request.user.is_authenticated():
+			start_date = dates[0]
+		end_date = dates[-1]
+
 	if for_date:
 		actual_date = datetime.strptime(for_date, "%Y-%m-%d").date()
 		if actual_date < start_date:
@@ -261,7 +261,7 @@ def unhold_reservation(request, r_id):
 @login_required
 def unbook_reservation(request, r_id):
 	reservation = get_object_or_404(Visit_reservation, pk=r_id)
-	if reservation.is_reservated or reservation.reschedule_required:
+	if reservation.patient is not None:
 		reservation.unbook()
 		reservation.save()
 		response_data = {"status_ok": True}
@@ -309,14 +309,12 @@ def list_reservations(request, for_date, office_id):
 	for_date = datetime.strptime(for_date, "%Y-%m-%d").date()
 	office = get_object_or_404(Medical_office, pk=office_id)
 
-	reservations = office.reservations(for_date)
-
 	return render_to_response(
 		"list_reservations.html",
 		{
 			"for_date": for_date,
 			"office": office,
-			"reservations": reservations,
+			"reservations": get_reservations_data(office.reservations(for_date)),
 		},
 		context_instance=RequestContext(request)
 	)

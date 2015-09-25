@@ -7,7 +7,7 @@ from django.template.loader import render_to_string
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 
-from medobs.reservations.models import Medical_office
+from medobs.reservations.models import Medical_office, Visit_reservation
 
 
 class Command(BaseCommand):
@@ -17,8 +17,10 @@ class Command(BaseCommand):
 		translation.activate(settings.LANGUAGE_CODE)
 		actual_date = date.today() + timedelta(1)
 		for office in Medical_office.objects.all():
-			for r in office.reservations(actual_date):
-				if r.is_reservated and r.patient.email:
+			reservations = list(office.reservations(actual_date))
+			Visit_reservation.compute_actual_status(reservations)
+			for r in reservations:
+				if r.actual_status == Visit_reservation.STATUS_RESERVED and r.patient.email:
 					send_mail(
 						_("Upcoming reservation notification"),
 						render_to_string(

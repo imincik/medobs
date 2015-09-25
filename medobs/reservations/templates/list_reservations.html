@@ -15,13 +15,13 @@
 <table>
 <tbody>
 	{% for r in reservations %}
-	{% if r.is_reservated %}
+	{% if r.status == "reservated" %}
 	<tr>
-		<td>{{ r.starting_time|date:"H:i" }}</td>
-		<td>{{ r.patient.full_name }}</td>
-		<td>{{ r.exam_kind.title }}</td>
-		<td>{{ r.patient.phone_number }}</td>
-		<td>{{ r.patient.email }}</td>
+		<td>{{ r.time }}</td>
+		<td>{{ r.patient }}</td>
+		<td>{{ r.exam_kind }}</td>
+		<td>{{ r.phone_number }}</td>
+		<td>{{ r.email }}</td>
 	</tr>
 	{% endif %}
 	{% endfor %}

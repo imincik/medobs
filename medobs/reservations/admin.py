@@ -6,6 +6,7 @@ from django.conf import settings
 from django.forms import Textarea
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.sites.models import Site
+from django.contrib.admin.views.main import ChangeList
 from localflavor.cz.forms import CZBirthNumberField
 
 from medobs.reservations import filters
@@ -14,8 +15,14 @@ from medobs.reservations.models import Examination_kind, Medical_office, Office_
 from medobs.reservations.models import Visit_reservation_exception, Visit_reservation, Visit_template
 
 
+class ReservationsChangeList(ChangeList):
+	def __init__(self, *args, **kwargs):
+		super(ReservationsChangeList, self).__init__(*args, **kwargs)
+		self.result_list = list(self.result_list)
+		Visit_reservation.compute_actual_status(self.result_list)
+
 class VisitReservationAdmin(admin.ModelAdmin):
-	list_display = ("starting_time", "office", "status_display_name", "authenticated_only", "patient")
+	list_display = ("starting_time", "office", "admin_status_label", "authenticated_only", "patient")
 	readonly_fields = ("reservation_time", "reservated_by")
 	list_filter = ("office", "date", "time", filters.ReservationStatusFilter)
 	ordering = ("date", "time", "office")
@@ -28,8 +35,16 @@ class VisitReservationAdmin(admin.ModelAdmin):
 	)
 	save_as = True
 
+	status_labels = {
+		Visit_reservation.STATUS_ENABLED: _('Available'),
+		Visit_reservation.STATUS_DISABLED: _('Disabled'),
+		Visit_reservation.STATUS_IN_HELD: _('Hold'),
+		Visit_reservation.STATUS_RESERVED: _('Reserved'),
+		Visit_reservation.STATUS_RESCHEDULE: _('Reschedule')
+	}
+
 	def save_model(self, request, obj, form, change):
-		if obj.is_reservated or obj.status == Visit_reservation.STATUS_IN_HELD:
+		if obj.patient is not None and obj.status != Visit_reservation.STATUS_DISABLED:
 			obj.reservated_by = request.user.get_full_name() or request.user.username
 			obj.reservation_time = datetime.now()
 		else:
@@ -44,6 +59,15 @@ class VisitReservationAdmin(admin.ModelAdmin):
 	def disable_reservations(self, request, queryset):
 		queryset.update(status=Visit_reservation.STATUS_DISABLED)
 	disable_reservations.short_description = "Disable selected reservations"
+
+	# Wrap changelist to effectively compute reservations status (filtering disabled reservations
+	# from Visit_reservation_exception records)
+	def get_changelist(self, request, **kwargs):
+		return ReservationsChangeList
+
+	def admin_status_label(self, obj):
+		return self.status_labels[obj.actual_status]
+	admin_status_label.short_description = "Availability"
 
 admin.site.register(Visit_reservation, VisitReservationAdmin)
 
@@ -79,7 +103,7 @@ class VisitTemplateAdmin(admin.ModelAdmin):
 admin.site.register(Visit_template, VisitTemplateAdmin)
 
 class VisitReservationExceptionAdmin(admin.ModelAdmin):
-	list_display = ("begin", "end", "office")
+	list_display = ("title", "begin", "end", "office")
 	list_filter = ("office", filters.ReservationExceptionDateFilter)
 	ordering = ("begin", "office")
 

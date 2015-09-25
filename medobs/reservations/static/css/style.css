@@ -136,14 +136,14 @@ button.hold-button, button.unhold-button, button.enable-button, button.disable-b
 li[status=hold] button.unhold-button {
 	display: inline-block;
 }
-li[status=disabled] button.enable-button, li[status=disabled-reservated] button.enable-button {
+li[status=disabled] button.enable-button, li[status=reschedule] button.enable-button {
 	display: inline-block;
 }
 li[status=enabled] button.disable-button, li[status=hold]  button.disable-button, li[status=reservated] button.disable-button {
 	display: inline-block;
 }
-li[status=disabled-reservated] button.reschedule-button, li[status=reservated] button.reschedule-button {
-	display: inline-block;	
+li[status=reschedule] button.reschedule-button, li[status=reservated] button.reschedule-button {
+	display: inline-block;
 }
 li[status=enabled] button.hold-button {
 	display: inline-block;
@@ -152,7 +152,7 @@ li[status=enabled] button.hold-button {
 #ui-selectable li[status=disabled] {
 	color: #CCC;
 }
-#ui-selectable li[status=disabled-reservated] {
+#ui-selectable li[status=reschedule] {
 	color: #00C;
 }
 #ui-selectable li[status=reservated] {

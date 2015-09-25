@@ -3,6 +3,7 @@ from datetime import datetime, date, time, timedelta
 
 from django.conf import settings
 from django.db import models
+from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -30,7 +31,7 @@ class Patient(models.Model):
 
 	def has_reservation(self):
 		current_time = datetime.now()
-		if self.visit_reservations.filter(date__gte=date.today(), time__gte=time(current_time.day, current_time.minute)).exists():
+		if self.visit_reservations.filter(date__gte=current_time.day, time__gte=time(current_time.hour, current_time.minute)).exists():
 			return True
 		else:
 			return False
@@ -132,6 +133,7 @@ class Visit_template(models.Model):
 		return unicode(_(u"{0} at {1}".format(self.get_day_display(), self.starting_time)))
 
 class Visit_reservation_exception(models.Model):
+	title = models.CharField(_("title"), max_length=255, blank=True)
 	office = models.ForeignKey(Medical_office, verbose_name=_("medical office"),
 			related_name="disables")
 	begin = models.DateTimeField(_("begin"),
@@ -146,7 +148,24 @@ class Visit_reservation_exception(models.Model):
 		unique_together = (("office", "begin", "end"),)
 
 	def __unicode__(self):
-		return unicode(_(u"From {0} to {1}".format(self.begin, self.end)))
+		return unicode(_(u"{0} (from {1} to {2})".format(self.title, self.begin, self.end)))
+
+	def covers_reservation_time(self, reservation_time):
+		return self.begin <= reservation_time and self.end > reservation_time
+
+	def disabled_reservations_filter(self):
+		days = (self.end.date() - self.begin.date()).days
+		if days == 0:
+			return Q(office=self.office, date=self.begin.date(), time__gte=self.begin.time(), time__lt=self.end.time())
+		elif days == 1:
+			return Q(
+				office=self.office, date=self.begin.date(), time__gte=self.begin.time()) | Q(
+				office=self.office, date=self.end.date(), time__lt=self.end.time())
+		else:
+			return Q(
+				office=self.office, date=self.begin.date(), time__gte=self.begin.time()) | Q(
+				office=self.office, date__gt=self.begin.date(), date__lt=self.end.date()) | Q(
+				office=self.office, date=self.end.date(), time__lt=self.end.time())
 
 class Examination_kind(models.Model):
 	title = models.TextField(_("title"))
@@ -172,7 +191,9 @@ class Visit_reservation(models.Model):
 		(2, _("enabled")),
 		(4, _("hold")),
 	)
-	#starting_time = models.DateTimeField(_("time"))
+	STATUS_RESERVED = 3
+	STATUS_RESCHEDULE = 5
+
 	date = models.DateField(_("date"))
 	time = models.TimeField(_("time"))
 	office = models.ForeignKey(Medical_office, verbose_name=_("medical office"),
@@ -204,25 +225,19 @@ class Visit_reservation(models.Model):
 		return datetime(self.date.year, self.date.month, self.date.day, self.time.hour, self.time.minute)
 
 	@property
-	def is_reservated(self):
-		return self.status != self.STATUS_DISABLED and self.patient is not None
-
-	@property
 	def reschedule_required(self):
-		return self.status == self.STATUS_DISABLED and self.patient is not None
+		if self.patient is None:
+			return False
+		elif self.status == Visit_reservation.STATUS_DISABLED:
+			return True
 
-	@property
-	def status_display_name(self):
-		if self.is_reservated:
-			return _('Reservated')
-		elif self.reschedule_required:
-			return _('Reschedule')
-		elif self.status == self.STATUS_DISABLED:
-			return _('Disabled')
-		elif self.status == self.STATUS_ENABLED:
-			return _('Available')
-		else:
-			return _('Hold')
+		status = self.status
+		exceptions = list(Visit_reservation_exception.objects.filter(office=self.office))
+		for exception in exceptions:
+			if exception.covers_reservation_time(self.starting_time):
+				return True
+
+		return False
 
 	def unbook(self):
 		if self.status != self.STATUS_DISABLED:
@@ -231,5 +246,24 @@ class Visit_reservation(models.Model):
 		self.exam_kind = None
 		self.reservation_time = None
 		self.reservated_by = ""
+
+	@staticmethod
+	def compute_actual_status(reservations):
+		exceptions = list(Visit_reservation_exception.objects.all())
+		for obj in reservations:
+			status = obj.status
+			if status != Visit_reservation.STATUS_DISABLED:
+				starting_time = obj.starting_time
+				for exception in exceptions:
+					if exception.office == obj.office and exception.covers_reservation_time(starting_time):
+						status = Visit_reservation.STATUS_DISABLED
+						break
+			if obj.patient is not None:
+				if status == Visit_reservation.STATUS_ENABLED:
+					status = Visit_reservation.STATUS_RESERVED
+				elif status == Visit_reservation.STATUS_DISABLED:
+					status = Visit_reservation.STATUS_RESCHEDULE
+			obj.actual_status = status
+		return reservations
 
 # vim: set ts=4 sts=4 sw=4 noet:

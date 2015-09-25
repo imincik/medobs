@@ -53,7 +53,7 @@ class Command(BaseCommand):
 
 						status = Visit_reservation.STATUS_ENABLED
 						for templ_exception in templates_exceptions:
-							if templ_exception.begin <= starting_time and templ_exception.end >= starting_time:
+							if templ_exception.covers_reservation_time(starting_time):
 								status = Visit_reservation.STATUS_DISABLED
 								break
 
@@ -69,13 +69,7 @@ class Command(BaseCommand):
 							)
 							obj.save()
 						else:
-							if status == Visit_reservation.STATUS_DISABLED and existing_reservation_info['status'] != status:
-								print 'I: Disabling reservation: %s' % (starting_time)
-								obj = Visit_reservation.objects.get(pk=existing_reservation_info['pk'])
-								obj.status = status
-								obj.save()
-							else:
-								print 'I: Reservation already exists, skipping it: %s' % (starting_time)
+							print 'I: Reservation already exists, skipping it: %s' % (starting_time)
 
 					day += datetime.timedelta(1)
 

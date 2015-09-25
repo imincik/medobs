@@ -10,7 +10,7 @@ from django.contrib.admin.widgets import AdminDateWidget
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
 
-from medobs.reservations.models import Visit_reservation
+from medobs.reservations.models import Visit_reservation, Visit_reservation_exception
 
 
 class ExpirationFilter(SimpleListFilter):
@@ -32,8 +32,8 @@ class ExpirationFilter(SimpleListFilter):
 
 
 class ReservationStatusFilter(SimpleListFilter):
-	title = _("status")
-	parameter_name = 'status'
+	title = _("availability")
+	parameter_name = 'availability'
 
 	def lookups(self, request, model_admin):
 		return (
@@ -45,16 +45,21 @@ class ReservationStatusFilter(SimpleListFilter):
 		)
 
 	def queryset(self, request, queryset):
+		disabled_query = Q(status=Visit_reservation.STATUS_DISABLED)
+		for exception in Visit_reservation_exception.objects.all():
+			q = exception.disabled_reservations_filter()
+			disabled_query = disabled_query | q
+
 		if self.value() == '1':
-			return queryset.filter(status=Visit_reservation.STATUS_ENABLED, patient__isnull=True)
+			return queryset.filter(status=Visit_reservation.STATUS_ENABLED, patient__isnull=True).exclude(disabled_query)
 		elif self.value() == '2':
-			return queryset.filter(status__in=[Visit_reservation.STATUS_ENABLED, Visit_reservation.STATUS_IN_HELD], patient__isnull=False)
+			return queryset.filter(patient__isnull=False).exclude(disabled_query)
 		elif self.value() == '3':
-			return queryset.filter(status=Visit_reservation.STATUS_IN_HELD)
+			return queryset.exclude(disabled_query).filter(status=Visit_reservation.STATUS_IN_HELD)
 		elif self.value() == '4':
-			return queryset.filter(status=Visit_reservation.STATUS_DISABLED, patient__isnull=False)
+			return queryset.filter(patient__isnull=False).filter(disabled_query)
 		elif self.value() == '5':
-			return queryset.filter(status=Visit_reservation.STATUS_DISABLED, patient__isnull=True)
+			return queryset.filter(patient__isnull=True).filter(disabled_query)
 
 
 class DateRangeForm(forms.Form):

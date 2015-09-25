@@ -32,32 +32,23 @@ def send_notification(reservation):
 	except:
 		pass
 
-# Possible states of visit reservation:
-# * disabled
-# * enabled
-# * hold
-# * reservated
-# * disabled-reservated (reschedule required)
 
-_reservation_status_map = {
-	1: 'disabled',
-	2: 'enabled',
-	4: 'hold'
+_status_map = {
+	Visit_reservation.STATUS_ENABLED: 'enabled',
+	Visit_reservation.STATUS_DISABLED: 'disabled',
+	Visit_reservation.STATUS_IN_HELD: 'hold',
+	Visit_reservation.STATUS_RESERVED: 'reservated',
+	Visit_reservation.STATUS_RESCHEDULE: 'reschedule'
 }
-def get_reservation_status(reservation):
-	if reservation.reschedule_required:
-		return 'disabled-reservated'
-	elif reservation.is_reservated:
-		return 'reservated'
-	else:
-		return _reservation_status_map[reservation.status]
 
 def get_reservations_data(reservations, all_attrs=True):
+	reservations = list(reservations)
+	Visit_reservation.compute_actual_status(reservations)
 	if all_attrs:
 		data = [{
 			"id": r.id,
 			"time": r.time.strftime("%H:%M"),
-			"status": get_reservation_status(r),
+			"status": _status_map[r.actual_status],
 			"patient": r.patient.full_name if r.patient else "",
 			"phone_number": r.patient.phone_number.replace(" ", "") if r.patient else "",
 			"email": r.patient.email if r.patient else "",
@@ -70,7 +61,7 @@ def get_reservations_data(reservations, all_attrs=True):
 		data = [{
 			"id": r.id,
 			"time": r.time.strftime("%H:%M"),
-			"status": "enabled" if not r.is_reservated and r.status == Visit_reservation.STATUS_ENABLED and not r.authenticated_only else "disabled",
+			"status": "enabled" if r.actual_status == Visit_reservation.STATUS_ENABLED and not r.authenticated_only else "disabled",
 		} for r in reservations]
 	return data
 

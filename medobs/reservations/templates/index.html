@@ -210,7 +210,7 @@ $(function() {
 					var tab = elem.parent().parent();
 					$.getJSON("/reservations/"+ r.id +"/enable/", function(data) {
 						if (data.status_ok) {
-							var status = (elem.attr("status") === "disabled-reservated")? "reservated" : "enabled";
+							var status = (elem.attr("status") === "reschedule")? "reservated" : "enabled";
 							elem.attr("status", status);
 							$(".term-info", elem).remove();
 							$(".ui-selected", tab).removeClass("ui-selected");
@@ -232,7 +232,7 @@ $(function() {
 					var tab = elem.parent().parent();
 					$.getJSON("/reservations/"+ r.id +"/disable/", function(data) {
 						if (data.status_ok) {
-							var status = (elem.attr("status") === "reservated")? "disabled-reservated" : "disabled";
+							var status = (elem.attr("status") === "reservated")? "reschedule" : "disabled";
 							elem.attr("status", status);
 							$(".ui-selected", tab).removeClass("ui-selected");
 							$(".term-info", elem).remove();
@@ -248,7 +248,7 @@ $(function() {
 			)
 			{% endif %};
 			{% if not reschedule_mode %}
-			if (r.status === "reservated" || r.status === "disabled-reservated") {
+			if (r.status === "reservated" || r.status === "reschedule") {
 				/*
 				actions_elem.prepend($("<a></a>")
 					.addClass("reschedule-button")
@@ -343,7 +343,7 @@ $(function() {
 		$("#reschedule-button").attr('disabled', status !== "enabled" && status !== "hold");
 		{% else %};
 		$("#book-button").attr('disabled', (status !== "enabled" && status !== "hold") || !$("#id_ident_hash").val());
-		$("#unbook-button").attr('disabled', status !== "reservated" && status !== "disabled-reservated");
+		$("#unbook-button").attr('disabled', status !== "reservated" && status !== "reschedule");
 		{% endif %};
 	});
 	$(document).delegate("#ui-selectable li", "dblclick", function(e) {
@@ -386,7 +386,7 @@ $(function() {
 		var r_id = $("input[type='hidden']", elem).val();
 		$.getJSON("/reservations/"+ r_id +"/unbook/", function(data) {
 			if (data.status_ok) {
-				var status = (elem.attr("status") === "disabled-reservated")? "disabled" : "enabled";
+				var status = (elem.attr("status") === "reschedule")? "disabled" : "enabled";
 				elem.attr("status", status);
 				$(".patient-name", elem).remove();
 				$(".term-exam-kind", elem).remove();
