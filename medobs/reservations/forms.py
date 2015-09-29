@@ -28,9 +28,9 @@ class PatientForm(forms.ModelForm):
 		error_messages={"required": _("Select reservation time")}
 	)
 	exam_kind = forms.ModelChoiceField(
-		empty_label=None,
+		empty_label="----------",
+		required=True,
 		queryset=Examination_kind.objects.all(),
-		widget=forms.RadioSelect(),
 		label=_("Examination kind")
 	)
 

@@ -26,7 +26,7 @@
 			{% if message %}<p class="error-message">{{ message }}</p>{% endif %}
 			{% if form.errors %}<p class="error-message">{% trans "Fill all required fields to complete reservation" %}</p>{% endif %}
 			<span class="req"><label for="id_ident_hash"><span class="astr">*</span> {{ form.ident_hash.label }}</label>{{ form.ident_hash }}{{ form.ident_hash.errors }}</span>
-			{% if user.is_authenticated %}<button id="all-reservations"><img src="{{ STATIC_URL }}images/table.png" /></button>{% endif %}
+			{% if user.is_authenticated %}<button id="form-patient-reservations-button" class="patient-reservations-button"><img src="{{ STATIC_URL }}images/table.png" /></button>{% endif %}
 			<span class="req"><label for="id_first_name"><span class="astr">*</span> {{ form.first_name.label }}</label>{{ form.first_name }}{{ form.first_name.errors }}</span>
 			<span class="req"><label for="id_last_name"><span class="astr">*</span> {{ form.last_name.label }}</label>{{ form.last_name }}{{ form.last_name.errors }}</span>
 			<span class="req"><label for="id_phone_number"><span class="astr">*</span> {{ form.phone_number.label }}</label>{{ form.phone_number }}{{ form.phone_number.errors }}</span>
@@ -36,10 +36,13 @@
 		{% if not reschedule_mode %}
 		<fieldset id="visit_part">
 			{{ form.reservation }}
-			<label for="id_exam_kind"><span class="astr">*</span> {{ form.exam_kind.label }}</label>
-			{{ form.exam_kind }}{{ form.exam_kind.errors }}
+			<span class="req"><label for="id_exam_kind"><span class="astr">*</span> {{ form.exam_kind.label }}</label>
+			{{ form.exam_kind }}{{ form.exam_kind.errors }}</span>
 		</fieldset>
-		<p><span class="astr">*</span> {% trans "Required fields" %}</p>
+		<p class="note">(<span class="astr">*</span> {% trans "Required fields" %})</p>
+		<div class="patient-form-buttons">
+			<button type="reset">{% trans "Reset" %}</button>
+		</div>
 		{% else %}
 		<fieldset id="reschedule_part">
 			{{ form.reservation }}
@@ -72,8 +75,6 @@
 		{% endif %}
 		{% if reschedule_mode %}
 		<button id="cancel-button" type="button">{% trans "Cancel" %}</button>
-		{% else %}
-		<button type="reset">{% trans "Reset" %}</button>
 		{% endif %}
 	</div>
 </form>
@@ -137,9 +138,25 @@ $(function() {
 				type: "hidden",
 				value: r.id
 			}));
+		var actions_elem = $("<div></div>")
+			.addClass("reservation-actions")
+			.append($("<button></button>")
+				.addClass("patient-reservations-button")
+				.append($("<img></img>")
+					.attr("src", "{{ STATIC_URL }}images/table.png")
+				).click(function() {
+					if (r.patient) {
+						showPatientReservations(r.patient.name, r.patient.ident_hash);
+					}
+					return false;
+				}));
+
+		var reservation_text = r.status === "hold"? "{% trans "Hold" %}" : r.status === "disabled"? "{% trans "Disabled" %}" : "";
+
 		if (r.patient) {
-			ritem.append($("<span></span>").addClass("patient-name").html(" "+ r.patient));
+			reservation_text = r.patient.name;
 		}
+		ritem.append($("<span></span>").addClass("reservation-text").html(reservation_text));
 
 		if (r.auth_only) {
 			ritem.addClass("ui-auth-only");
@@ -152,15 +169,26 @@ $(function() {
 			);
 		}
 
-		if (r.reservated_by || r.reservation_time) {
+		if (r.reserved_by || r.reservation_time) {
 			ritem.append($("<span></span>")
 				.addClass("term-info")
-				.html(" [ "+ r.reservated_by +" ]")
-				.attr("title", r.reservated_by + " " + r.reservation_time)
+				.html(" [ "+ r.reserved_by +" ]")
+				.attr("title", r.reserved_by + " " + r.reservation_time)
 			);
 		}
-		var actions_elem = $("<div></div>")
-			.addClass("reservation-actions")
+		{% if not reschedule_mode %}
+		if (r.status === "reserved" || r.status === "reschedule") {
+			actions_elem.append($("<button></button>")
+				.addClass("reschedule-button")
+				.html("R")
+				.click(function(evt) {
+					window.location.href = "?reschedule="+r.id;
+					return false;
+				})
+			);
+		}
+		{% endif %};
+		actions_elem
 			.append($("<button></button>")
 				.addClass("hold-button")
 				.html("H")
@@ -170,6 +198,7 @@ $(function() {
 					$.getJSON("/reservations/"+ r.id +"/hold/", function(data) {
 						if (data.status_ok) {
 							elem.attr("status", "hold");
+							$(".reservation-text", elem).html("{% trans "Hold" %}");
 						} else {
 							display_message(
 								"{% trans "Message" %}",
@@ -190,6 +219,7 @@ $(function() {
 						if (data.status_ok) {
 							elem.attr("status", "enabled");
 							$(".term-info", elem).remove();
+							$(".reservation-text", elem).html("");
 							$(".ui-selected", tab).removeClass("ui-selected");
 						} else {
 							display_message(
@@ -210,8 +240,9 @@ $(function() {
 					var tab = elem.parent().parent();
 					$.getJSON("/reservations/"+ r.id +"/enable/", function(data) {
 						if (data.status_ok) {
-							var status = (elem.attr("status") === "reschedule")? "reservated" : "enabled";
+							var status = (elem.attr("status") === "reschedule")? "reserved" : "enabled";
 							elem.attr("status", status);
+							$(".reservation-text", elem).html("");
 							$(".term-info", elem).remove();
 							$(".ui-selected", tab).removeClass("ui-selected");
 						} else {
@@ -232,9 +263,10 @@ $(function() {
 					var tab = elem.parent().parent();
 					$.getJSON("/reservations/"+ r.id +"/disable/", function(data) {
 						if (data.status_ok) {
-							var status = (elem.attr("status") === "reservated")? "reschedule" : "disabled";
+							var status = (elem.attr("status") === "reserved")? "reschedule" : "disabled";
 							elem.attr("status", status);
 							$(".ui-selected", tab).removeClass("ui-selected");
+							$(".reservation-text", elem).html("{% trans "Disabled" %}");
 							$(".term-info", elem).remove();
 						} else {
 							display_message(
@@ -247,47 +279,31 @@ $(function() {
 				})
 			)
 			{% endif %};
-			{% if not reschedule_mode %}
-			if (r.status === "reservated" || r.status === "reschedule") {
-				/*
-				actions_elem.prepend($("<a></a>")
-					.addClass("reschedule-button")
-					.attr("href", "?reschedule="+r.id)
-					.html("R")
-				);*/
-				actions_elem.prepend($("<button></button>")
-					.addClass("reschedule-button")
-					.html("R")
-					.click(function(evt) {
-						window.location.href = "?reschedule="+r.id;
-						return false;
-					})
-				);
-			}
-			{% endif %};
 			actions_elem.appendTo(ritem);
 
 		ritem.appendTo(rlist)
 	};
+	showPatientReservations = function(patient_name, ident_hash) {
+		$.post("/patient/reservations/", {ident_hash: ident_hash}, function(data) {
+			$("<div></div>")
+				.html(data)
+				.appendTo("body")
+				.dialog({
+					width: 530,
+					height: 200,
+					title: patient_name,
+					close: function(event, ui) {
+						$(this).dialog("destroy").remove();
+					}
+				});
+		}, "html");
+	}
 
-	$("#all-reservations").click(function() {
+	$("#form-patient-reservations-button").click(function() {
 		var ident_hash = $("#id_ident_hash").val();
 		if (ident_hash != "") {
-			$.post("/patient/reservations/", {ident_hash: ident_hash}, function(data) {
-				var title = $("#id_first_name").val() +" "+ $("#id_last_name").val();
-
-				$("<div></div>")
-					.html(data)
-					.appendTo("body")
-					.dialog({
-						width: 530,
-						height: 200,
-						title: title,
-						close: function(event, ui) {
-							$(this).dialog("destroy").remove();
-						}
-					});
-			}, "html");
+			var name = $("#id_first_name").val() +" "+ $("#id_last_name").val();
+			showPatientReservations(name, ident_hash);
 		}
 		return false;
 	});
@@ -305,11 +321,14 @@ $(function() {
 			$.post("/patient/", {ident_hash: ident_hash}, function(data) {
 				if (data.first_name) {
 					$("#id_first_name").val(data.first_name);
-					$("#all-reservations").show();
+					$("#form-patient-reservations-button").show();
 				}
 				if (data.last_name) $("#id_last_name").val(data.last_name);
 				if (data.phone_number) $("#id_phone_number").val(data.phone_number);
 				if (data.email) $("#id_email").val(data.email);
+
+				var status = $("#ui-selectable li.ui-selected").attr("status");
+				$("#book-button").attr('disabled', !status || (status !== "enabled" && status !== "hold") || !$("#id_ident_hash").val());
 			});
 		}
 	});
@@ -343,24 +362,8 @@ $(function() {
 		$("#reschedule-button").attr('disabled', status !== "enabled" && status !== "hold");
 		{% else %};
 		$("#book-button").attr('disabled', (status !== "enabled" && status !== "hold") || !$("#id_ident_hash").val());
-		$("#unbook-button").attr('disabled', status !== "reservated" && status !== "reschedule");
+		$("#unbook-button").attr('disabled', status !== "reserved" && status !== "reschedule");
 		{% endif %};
-	});
-	$(document).delegate("#ui-selectable li", "dblclick", function(e) {
-		var elem = $(this);
-		var r_id = $("input[type='hidden']", elem).val();
-		var status = elem.attr("status");
-		if (status === "reservated") {
-			$.getJSON("/reservations/"+ r_id +"/details/", function(data) {
-				var person_part = $("#person_part");
-				$("#id_ident_hash", person_part).val("");
-				$("#id_first_name", person_part).val(data.first_name);
-				$("#id_last_name", person_part).val(data.last_name);
-				$("#id_phone_number", person_part).val(data.phone_number);
-				$("#id_email", person_part).val(data.email);
-				$("input[type='radio'][value='"+ data.exam_kind +"']").click();
-			});
-		}
 	});
 
 	$("#reload").button({
@@ -369,37 +372,54 @@ $(function() {
 	}).click(function() {
 		var date_str = $.datepicker.formatDate("yy-mm-dd", $("#datepicker").datepicker("getDate"));
 		var url = "/reservations/"+ date_str +"/{{ office.id }}/";
-		$.getJSON(url, function(data) {
-			var rlist = $("#ui-selectable");
-			rlist.empty();
-			$.each(data, function(i, r) {
-				make_reservation_item(r, rlist);
-			});
-		});
+		$.getJSON(url, set_reservations);
 	});
 	$("#cancel-button").click(function() {
 		window.location.href = "?";
 	});
+
+	$("<div></div>")
+		.attr("id", "confirm-dialog")
+		.html("{% trans "Are you sure to unbook reservation?" %}")
+		.appendTo("body")
+		.dialog({
+			modal: true,
+			bgiframe: true,
+			width: 320,
+			height: 150,
+			autoOpen: false,
+			title: "{% trans "Confirm" %}"
+		});
 	$("#unbook-button").click(function() {
 		var elem = $("li.ui-selected");
 		var tab = elem.parent().parent();
 		var r_id = $("input[type='hidden']", elem).val();
-		$.getJSON("/reservations/"+ r_id +"/unbook/", function(data) {
-			if (data.status_ok) {
-				var status = (elem.attr("status") === "reschedule")? "disabled" : "enabled";
-				elem.attr("status", status);
-				$(".patient-name", elem).remove();
-				$(".term-exam-kind", elem).remove();
-				$(".term-info", elem).remove();
-				$(".ui-selected", tab).removeClass("ui-selected");
+		$("#confirm-dialog")
+			.dialog('option', 'buttons', {
+				"{% trans "Yes" %}" : function() {
+					$.getJSON("/reservations/"+ r_id +"/unbook/", function(data) {
+						if (data.status_ok) {
+							var status = (elem.attr("status") === "reschedule")? "disabled" : "enabled";
+							elem.attr("status", status);
+							$(".reservation-text", elem).html("");
+							$(".term-exam-kind", elem).remove();
+							$(".term-info", elem).remove();
+							$(".ui-selected", tab).removeClass("ui-selected");
 
-			} else {
-				display_message(
-					"{% trans "Message" %}",
-					"{% trans "Cancel operation failed" %}"
-				);
-			}
-		});
+						} else {
+							display_message(
+								"{% trans "Message" %}",
+								"{% trans "Cancel operation failed" %}"
+							);
+						}
+					});
+					$(this).dialog("close");
+				},
+				"{% trans "Cancel" %}" : function() {
+					$(this).dialog("close");
+				}
+			})
+			.dialog("open");
 	});
 
 	{% else %}
@@ -426,12 +446,25 @@ $(function() {
 			select_reservation($(this));
 		}
 		$("#book-button").attr('disabled', (status !== "enabled" && status !== "hold") || !$("#id_ident_hash").val());
+		$("#unbook-button").attr('disabled', status !== "reserved" && status !== "reschedule");
 	});
 	{% endif %}
 
+	function set_reservations(reservations) {
+		$("#book-button").attr('disabled', true);
+		$("#unbook-button").attr('disabled', true);
+		var rlist = $("#ui-selectable");
+		rlist.empty();
+		$.each(reservations, function(i, r) {
+			make_reservation_item(r, rlist);
+		});
+	}
+
 	$("button[type='reset']").click(function() {
 		$("#id_reservation").val("");
-		$("li.ui-selected").removeClass("ui-selected");
+		$("#form-patient-reservations-button").hide();
+		$("#book-button").attr('disabled', true);
+		$("#unbook-button").attr('disabled', true);
 	});
 
 	var day_status = {{ office.days_status|safe }};
@@ -446,12 +479,7 @@ $(function() {
 			var url = "/reservations/"+ dateText +"/{{ office.id }}/";
 			$.getJSON(url, function(data) {
 				$("#actual-date").html(date_str);
-
-				var rlist = $("#ui-selectable");
-				rlist.empty();
-				$.each(data, function(i, r) {
-					make_reservation_item(r, rlist);
-				});
+				set_reservations(data);
 			});
 		},
 		beforeShowDay: function(date) {
@@ -463,13 +491,8 @@ $(function() {
 		}
 	});
 
-	var rlist = $("#ui-selectable");
 	var reservations = {{ office.reservations|safe }};
-	rlist.empty();
-	$.each(reservations, function(i, r) {
-		make_reservation_item(r, rlist);
-	});
-
+	set_reservations(reservations);
 });
 </script>
 {% endblock %}

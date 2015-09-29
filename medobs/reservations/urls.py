@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
 
 from medobs.reservations import views
 from medobs.reservations.models import Medical_office
@@ -9,7 +9,7 @@ urlpatterns = [
 	url(r"^$", views.front_page),
 	url(r"^android/login/$", views.login),
 	url(r"^android/logout/$", views.logout),
-	url(r"^office/(?P<office_id>\d+)/(?P<for_date>\d{4}-\d{2}-\d{2})/$", views.office_page),
+	url(r"^office/(?P<office_id>\d+)/(?P<for_date>\d{4}-\d{2}-\d{2})/$", views.office_page, name="office-on-date"),
 	url(r"^office/(?P<office_id>\d+)/$", views.office_page),
 	url(r"^reservations/(?P<for_date>\d{4}-\d{2}-\d{2})/(?P<office_id>\d+)/$", views.date_reservations),
 	url(r"^reservations/(?P<for_date>\d{4}-\d{2}-\d{2})/list/(?P<office_id>\d+)/$", views.list_reservations),
@@ -25,11 +25,11 @@ urlpatterns = [
 	url(r"^patient/reservations/$", views.patient_reservations),
 	url(r"^days_status/(?P<year>\d{4})/(?P<month>\d{2})/(?P<office_id>\d+)/$", views.days_status),
 	url(r"^booked/(?P<office_id>\d+)/(?P<for_date>\d{4}-\d{2}-\d{2})/$", views.booked),
-	url(r"^cancel/(?P<object_id>\d+)/$", ListView.as_view(), {
-		"queryset": Medical_office.objects.all(),
-		"template_object_name": "office",
-		"template_name": "cancel.html",
-	}),
+	url(r"^cancel/(?P<pk>\d+)/$", DetailView.as_view(
+		model=Medical_office,
+		context_object_name="office",
+		template_name="cancel.html",
+	)),
 	url(r"^offices/$", views.list_offices),
 ]
 

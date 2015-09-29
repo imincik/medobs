@@ -23,7 +23,7 @@ class ReservationsChangeList(ChangeList):
 
 class VisitReservationAdmin(admin.ModelAdmin):
 	list_display = ("starting_time", "office", "admin_status_label", "authenticated_only", "patient")
-	readonly_fields = ("reservation_time", "reservated_by")
+	readonly_fields = ("reservation_time", "reserved_by")
 	list_filter = ("office", "date", "time", filters.ReservationStatusFilter)
 	ordering = ("date", "time", "office")
 	search_fields = ("^patient__first_name", "^patient__last_name")
@@ -31,7 +31,7 @@ class VisitReservationAdmin(admin.ModelAdmin):
 	form = VisitReservationForm
 	fieldsets = (
 		(None, {"fields": ("office", "date", "time", "status", "authenticated_only")}),
-		(_("Reservation data"), {"fields": ("patient", "exam_kind", "reservation_time", "reservated_by")}),
+		(_("Reservation data"), {"fields": ("patient", "exam_kind", "reservation_time", "reserved_by")}),
 	)
 	save_as = True
 
@@ -45,11 +45,11 @@ class VisitReservationAdmin(admin.ModelAdmin):
 
 	def save_model(self, request, obj, form, change):
 		if obj.patient is not None and obj.status != Visit_reservation.STATUS_DISABLED:
-			obj.reservated_by = request.user.get_full_name() or request.user.username
+			obj.reserved_by = request.user.get_full_name() or request.user.username
 			obj.reservation_time = datetime.now()
 		else:
 			obj.reservation_time = None
-			obj.reservated_by = ""
+			obj.reserved_by = ""
 		return super(VisitReservationAdmin, self).save_model(request, obj, form, change)
 
 	def enable_reservations(self, request, queryset):
@@ -73,7 +73,7 @@ admin.site.register(Visit_reservation, VisitReservationAdmin)
 
 class VisitReservationInline(admin.TabularInline):
 	model = Visit_reservation
-	readonly_fields = ("date", "time", "office", "authenticated_only", "exam_kind", "status", "reservation_time", "reservated_by")
+	readonly_fields = ("date", "time", "office", "authenticated_only", "exam_kind", "status", "reservation_time", "reserved_by")
 	can_delete = False
 	extra = 0
 	def has_add_permission(self, request):

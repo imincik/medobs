@@ -20,7 +20,7 @@ class Command(BaseCommand):
 			print 'I: UnHolding reservation: ', reservation
 			reservation.status = Visit_reservation.STATUS_ENABLED
 			reservation.reservation_time = None
-			reservation.reservated_by = ""
+			reservation.reserved_by = ""
 			reservation.save()
 
 # vim: set ts=4 sts=4 sw=4 noet:

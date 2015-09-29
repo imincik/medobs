@@ -23,23 +23,40 @@ fieldset { margin-bottom: 1em; }
 label {
 	font-weight: normal;
 	font-size: 90%;
-	width: 105px;
+	width: 100px;
+	padding-left: 10px;
+
 }
 input[type="text"], input[type="email"] {
 	width: 144px;
 	border: 1px solid #AAA;
 	margin: 1px 0;
 }
+form select {
+	width: 148px;
+}
 
-form p { font-size: 90%; }
+form p {
+	font-size: 90%;
+	color: #555;
+}
+form p.note {
+	font-size: 80%;
+}
 .req input { background-color: #FFD; }
 
 #person_part { position: relative; }
-#person_part label, #reschedule_part label {
+
+#visit_part label, #person_part label, #reschedule_part label {
 	float: left;
 	display: block;
 	line-height: 22px;
 }
+.req > label {
+	padding-left: 0px;
+	width: 110px;
+}
+
 .astr { color: #F00; }
 #patient-reservations {
 	border-collapse: collapse;
@@ -57,15 +74,18 @@ form p { font-size: 90%; }
 	background-color: #e5ffe5;
 	color: #0A0;
 }
-#all-reservations {
-	position: absolute;
+.patient-reservations-button {
 	padding: 2px;
-	right: 45px;
-	top: 0px;
 	border: none;
 	background: none;
-	display: none;
 }
+#form-patient-reservations-button {
+	position: absolute;
+	display: none;
+	right: 45px;
+	top: 0px;
+}
+
 button {
 	padding: 5px 7px;
 	font-weight: bold;
@@ -130,6 +150,14 @@ li.ui-selectee {
 	height: 100%;
 	font-size: 14px;
 }
+.patient-form-buttons {
+	height: 25px;
+}
+button[type=reset] {
+	float: right;
+	margin-right: 42px;
+}
+
 button.hold-button, button.unhold-button, button.enable-button, button.disable-button, button.reschedule-button {
 	display: none;
 }
@@ -139,10 +167,10 @@ li[status=hold] button.unhold-button {
 li[status=disabled] button.enable-button, li[status=reschedule] button.enable-button {
 	display: inline-block;
 }
-li[status=enabled] button.disable-button, li[status=hold]  button.disable-button, li[status=reservated] button.disable-button {
+li[status=enabled] button.disable-button {
 	display: inline-block;
 }
-li[status=reschedule] button.reschedule-button, li[status=reservated] button.reschedule-button {
+li[status=reschedule] button.reschedule-button, li[status=reserved] button.reschedule-button {
 	display: inline-block;
 }
 li[status=enabled] button.hold-button {
@@ -153,16 +181,36 @@ li[status=enabled] button.hold-button {
 	color: #CCC;
 }
 #ui-selectable li[status=reschedule] {
-	color: #00C;
+	color: #CCC;
 }
-#ui-selectable li[status=reservated] {
-	color: #0A0;
+#ui-selectable li[status=reserved] {
 }
 #ui-selectable li[status=hold] {
-	color: #A00;
 }
 #reload {
 	position: absolute;
 	top: 0;
 	right: 0;
+}
+
+li .patient-reservations-button {
+	display: none;
+}
+li[status=reserved] .patient-reservations-button, li[status=reschedule] .patient-reservations-button {
+	display: inline-block;
+}
+.patient-reservations .patient-info {
+	padding-bottom: 5px;
+}
+.patient-reservations .patient-info label {
+	font-weight: bold;
+	padding-left: 0;
+    width: auto;
+}
+.patient-reservations .patient-info span {
+	padding-right: 15px;
+}
+
+.reservation-text {
+	padding-left: 10px;
 }

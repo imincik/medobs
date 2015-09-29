@@ -29,12 +29,13 @@ class Patient(models.Model):
 		return "%s %s" % (self.last_name, self.first_name)
 	full_name = property(_get_full_name)
 
-	def has_reservation(self):
+	def actual_reservations(self):
 		current_time = datetime.now()
-		if self.visit_reservations.filter(date__gte=current_time.day, time__gte=time(current_time.hour, current_time.minute)).exists():
-			return True
-		else:
-			return False
+		q = Q(date=current_time.date(), time__gte=time(current_time.hour, current_time.minute)) | Q(date__gt=current_time.date())
+		return self.visit_reservations.filter(q)
+
+	def has_reservation(self):
+		return self.actual_reservations().exists()
 	has_reservation.boolean = True
 
 	def save(self, *args, **kwargs):
@@ -206,7 +207,7 @@ class Visit_reservation(models.Model):
 			null=True, blank=True)
 	status = models.PositiveSmallIntegerField(_("status"), default=2, choices=STATUS_CHOICES)
 	reservation_time = models.DateTimeField(_("reservation time"), null=True, blank=True)
-	reservated_by = models.CharField(_("reservated by"), max_length=100, blank=True)
+	reserved_by = models.CharField(_("reserved by"), max_length=100, blank=True)
 
 	class Meta:
 		verbose_name = _("reservation")
@@ -245,7 +246,7 @@ class Visit_reservation(models.Model):
 		self.patient = None
 		self.exam_kind = None
 		self.reservation_time = None
-		self.reservated_by = ""
+		self.reserved_by = ""
 
 	@staticmethod
 	def compute_actual_status(reservations):

@@ -37,7 +37,7 @@ _status_map = {
 	Visit_reservation.STATUS_ENABLED: 'enabled',
 	Visit_reservation.STATUS_DISABLED: 'disabled',
 	Visit_reservation.STATUS_IN_HELD: 'hold',
-	Visit_reservation.STATUS_RESERVED: 'reservated',
+	Visit_reservation.STATUS_RESERVED: 'reserved',
 	Visit_reservation.STATUS_RESCHEDULE: 'reschedule'
 }
 
@@ -49,11 +49,14 @@ def get_reservations_data(reservations, all_attrs=True):
 			"id": r.id,
 			"time": r.time.strftime("%H:%M"),
 			"status": _status_map[r.actual_status],
-			"patient": r.patient.full_name if r.patient else "",
-			"phone_number": r.patient.phone_number.replace(" ", "") if r.patient else "",
-			"email": r.patient.email if r.patient else "",
+			"patient": {
+				"ident_hash": r.patient.ident_hash,
+				"name": r.patient.full_name,
+				"phone_number": r.patient.phone_number.replace(" ", ""),
+				"email": r.patient.email
+			} if r.patient else None,
 			"exam_kind": r.exam_kind.title if r.exam_kind else "",
-			"reservated_by": r.reservated_by,
+			"reserved_by": r.reserved_by,
 			"reservation_time": r.reservation_time.strftime("%d.%m.%Y %H:%M") if r.reservation_time else "",
 			"auth_only": r.authenticated_only,
 		} for r in reservations]

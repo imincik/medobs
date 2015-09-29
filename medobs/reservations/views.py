@@ -115,10 +115,9 @@ def office_page(request, office_id, for_date=None):
 								"phone_number": form.cleaned_data["phone_number"],
 								"email": form.cleaned_data["email"],
 							})
-
 					if not patient_created and patient.has_reservation():
 						messages.error(request, render_to_string("messages/cancel.html", {
-								"reservation": patient.visit_reservations.get(starting_time__gte=datetime.now()),
+								"reservations": patient.actual_reservations(),
 								"user": request.user,
 							}))
 						return HttpResponseRedirect("/cancel/%d/" % reservation.office_id)
@@ -134,7 +133,7 @@ def office_page(request, office_id, for_date=None):
 					reservation.exam_kind = form.cleaned_data["exam_kind"]
 					reservation.status = Visit_reservation.STATUS_ENABLED # clean 'in held' state
 					reservation.reservation_time = datetime.now()
-					reservation.reservated_by = request.user.username
+					reservation.reserved_by = request.user.username
 					reservation.save()
 
 					if patient.email:
@@ -216,7 +215,6 @@ def patient_details(request):
 			try:
 				patient = Patient.objects.get(ident_hash=hexdigest)
 				response_data = {
-					"pk": patient.pk,
 					"first_name": patient.first_name,
 					"last_name": patient.last_name,
 					"phone_number": patient.phone_number,
@@ -232,7 +230,7 @@ def hold_reservation(request, r_id):
 	if reservation.status == Visit_reservation.STATUS_ENABLED:
 		reservation.status = Visit_reservation.STATUS_IN_HELD
 		reservation.reservation_time = datetime.now()
-		reservation.reservated_by = request.user.username
+		reservation.reserved_by = request.user.username
 		reservation.save()
 		response_data = {"status_ok": True}
 	else:
@@ -248,7 +246,7 @@ def unhold_reservation(request, r_id):
 	if reservation.status == Visit_reservation.STATUS_IN_HELD:
 		reservation.status = Visit_reservation.STATUS_ENABLED
 		reservation.reservation_time = None
-		reservation.reservated_by = ""
+		reservation.reserved_by = ""
 		reservation.save()
 		response_data = {"status_ok": True}
 	else:
@@ -278,7 +276,7 @@ def disable_reservation(request, r_id):
 	if reservation.status in (Visit_reservation.STATUS_ENABLED, Visit_reservation.STATUS_IN_HELD) and request.user.is_staff:
 		reservation.status = Visit_reservation.STATUS_DISABLED
 		reservation.reservation_time = datetime.now()
-		reservation.reservated_by = request.user.username
+		reservation.reserved_by = request.user.username
 		reservation.save()
 		response_data = {"status_ok": True}
 	else:
@@ -294,7 +292,7 @@ def enable_reservation(request, r_id):
 	if reservation.status == Visit_reservation.STATUS_DISABLED and request.user.is_staff:
 		reservation.status = Visit_reservation.STATUS_ENABLED
 		reservation.reservation_time = None
-		reservation.reservated_by = ""
+		reservation.reserved_by = ""
 		reservation.save()
 		response_data = {"status_ok": True}
 	else:
@@ -339,16 +337,17 @@ def patient_reservations(request):
 	response_data = {"patient": None}
 
 	if request.method == 'POST':
-		form = PatientDetailForm(request.POST)
-		if form.is_valid():
-			hexdigest = get_hexdigest(form.cleaned_data["ident_hash"])
-			try:
-				response_data["patient"] = Patient.objects.get(ident_hash=hexdigest)
-			except Patient.DoesNotExist:
-				pass
+		ident_hash = request.POST.get("ident_hash", "")
+		if len(ident_hash) < 12:
+			ident_hash = get_hexdigest(ident_hash)
+		try:
+			response_data["patient"] = Patient.objects.get(ident_hash=ident_hash)
+		except Patient.DoesNotExist:
+			raise Http404
 
-	return render_to_response("patient_reservations.html", response_data,
-		context_instance=RequestContext(request))
+		return render_to_response("patient_reservations.html", response_data,
+			context_instance=RequestContext(request))
+	raise Http404
 
 def days_status(request, year, month, office_id):
 	office = get_object_or_404(Medical_office, pk=office_id)
