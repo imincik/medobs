@@ -73,9 +73,6 @@ class VisitReservationAdmin(admin.ModelAdmin):
 		return self.status_labels[obj.actual_status]
 	admin_status_label.short_description = "Availability"
 
-	def generateReservationsEnabled(self):
-		return not Command.is_locked("medobsgen")
-
 admin.site.register(Visit_reservation, VisitReservationAdmin)
 
 class VisitReservationInline(admin.TabularInline):
@@ -152,9 +149,6 @@ class MedicalOfficeAdmin(admin.ModelAdmin):
 					})},
 	}
 
-	def generateReservationsEnabled(self):
-		return not Command.is_locked("medobsgen")
-
 admin.site.register(Medical_office, MedicalOfficeAdmin)
 
 
@@ -164,9 +158,6 @@ admin.site.unregister(Site)
 admin.FieldListFilter.register(lambda f: f and isinstance(f, models.TimeField), filters.TimeRangeFilter, True)
 admin.FieldListFilter.register(lambda f: f and isinstance(f, models.DateField), filters.DateRangeFilter, True)
 
-
-def generate_office_reservations(office_pk):
-	generator.generate_reservations(Visit_template.objects.filter(office=office_pk), console_logging=False)
 
 def generate_template_reservations(template_pk):
 	generator.generate_reservations(Visit_template.objects.filter(pk=template_pk), console_logging=False)
@@ -178,11 +169,8 @@ def generate_all_reservations():
 @view_async_task("medobsgen")
 def generate_reservations(request):
 	template = request.POST.get('template')
-	office = request.POST.get('office')
 	if template:
 		process = Process(target=generate_template_reservations, args=(template,))
-	elif office:
-		process = Process(target=generate_office_reservations, args=(office,))
 	else:
 		process = Process(target=generate_all_reservations, args=())
 	return process, HttpResponse()
