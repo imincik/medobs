@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.sites.models import Site
 from django.contrib.admin.views.main import ChangeList
 from django.contrib.admin.views.decorators import staff_member_required
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from localflavor.cz.forms import CZBirthNumberField
 
 from medobs.reservations import filters
@@ -72,9 +72,6 @@ class VisitReservationAdmin(admin.ModelAdmin):
 	def admin_status_label(self, obj):
 		return self.status_labels[obj.actual_status]
 	admin_status_label.short_description = "Availability"
-
-	def generateReservationsEnabled(self):
-		return not Command.is_locked("medobsgen")
 
 admin.site.register(Visit_reservation, VisitReservationAdmin)
 
@@ -166,13 +163,10 @@ admin.FieldListFilter.register(lambda f: f and isinstance(f, models.DateField), 
 
 
 def generate_office_reservations(office_pk):
-	generator.generate_reservations(Visit_template.objects.filter(office=office_pk), console_logging=False)
+	generator.generate_reservations(Visit_template.objects.filter(office=office_pk), console_logging=True)
 
 def generate_template_reservations(template_pk):
-	generator.generate_reservations(Visit_template.objects.filter(pk=template_pk), console_logging=False)
-
-def generate_all_reservations():
-	generator.generate_reservations(Visit_template.objects.all(), console_logging=False)
+	generator.generate_reservations(Visit_template.objects.filter(pk=template_pk), console_logging=True)
 
 @staff_member_required
 @view_async_task("medobsgen")
@@ -184,7 +178,7 @@ def generate_reservations(request):
 	elif office:
 		process = Process(target=generate_office_reservations, args=(office,))
 	else:
-		process = Process(target=generate_all_reservations, args=())
+		raise Http404
 	return process, HttpResponse()
 
 # vim: set ts=4 sts=4 sw=4 noet:
