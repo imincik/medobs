@@ -55,12 +55,12 @@ TIME_ZONE = 'Europe/Bratislava'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = False
-# jQuery UI datepicker localization file name
-# The localization files are also available in the UI svn:
+
+# jQuery UI datepicker translation file name
+# The translation files are available in the UI source code:
 # http://jquery-ui.googlecode.com/svn/trunk/ui/i18n/
-# Base path is STATIC_ROOT.
 # Example: "js/i18n/jquery.ui.datepicker-sk.js"
-DATEPICKER_I18N_FILE = "js/i18n/jquery.ui.datepicker-sk.js"
+DATEPICKER_I18N_FILE = "js/i18n/jquery.ui.datepicker-en.js"
 
 
 ### OTHER ###
