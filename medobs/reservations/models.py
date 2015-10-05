@@ -1,8 +1,12 @@
 from hashlib import sha1
-from datetime import datetime, date, time, timedelta
+from datetime import datetime
+from datetime import date as dt_date
+from datetime import time as dt_time
+from datetime import timedelta as dt_timedelta
 
 from django.conf import settings
 from django.db import models
+from django.db import transaction
 from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
@@ -31,7 +35,7 @@ class Patient(models.Model):
 
 	def actual_reservations(self):
 		current_time = datetime.now()
-		q = Q(date=current_time.date(), time__gte=time(current_time.hour, current_time.minute)) | Q(date__gt=current_time.date())
+		q = Q(date=current_time.date(), time__gte=dt_time(current_time.hour, current_time.minute)) | Q(date__gt=current_time.date())
 		return self.visit_reservations.filter(q)
 
 	def has_reservation(self):
@@ -86,10 +90,10 @@ class Medical_office(models.Model):
 		# d_years, d_months are "deltas" to apply to dt
 		y, m = dt.year + d_years, dt.month + d_months
 		a, m = divmod(m-1, 12)
-		return date(y+a, m+1, 1)
+		return dt_date(y+a, m+1, 1)
 
 	def _get_last_day(self, dt):
-		return self._get_first_day(dt, 0, 1) + timedelta(-1)
+		return self._get_first_day(dt, 0, 1) + dt_timedelta(-1)
 
 class Office_phone(models.Model):
 	number = models.CharField(_("number"), max_length=50)
@@ -266,5 +270,47 @@ class Visit_reservation(models.Model):
 					status = Visit_reservation.STATUS_RESCHEDULE
 			obj.actual_status = status
 		return reservations
+
+
+class Command(models.Model):
+	name = models.CharField(_("name"), max_length=100, unique=True)
+	user = models.CharField(_("user"), max_length=100)
+	start_time = models.DateTimeField(_("start time"))
+	is_running = models.BooleanField(_("is running"), default=False)
+
+	@classmethod
+	@transaction.atomic
+	def lock(cls, command_name, user_name):
+		command, created = cls.objects.get_or_create(
+			name=command_name,
+			defaults={
+				"is_running": True,
+				"user": user_name,
+				"start_time": datetime.now()
+			}
+		)
+		if not created:
+			if command.is_running:
+				return False
+			command.is_running = True
+			command.user = user_name
+			command.start_time = datetime.now()
+			command.save()
+		return True
+
+	@classmethod
+	@transaction.atomic
+	def unlock(cls, command_name):
+		try:
+			command = cls.objects.get(name=command_name)
+			if command.is_running:
+				command.is_running = False
+				command.save()
+		except cls.DoesNotExist:
+			pass
+
+	@classmethod
+	def is_locked(cls, command_name):
+		return cls.objects.filter(name=command_name, is_running=True).exists()
 
 # vim: set ts=4 sts=4 sw=4 noet:

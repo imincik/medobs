@@ -2,6 +2,7 @@ import datetime
 
 from django.core.management.base import BaseCommand, CommandError
 
+from medobs.reservations.decorators import command_task
 from medobs.reservations.models import Visit_reservation
 
 
@@ -11,6 +12,7 @@ class Command(BaseCommand):
 	def add_arguments(self, parser):
 		parser.add_argument('expiretime', type=float, help='Format: MM')
 
+	@command_task("medobsunhold")
 	def handle(self, *args, **options):
 		expire = options['expiretime']
 		expiretime = datetime.datetime.now() - datetime.timedelta(minutes=expire)

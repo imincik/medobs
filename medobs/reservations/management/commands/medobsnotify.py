@@ -7,12 +7,14 @@ from django.template.loader import render_to_string
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 
+from medobs.reservations.decorators import command_task
 from medobs.reservations.models import Medical_office, Visit_reservation
 
 
 class Command(BaseCommand):
 	help = "Sends notification emails about tomorrow reservations"
 
+	@command_task("medobsnotify")
 	def handle(self, *args, **options):
 		translation.activate(settings.LANGUAGE_CODE)
 		actual_date = date.today() + timedelta(1)

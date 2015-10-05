@@ -7,12 +7,16 @@ from django.forms import Textarea
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.sites.models import Site
 from django.contrib.admin.views.main import ChangeList
+from django.contrib.admin.views.decorators import staff_member_required
+from django.http import HttpResponse, Http404
 from localflavor.cz.forms import CZBirthNumberField
 
 from medobs.reservations import filters
 from medobs.reservations.forms import VisitReservationForm
-from medobs.reservations.models import Examination_kind, Medical_office, Office_phone, Patient
+from medobs.reservations.models import Examination_kind, Medical_office, Office_phone, Patient, Command
 from medobs.reservations.models import Visit_reservation_exception, Visit_reservation, Visit_template
+from medobs.reservations.decorators import view_async_task, Process
+from medobs.reservations import generator
 
 
 class ReservationsChangeList(ChangeList):
@@ -100,6 +104,9 @@ class VisitTemplateAdmin(admin.ModelAdmin):
 	ordering = ("day", "starting_time", "office")
 	save_as = True
 
+	def generateReservationsEnabled(self):
+		return not Command.is_locked("medobsgen")
+
 admin.site.register(Visit_template, VisitTemplateAdmin)
 
 class VisitReservationExceptionAdmin(admin.ModelAdmin):
@@ -141,6 +148,10 @@ class MedicalOfficeAdmin(admin.ModelAdmin):
 						'style': 'height: 5em;'
 					})},
 	}
+
+	def generateReservationsEnabled(self):
+		return not Command.is_locked("medobsgen")
+
 admin.site.register(Medical_office, MedicalOfficeAdmin)
 
 
@@ -149,5 +160,25 @@ admin.site.unregister(Site)
 # register filters
 admin.FieldListFilter.register(lambda f: f and isinstance(f, models.TimeField), filters.TimeRangeFilter, True)
 admin.FieldListFilter.register(lambda f: f and isinstance(f, models.DateField), filters.DateRangeFilter, True)
+
+
+def generate_office_reservations(office_pk):
+	generator.generate_reservations(Visit_template.objects.filter(office=office_pk), console_logging=True)
+
+def generate_template_reservations(template_pk):
+	generator.generate_reservations(Visit_template.objects.filter(pk=template_pk), console_logging=True)
+
+@staff_member_required
+@view_async_task("medobsgen")
+def generate_reservations(request):
+	template = request.POST.get('template')
+	office = request.POST.get('office')
+	if template:
+		process = Process(target=generate_template_reservations, args=(template,))
+	elif office:
+		process = Process(target=generate_office_reservations, args=(office,))
+	else:
+		raise Http404
+	return process, HttpResponse()
 
 # vim: set ts=4 sts=4 sw=4 noet:

@@ -2,6 +2,7 @@ from django.conf.urls import url
 from django.views.generic.detail import DetailView
 
 from medobs.reservations import views
+from medobs.reservations import admin
 from medobs.reservations.models import Medical_office
 
 
@@ -31,6 +32,7 @@ urlpatterns = [
 		template_name="cancel.html",
 	)),
 	url(r"^offices/$", views.list_offices),
+	url(r"^admin/generate_reservations/$", admin.generate_reservations, name="generate-reservations"),
 ]
 
 # vim: set ts=4 sts=4 sw=4 noet:

@@ -3,7 +3,7 @@
 
 {% block object-tools-items %}
 	{% if original.reschedule_required %}
-	<li><a target="_blank" href="/office/{{ original.office_id }}/?reschedule={{ original.pk }}">Reschedule reservation</a></li>
+	<li><a target="_blank" href="/office/{{ original.office_id }}/?reschedule={{ original.pk }}">{% trans "Reschedule reservation" %}</a></li>
 	{% endif %}
 {{ block.super }}
 {% endblock %}
