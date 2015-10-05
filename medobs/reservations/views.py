@@ -80,8 +80,9 @@ def office_page(request, office_id, for_date=None):
 			old_reservation.unbook()
 			new_reservation.save()
 			old_reservation.save()
-			messages.success(request, render_to_string("messages/booked.html", {
-				"reservation": new_reservation,
+			messages.success(request, render_to_string("messages/reschedule.html", {
+				"old_reservation": old_reservation,
+				"new_reservation": new_reservation,
 			}))
 			return HttpResponseRedirect("/booked/%d/%s/" % (
 								new_reservation.office_id,
