@@ -15,7 +15,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from medobs.reservations.forms import PatientForm, PatientDetailForm
 from medobs.reservations.models import Office, Patient, Visit_reservation
-from medobs.reservations.models import get_hexdigest
 
 
 def front_page(request):
@@ -107,7 +106,7 @@ def office_page(request, office_id, for_date=None):
 					if reservation.starting_time < datetime_limit:
 						raise DateInPast()
 
-					hexdigest = get_hexdigest(form.cleaned_data["ident_hash"])
+					hexdigest = Patient.get_ident_hash(form.cleaned_data["ident_hash"])
 					patient, patient_created = Patient.objects.get_or_create(ident_hash=hexdigest,
 							defaults={
 								"first_name": form.cleaned_data["first_name"],
@@ -212,7 +211,7 @@ def patient_details(request):
 	if request.method == 'POST':
 		form = PatientDetailForm(request.POST)
 		if form.is_valid():
-			hexdigest = get_hexdigest(form.cleaned_data["ident_hash"])
+			hexdigest = Patient.get_ident_hash(form.cleaned_data["ident_hash"])
 			try:
 				patient = Patient.objects.get(ident_hash=hexdigest)
 				response_data = {
@@ -341,7 +340,7 @@ def patient_reservations(request):
 	if request.method == 'POST':
 		ident_hash = request.POST.get("ident_hash", "")
 		if len(ident_hash) < 12:
-			ident_hash = get_hexdigest(ident_hash)
+			ident_hash = Patient.get_ident_hash(ident_hash)
 		try:
 			response_data["patient"] = Patient.objects.get(ident_hash=ident_hash)
 		except Patient.DoesNotExist:

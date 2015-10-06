@@ -11,9 +11,6 @@ from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 
 
-def get_hexdigest(user_input):
-	return sha1(settings.SECRET_KEY + user_input).hexdigest()
-
 class Patient(models.Model):
 	first_name = models.CharField(_("first name"), max_length=100)
 	last_name = models.CharField(_("last name"), max_length=100)
@@ -24,6 +21,10 @@ class Patient(models.Model):
 	class Meta:
 		verbose_name = _("patient")
 		verbose_name_plural = _("patients")
+
+	@staticmethod
+	def get_ident_hash(ident_string):
+		return sha1(settings.SECRET_KEY + ident_string).hexdigest()
 
 	def __unicode__(self):
 		return self.full_name
@@ -44,7 +45,7 @@ class Patient(models.Model):
 
 	def save(self, *args, **kwargs):
 		if not self.id:
-			self.ident_hash = get_hexdigest(self.ident_hash)
+			self.ident_hash = self.get_ident_hash(self.ident_hash)
 		super(Patient, self).save(*args, **kwargs)
 
 class Office(models.Model):
