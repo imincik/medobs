@@ -67,7 +67,7 @@ class PatientSearchWidget(forms.Select):
 			'field_attrs': self.build_attrs(attrs, name=name, value=value),
 			'search_attrs': self.build_attrs(id="id_patient_ident", type="text")
 		}
-		return render_to_string("admin/reservations/visit_reservation/patient_search_field.html", data)
+		return render_to_string("admin/reservations/reservation/patient_search_field.html", data)
 
 	@property
 	def media(self):
