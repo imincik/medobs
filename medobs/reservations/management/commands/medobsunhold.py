@@ -3,7 +3,7 @@ import datetime
 from django.core.management.base import BaseCommand, CommandError
 
 from medobs.reservations.decorators import command_task
-from medobs.reservations.models import Visit_reservation
+from medobs.reservations.models import Reservation
 
 
 class Command(BaseCommand):
@@ -17,10 +17,10 @@ class Command(BaseCommand):
 		expire = options['expiretime']
 		expiretime = datetime.datetime.now() - datetime.timedelta(minutes=expire)
 		
-		print 'I: UnHolding reservations done before %s' % (expiretime)
-		for reservation in Visit_reservation.objects.filter(reservation_time__lte=(expiretime), status=Visit_reservation.STATUS_IN_HELD):
-			print 'I: UnHolding reservation: ', reservation
-			reservation.status = Visit_reservation.STATUS_ENABLED
+		print 'Unholding reservations done before %s' % (expiretime)
+		for reservation in Reservation.objects.filter(reservation_time__lte=(expiretime), status=Reservation.STATUS_IN_HELD):
+			print '* %s' % (reservation)
+			reservation.status = Reservation.STATUS_ENABLED
 			reservation.reservation_time = None
 			reservation.reserved_by = ""
 			reservation.save()

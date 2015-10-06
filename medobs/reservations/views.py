@@ -14,7 +14,7 @@ from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
 from medobs.reservations.forms import PatientForm, PatientDetailForm
-from medobs.reservations.models import Office, Patient, Visit_reservation
+from medobs.reservations.models import Office, Patient, Reservation
 
 
 def front_page(request):
@@ -44,15 +44,15 @@ def office_page(request, office_id, for_date=None):
 	reschedule_reservation = request.GET.get('reschedule')
 	if reschedule_reservation:
 		try:
-			reschedule_reservation = Visit_reservation.objects.get(pk=reschedule_reservation)
-		except Visit_reservation.DoesNotExist:
+			reschedule_reservation = Reservation.objects.get(pk=reschedule_reservation)
+		except Reservation.DoesNotExist:
 			raise Http404
 
 	form = None
 	message = None
 	start_date = date.today()
 	end_date = start_date + timedelta(office.days_to_generate)
-	dates = list(Visit_reservation.objects.filter(date__gte=date.today()).dates("date", "day"))
+	dates = list(Reservation.objects.filter(date__gte=date.today()).dates("date", "day"))
 
 	if dates:
 		if not request.user.is_authenticated():
@@ -71,8 +71,8 @@ def office_page(request, office_id, for_date=None):
 	if request.method == 'POST':
 		action = request.POST.get("action")
 		if action == "reschedule":
-			old_reservation = get_object_or_404(Visit_reservation, pk=request.POST.get("old_reservation"))
-			new_reservation = get_object_or_404(Visit_reservation, pk=request.POST.get("reservation"))
+			old_reservation = get_object_or_404(Reservation, pk=request.POST.get("old_reservation"))
+			new_reservation = get_object_or_404(Reservation, pk=request.POST.get("reservation"))
 			actual_date = new_reservation.date
 			new_reservation.patient = old_reservation.patient
 			new_reservation.exam_kind = old_reservation.exam_kind
@@ -96,10 +96,10 @@ def office_page(request, office_id, for_date=None):
 					reservation_id = reservation.id
 
 					if request.user.is_authenticated():
-						if reservation.status not in (Visit_reservation.STATUS_ENABLED, Visit_reservation.STATUS_IN_HELD):
+						if reservation.status not in (Reservation.STATUS_ENABLED, Reservation.STATUS_IN_HELD):
 							raise BadStatus()
 					else:
-						if reservation.status != Visit_reservation.STATUS_ENABLED:
+						if reservation.status != Reservation.STATUS_ENABLED:
 							raise BadStatus()
 
 					datetime_limit = datetime.combine(date.today() + timedelta(1), time(0, 0))
@@ -131,7 +131,7 @@ def office_page(request, office_id, for_date=None):
 
 					reservation.patient = patient
 					reservation.exam_kind = form.cleaned_data["exam_kind"]
-					reservation.status = Visit_reservation.STATUS_ENABLED # clean 'in held' state
+					reservation.status = Reservation.STATUS_ENABLED # clean 'in held' state
 					reservation.reservation_time = datetime.now()
 					reservation.reserved_by = request.user.username
 					reservation.save()
@@ -154,7 +154,7 @@ def office_page(request, office_id, for_date=None):
 				r_val = form["reservation"].value()
 				if r_val:
 					reservation_id = int(r_val)
-					actual_date = Visit_reservation.objects.get(pk=reservation_id).date
+					actual_date = Reservation.objects.get(pk=reservation_id).date
 	if form is None:
 		form = PatientForm()
 		form.fields["exam_kind"].queryset = office.exam_kinds.all()
@@ -227,9 +227,9 @@ def patient_details(request):
 
 @login_required
 def hold_reservation(request, r_id):
-	reservation = get_object_or_404(Visit_reservation, pk=r_id)
-	if reservation.status == Visit_reservation.STATUS_ENABLED:
-		reservation.status = Visit_reservation.STATUS_IN_HELD
+	reservation = get_object_or_404(Reservation, pk=r_id)
+	if reservation.status == Reservation.STATUS_ENABLED:
+		reservation.status = Reservation.STATUS_IN_HELD
 		reservation.reservation_time = datetime.now()
 		reservation.reserved_by = request.user.username
 		reservation.save()
@@ -243,9 +243,9 @@ def hold_reservation(request, r_id):
 
 @login_required
 def unhold_reservation(request, r_id):
-	reservation = get_object_or_404(Visit_reservation, pk=r_id)
-	if reservation.status == Visit_reservation.STATUS_IN_HELD:
-		reservation.status = Visit_reservation.STATUS_ENABLED
+	reservation = get_object_or_404(Reservation, pk=r_id)
+	if reservation.status == Reservation.STATUS_IN_HELD:
+		reservation.status = Reservation.STATUS_ENABLED
 		reservation.reservation_time = None
 		reservation.reserved_by = ""
 		reservation.save()
@@ -259,7 +259,7 @@ def unhold_reservation(request, r_id):
 
 @login_required
 def unbook_reservation(request, r_id):
-	reservation = get_object_or_404(Visit_reservation, pk=r_id)
+	reservation = get_object_or_404(Reservation, pk=r_id)
 	if reservation.patient is not None:
 		reservation.unbook()
 		reservation.save()
@@ -273,9 +273,9 @@ def unbook_reservation(request, r_id):
 
 @login_required
 def disable_reservation(request, r_id):
-	reservation = get_object_or_404(Visit_reservation, pk=r_id)
-	if reservation.status in (Visit_reservation.STATUS_ENABLED, Visit_reservation.STATUS_IN_HELD) and request.user.is_staff:
-		reservation.status = Visit_reservation.STATUS_DISABLED
+	reservation = get_object_or_404(Reservation, pk=r_id)
+	if reservation.status in (Reservation.STATUS_ENABLED, Reservation.STATUS_IN_HELD) and request.user.is_staff:
+		reservation.status = Reservation.STATUS_DISABLED
 		reservation.reservation_time = datetime.now()
 		reservation.reserved_by = request.user.username
 		reservation.save()
@@ -289,9 +289,9 @@ def disable_reservation(request, r_id):
 
 @login_required
 def enable_reservation(request, r_id):
-	reservation = get_object_or_404(Visit_reservation, pk=r_id)
-	if reservation.status == Visit_reservation.STATUS_DISABLED and request.user.is_staff:
-		reservation.status = Visit_reservation.STATUS_ENABLED
+	reservation = get_object_or_404(Reservation, pk=r_id)
+	if reservation.status == Reservation.STATUS_DISABLED and request.user.is_staff:
+		reservation.status = Reservation.STATUS_ENABLED
 		reservation.reservation_time = None
 		reservation.reserved_by = ""
 		reservation.save()
@@ -320,7 +320,7 @@ def list_reservations(request, for_date, office_id):
 
 @login_required
 def reservation_details(request, r_id):
-	reservation = get_object_or_404(Visit_reservation, pk=r_id)
+	reservation = get_object_or_404(Reservation, pk=r_id)
 	response_data = {
 		"first_name": reservation.patient.first_name,
 		"last_name": reservation.patient.last_name,
@@ -405,7 +405,7 @@ def list_offices(request):
 
 @login_required
 def enable_auth_only(request, r_id):
-	reservation = get_object_or_404(Visit_reservation, pk=r_id)
+	reservation = get_object_or_404(Reservation, pk=r_id)
 	reservation.authenticated_only = True
 	reservation.save()
 
@@ -418,7 +418,7 @@ def enable_auth_only(request, r_id):
 
 @login_required
 def disable_auth_only(request, r_id):
-	reservation = get_object_or_404(Visit_reservation, pk=r_id)
+	reservation = get_object_or_404(Reservation, pk=r_id)
 	reservation.authenticated_only = False
 	reservation.save()
 

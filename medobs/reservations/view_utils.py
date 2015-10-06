@@ -5,11 +5,11 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
-from medobs.reservations.models import Office, Visit_reservation
+from medobs.reservations.models import Office, Reservation
 
 def is_reservation_on_date(for_date, office):
 	""" Checks if reservations exist on selected date. """
-	return Visit_reservation.objects.filter(date=for_date, office=office).exists()
+	return Reservation.objects.filter(date=for_date, office=office).exists()
 
 def get_offices(user):
 	if user.is_authenticated():
@@ -34,16 +34,16 @@ def send_notification(reservation):
 
 
 _status_map = {
-	Visit_reservation.STATUS_ENABLED: 'enabled',
-	Visit_reservation.STATUS_DISABLED: 'disabled',
-	Visit_reservation.STATUS_IN_HELD: 'hold',
-	Visit_reservation.STATUS_RESERVED: 'reserved',
-	Visit_reservation.STATUS_RESCHEDULE: 'reschedule'
+	Reservation.STATUS_ENABLED: 'enabled',
+	Reservation.STATUS_DISABLED: 'disabled',
+	Reservation.STATUS_IN_HELD: 'hold',
+	Reservation.STATUS_RESERVED: 'reserved',
+	Reservation.STATUS_RESCHEDULE: 'reschedule'
 }
 
 def get_reservations_data(reservations, all_attrs=True):
 	reservations = list(reservations)
-	Visit_reservation.compute_actual_status(reservations)
+	Reservation.compute_actual_status(reservations)
 	if all_attrs:
 		data = [{
 			"id": r.id,
@@ -64,7 +64,7 @@ def get_reservations_data(reservations, all_attrs=True):
 		data = [{
 			"id": r.id,
 			"time": r.time.strftime("%H:%M"),
-			"status": "enabled" if r.actual_status == Visit_reservation.STATUS_ENABLED and not r.authenticated_only else "disabled",
+			"status": "enabled" if r.actual_status == Reservation.STATUS_ENABLED and not r.authenticated_only else "disabled",
 		} for r in reservations]
 	return data
 

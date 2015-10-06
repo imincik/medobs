@@ -188,7 +188,7 @@ class Examination_kind(models.Model):
 	def __unicode__(self):
 		return self.title
 
-class Visit_reservation(models.Model):
+class Reservation(models.Model):
 	STATUS_DISABLED = 1
 	STATUS_ENABLED = 2
 	STATUS_IN_HELD = 4
@@ -234,7 +234,7 @@ class Visit_reservation(models.Model):
 	def reschedule_required(self):
 		if self.patient is None:
 			return False
-		elif self.status == Visit_reservation.STATUS_DISABLED:
+		elif self.status == Reservation.STATUS_DISABLED:
 			return True
 
 		status = self.status
@@ -258,17 +258,17 @@ class Visit_reservation(models.Model):
 		exceptions = list(Reservation_exception.objects.all())
 		for obj in reservations:
 			status = obj.status
-			if status != Visit_reservation.STATUS_DISABLED:
+			if status != Reservation.STATUS_DISABLED:
 				starting_time = obj.starting_time
 				for exception in exceptions:
 					if exception.office == obj.office and exception.covers_reservation_time(starting_time):
-						status = Visit_reservation.STATUS_DISABLED
+						status = Reservation.STATUS_DISABLED
 						break
 			if obj.patient is not None:
-				if status == Visit_reservation.STATUS_ENABLED:
-					status = Visit_reservation.STATUS_RESERVED
-				elif status == Visit_reservation.STATUS_DISABLED:
-					status = Visit_reservation.STATUS_RESCHEDULE
+				if status == Reservation.STATUS_ENABLED:
+					status = Reservation.STATUS_RESERVED
+				elif status == Reservation.STATUS_DISABLED:
+					status = Reservation.STATUS_RESCHEDULE
 			obj.actual_status = status
 		return reservations
 

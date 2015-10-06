@@ -8,11 +8,11 @@ from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 
 from medobs.reservations.decorators import command_task
-from medobs.reservations.models import Office, Visit_reservation
+from medobs.reservations.models import Office, Reservation
 
 
 class Command(BaseCommand):
-	help = "Sends notification emails about tomorrow reservations"
+	help = "Send email notifications tomorrow reservations"
 
 	@command_task("medobsnotify")
 	def handle(self, *args, **options):
@@ -20,9 +20,9 @@ class Command(BaseCommand):
 		actual_date = date.today() + timedelta(1)
 		for office in Office.objects.all():
 			reservations = list(office.reservations(actual_date))
-			Visit_reservation.compute_actual_status(reservations)
+			Reservation.compute_actual_status(reservations)
 			for r in reservations:
-				if r.actual_status == Visit_reservation.STATUS_RESERVED and r.patient.email:
+				if r.actual_status == Reservation.STATUS_RESERVED and r.patient.email:
 					send_mail(
 						_("Upcoming reservation notification"),
 						render_to_string(

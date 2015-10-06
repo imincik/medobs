@@ -5,7 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.templatetags.admin_static import static
 from localflavor.cz.forms import CZBirthNumberField
 
-from medobs.reservations.models import Examination_kind, Patient, Visit_reservation
+from medobs.reservations.models import Examination_kind, Patient, Reservation
 
 
 class PatientForm(forms.ModelForm):
@@ -23,7 +23,7 @@ class PatientForm(forms.ModelForm):
 		error_messages={"invalid": _(u"Enter a valid phone number containing numbers only.")}
 	)
 	reservation = forms.ModelChoiceField(
-		queryset=Visit_reservation.objects.all(),
+		queryset=Reservation.objects.all(),
 		widget=forms.HiddenInput(),
 		error_messages={"required": _("Select reservation time")}
 	)
@@ -76,10 +76,10 @@ class PatientSearchWidget(forms.Select):
 		return media
 
 
-class VisitReservationForm(forms.ModelForm):
+class ReservationForm(forms.ModelForm):
 	time = forms.TimeField(widget=forms.TimeInput(format='%H:%M'))
 	class Meta:
-		model = Visit_reservation
+		model = Reservation
 		exclude = ()
 		widgets = {
 			'patient': PatientSearchWidget

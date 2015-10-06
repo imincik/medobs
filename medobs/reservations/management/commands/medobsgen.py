@@ -6,7 +6,7 @@ from medobs.reservations.decorators import command_task
 
 
 class Command(BaseCommand):
-	help = "Pregenerate Visit_reservation records by Template"
+	help = "Generate reservations from templates"
 
 	@command_task("medobsgen")
 	def handle(self, *args, **options):

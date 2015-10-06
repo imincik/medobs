@@ -1,6 +1,6 @@
 #!/usr/bin/python
 """
-Automaticaly generate MEDOBS 'visit template' by selecting office, start/end times and interval.
+Automaticaly generate MEDOBS templates by selecting office, start/end times and interval.
 Running without any arguments prints list of available offices.
 """
 
@@ -26,7 +26,7 @@ class Command(BaseCommand):
 		parser.add_argument('interval', type=int, nargs='?', help='Format: MM')
 
 	def print_offices_list(self):
-		print 'I: List of available offices:'
+		print 'List of available offices:'
 		for office in Office.objects.all():
 			print '\t* %s' % office.name
 
@@ -39,10 +39,10 @@ class Command(BaseCommand):
 			for day in Template.DAYS:
 				if day[0] <= 5: # do not create templates for Saturday and Sunday
 					if not Template.objects.filter(office=office, day=day[0], starting_time=templatetime.time()).exists():
-						print 'I: Creating template:  %s %s %s' % (office.name, day[1], templatetime.time())
+						print '* %s %s %s' % (office.name, day[1], templatetime.time())
 						Template.objects.create(office=office, day=day[0], starting_time=templatetime.time(), valid_since=TEMPLATE_VALID_SINCE)
 					else:
-						print 'W: Template already exists:  %s %s %s ... (skipping)' % (office.name, day[1], templatetime.time())
+						print 'Template already exists, skipping ... %s %s %s' % (office.name, day[1], templatetime.time())
 
 			templatetime = templatetime + intervaltime
 

@@ -13,9 +13,9 @@ from django.http import HttpResponse
 from localflavor.cz.forms import CZBirthNumberField
 
 from medobs.reservations import filters
-from medobs.reservations.forms import VisitReservationForm
+from medobs.reservations.forms import ReservationForm
 from medobs.reservations.models import Examination_kind, Office, Phone, Patient, Command
-from medobs.reservations.models import Reservation_exception, Visit_reservation, Template
+from medobs.reservations.models import Reservation_exception, Reservation, Template
 from medobs.reservations.decorators import view_async_task, Process
 from medobs.reservations import generator
 
@@ -24,16 +24,16 @@ class ReservationsChangeList(ChangeList):
 	def __init__(self, *args, **kwargs):
 		super(ReservationsChangeList, self).__init__(*args, **kwargs)
 		self.result_list = list(self.result_list)
-		Visit_reservation.compute_actual_status(self.result_list)
+		Reservation.compute_actual_status(self.result_list)
 
-class VisitReservationAdmin(admin.ModelAdmin):
+class ReservationAdmin(admin.ModelAdmin):
 	list_display = ("starting_time", "office", "admin_status_label", "authenticated_only", "patient")
 	readonly_fields = ("reservation_time", "reserved_by")
 	list_filter = ("office", "date", "time", filters.ReservationStatusFilter)
 	ordering = ("date", "time", "office")
 	search_fields = ("^patient__first_name", "^patient__last_name")
 	actions = ("enable_reservations", "disable_reservations")
-	form = VisitReservationForm
+	form = ReservationForm
 	fieldsets = (
 		(None, {"fields": ("office", "date", "time", "status", "authenticated_only")}),
 		(_("Reservation data"), {"fields": ("patient", "exam_kind", "reservation_time", "reserved_by")}),
@@ -41,28 +41,28 @@ class VisitReservationAdmin(admin.ModelAdmin):
 	save_as = True
 
 	status_labels = {
-		Visit_reservation.STATUS_ENABLED: _('Available'),
-		Visit_reservation.STATUS_DISABLED: _('Disabled'),
-		Visit_reservation.STATUS_IN_HELD: _('Hold'),
-		Visit_reservation.STATUS_RESERVED: _('Reserved'),
-		Visit_reservation.STATUS_RESCHEDULE: _('Reschedule')
+		Reservation.STATUS_ENABLED: _('Available'),
+		Reservation.STATUS_DISABLED: _('Disabled'),
+		Reservation.STATUS_IN_HELD: _('Hold'),
+		Reservation.STATUS_RESERVED: _('Reserved'),
+		Reservation.STATUS_RESCHEDULE: _('Reschedule')
 	}
 
 	def save_model(self, request, obj, form, change):
-		if obj.patient is not None and obj.status != Visit_reservation.STATUS_DISABLED:
+		if obj.patient is not None and obj.status != Reservation.STATUS_DISABLED:
 			obj.reserved_by = request.user.get_full_name() or request.user.username
 			obj.reservation_time = datetime.now()
 		else:
 			obj.reservation_time = None
 			obj.reserved_by = ""
-		return super(VisitReservationAdmin, self).save_model(request, obj, form, change)
+		return super(ReservationAdmin, self).save_model(request, obj, form, change)
 
 	def enable_reservations(self, request, queryset):
-		queryset.update(status=Visit_reservation.STATUS_ENABLED)
+		queryset.update(status=Reservation.STATUS_ENABLED)
 	enable_reservations.short_description = "Enable selected reservations"
 
 	def disable_reservations(self, request, queryset):
-		queryset.update(status=Visit_reservation.STATUS_DISABLED)
+		queryset.update(status=Reservation.STATUS_DISABLED)
 	disable_reservations.short_description = "Disable selected reservations"
 
 	# Wrap changelist to effectively compute reservations status (filtering disabled reservations
@@ -74,10 +74,10 @@ class VisitReservationAdmin(admin.ModelAdmin):
 		return self.status_labels[obj.actual_status]
 	admin_status_label.short_description = "Availability"
 
-admin.site.register(Visit_reservation, VisitReservationAdmin)
+admin.site.register(Reservation, ReservationAdmin)
 
 class VisitReservationInline(admin.TabularInline):
-	model = Visit_reservation
+	model = Reservation
 	readonly_fields = ("date", "time", "office", "authenticated_only", "exam_kind", "status", "reservation_time", "reserved_by")
 	can_delete = False
 	extra = 0

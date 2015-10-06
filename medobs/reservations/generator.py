@@ -5,7 +5,7 @@ from datetime import timedelta as dt_timedelta
 
 from django.db import transaction
 
-from medobs.reservations.models import Reservation_exception, Visit_reservation
+from medobs.reservations.models import Reservation_exception, Reservation
 
 
 def generate_reservations(templates, console_logging=False):
@@ -30,7 +30,7 @@ def generate_reservations(templates, console_logging=False):
 
 		# create cache of existing reservations with this structure
 		# { date_string -> { time_string -> { pk: p, status: s } }
-		existing_reservations = Visit_reservation.objects.filter(
+		existing_reservations = Reservation.objects.filter(
 			office=office, date__gte=today, date__lte=end_day).values_list('pk', 'date', 'time', 'status')
 		existing_reservations_cache = {}
 		for pk, date, time, status in existing_reservations:
@@ -50,17 +50,17 @@ def generate_reservations(templates, console_logging=False):
 					if tmp.day == week_day and tmp.valid_since <= day and (tmp.valid_until == None or tmp.valid_until > day):
 						starting_time = datetime.combine(day, tmp.starting_time)
 
-						status = Visit_reservation.STATUS_ENABLED
+						status = Reservation.STATUS_ENABLED
 						for templ_exception in templates_exceptions:
 							if templ_exception.covers_reservation_time(starting_time):
-								status = Visit_reservation.STATUS_DISABLED
+								status = Reservation.STATUS_DISABLED
 								break
 
 						existing_reservation_info = day_cache.get(str(tmp.starting_time))
 						if existing_reservation_info is None:
 							if console_logging:
 								print '* %s' % (starting_time)
-							obj = Visit_reservation(
+							obj = Reservation(
 								date=day,
 								time=tmp.starting_time,
 								office=office,
