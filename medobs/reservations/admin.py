@@ -14,7 +14,7 @@ from localflavor.cz.forms import CZBirthNumberField
 from medobs.reservations import filters
 from medobs.reservations.forms import VisitReservationForm
 from medobs.reservations.models import Examination_kind, Office, Office_phone, Patient, Command
-from medobs.reservations.models import Visit_reservation_exception, Visit_reservation, Visit_template
+from medobs.reservations.models import Visit_reservation_exception, Visit_reservation, Template
 from medobs.reservations.decorators import view_async_task, Process
 from medobs.reservations import generator
 
@@ -98,7 +98,7 @@ class PatientAdmin(admin.ModelAdmin):
 
 admin.site.register(Patient, PatientAdmin)
 
-class VisitTemplateAdmin(admin.ModelAdmin):
+class TemplateAdmin(admin.ModelAdmin):
 	list_display = ("__unicode__", "office", "starting_time", "valid_since", "valid_until", "authenticated_only")
 	list_filter = ("office", "day", "starting_time", filters.ExpirationFilter)
 	ordering = ("day", "starting_time", "office")
@@ -107,7 +107,7 @@ class VisitTemplateAdmin(admin.ModelAdmin):
 	def generateReservationsEnabled(self):
 		return not Command.is_locked("medobsgen")
 
-admin.site.register(Visit_template, VisitTemplateAdmin)
+admin.site.register(Template, TemplateAdmin)
 
 class VisitReservationExceptionAdmin(admin.ModelAdmin):
 	list_display = ("title", "begin", "end", "office")
@@ -160,10 +160,10 @@ admin.FieldListFilter.register(lambda f: f and isinstance(f, models.DateField), 
 
 
 def generate_template_reservations(template_pk):
-	generator.generate_reservations(Visit_template.objects.filter(pk=template_pk), console_logging=False)
+	generator.generate_reservations(Template.objects.filter(pk=template_pk), console_logging=False)
 
 def generate_all_reservations():
-	generator.generate_reservations(Visit_template.objects.all(), console_logging=False)
+	generator.generate_reservations(Template.objects.all(), console_logging=False)
 
 @staff_member_required
 @view_async_task("medobsgen")

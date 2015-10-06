@@ -10,7 +10,7 @@ import datetime
 from django.core.management.base import BaseCommand, CommandError
 
 from medobs.reservations.decorators import command_task
-from medobs.reservations.models import Office, Visit_template
+from medobs.reservations.models import Office, Template
 
 
 TEMPLATE_VALID_SINCE = '2000-01-01'
@@ -36,11 +36,11 @@ class Command(BaseCommand):
 
 		templatetime = starttime
 		while templatetime.time() <= endtime.time():
-			for day in Visit_template.DAYS:
+			for day in Template.DAYS:
 				if day[0] <= 5: # do not create templates for Saturday and Sunday
-					if not Visit_template.objects.filter(office=office, day=day[0], starting_time=templatetime.time()).exists():
+					if not Template.objects.filter(office=office, day=day[0], starting_time=templatetime.time()).exists():
 						print 'I: Creating template:  %s %s %s' % (office.name, day[1], templatetime.time())
-						Visit_template.objects.create(office=office, day=day[0], starting_time=templatetime.time(), valid_since=TEMPLATE_VALID_SINCE)
+						Template.objects.create(office=office, day=day[0], starting_time=templatetime.time(), valid_since=TEMPLATE_VALID_SINCE)
 					else:
 						print 'W: Template already exists:  %s %s %s ... (skipping)' % (office.name, day[1], templatetime.time())
 

@@ -55,10 +55,11 @@ class Office(models.Model):
 	email = models.EmailField(_("e-mail"), blank=True)
 	order = models.PositiveIntegerField(_("order"), help_text=_("Office order on user page."))
 	public = models.BooleanField(_("public"),
-		help_text=_("Check if you want to make this office to be visible on user page without authentication."))
+		help_text=_("Check if you want to make this office visible on user page without authentication."))
 	published = models.BooleanField(_("published"), default=True,
-		help_text=_("Check if you want to make this office to be published."))
-	days_to_generate = models.PositiveSmallIntegerField(_("days to generate"), default=7, help_text=_("Number of days to generate reservations."))
+		help_text=_("Check if you want to make this office published."))
+	days_to_generate = models.PositiveSmallIntegerField(_("days to generate"), default=7,
+		help_text=_("Number of days to generate reservations."))
 	note = models.TextField(_("note"), blank=True)
 
 	class Meta:
@@ -107,7 +108,7 @@ class Office_phone(models.Model):
 	def __unicode__(self):
 		return self.number
 
-class Visit_template(models.Model):
+class Template(models.Model):
 	DAYS = (
 		(1, _("Monday")),
 		(2, _("Tuesday")),
@@ -117,8 +118,7 @@ class Visit_template(models.Model):
 		(6, _("Saturday")),
 		(7, _("Sunday")),
 	)
-	office = models.ForeignKey(Office, verbose_name=_("office"),
-			related_name="templates")
+	office = models.ForeignKey(Office, verbose_name=_("office"), related_name="templates")
 	day = models.PositiveSmallIntegerField(_("week day"), choices=DAYS)
 	starting_time = models.TimeField(_("time"))
 	valid_since = models.DateField(_("valid since"),
@@ -126,7 +126,7 @@ class Visit_template(models.Model):
 	valid_until = models.DateField(_("valid until"), null=True, blank=True,
 			help_text=_("This date is not included into interval."))
 	authenticated_only = models.BooleanField(_("authenticated only"), default=False,
-			help_text=_("If true allow reservation only for authenticated users."))
+			help_text=_("If true, allow creating reservation only for authenticated users."))
 	note = models.TextField(_("note"), blank=True)
 
 	class Meta:

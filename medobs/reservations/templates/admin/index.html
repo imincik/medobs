@@ -41,7 +41,7 @@
                 <td><a href="{{ model.admin_url }}" class="changelink">{% trans 'Change' %}</a></td>
             </tr>
             {% endwith %}
-            {% with model=app_list|model_filter:"reservations.Visit_template" %}
+            {% with model=app_list|model_filter:"reservations.Template" %}
             <tr>
                 <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
                 <td><a href="{{ model.add_url }}" class="addlink">{% trans 'Add' %}</a></td>
