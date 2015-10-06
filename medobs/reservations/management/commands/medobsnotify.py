@@ -12,7 +12,7 @@ from medobs.reservations.models import Office, Reservation
 
 
 class Command(BaseCommand):
-	help = "Send email notifications tomorrow reservations"
+	help = "Send email notifications for tomorrow reservations"
 
 	@command_task("medobsnotify")
 	def handle(self, *args, **options):
@@ -24,7 +24,7 @@ class Command(BaseCommand):
 			for r in reservations:
 				if r.actual_status == Reservation.STATUS_RESERVED and r.patient.email:
 					send_mail(
-						_("Upcoming reservation notification"),
+						_("Reservation notification"),
 						render_to_string(
 							"email/second_notification.html",
 							{"reservation": r}
@@ -33,5 +33,6 @@ class Command(BaseCommand):
 						[r.patient.email],
 						fail_silently=False
 					)
+
 
 # vim: set ts=4 sts=4 sw=4 noet:

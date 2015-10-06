@@ -1,9 +1,3 @@
-#!/usr/bin/python
-"""
-Automaticaly generate MEDOBS templates by selecting office, start/end times and interval.
-Running without any arguments prints list of available offices.
-"""
-
 import sys
 import datetime
 
@@ -17,7 +11,7 @@ TEMPLATE_VALID_SINCE = '2000-01-01'
 
 
 class Command(BaseCommand):
-	help = __doc__
+	help = "Generate templates in given intervals"
 
 	def add_arguments(self, parser):
 		parser.add_argument('officename', type=str, nargs='?', help='Office name')
@@ -28,7 +22,7 @@ class Command(BaseCommand):
 	def print_offices_list(self):
 		print 'List of available offices:'
 		for office in Office.objects.all():
-			print '\t* %s' % office.name
+			print '* %s' % office.name
 
 	@command_task("medobstemplates")
 	def create_templates(self, office, starttime, endtime, interval):
@@ -42,7 +36,7 @@ class Command(BaseCommand):
 						print '* %s %s %s' % (office.name, day[1], templatetime.time())
 						Template.objects.create(office=office, day=day[0], starting_time=templatetime.time(), valid_since=TEMPLATE_VALID_SINCE)
 					else:
-						print 'Template already exists, skipping ... %s %s %s' % (office.name, day[1], templatetime.time())
+						print 'Template already created, skipping ... %s %s %s' % (office.name, day[1], templatetime.time())
 
 			templatetime = templatetime + intervaltime
 
@@ -62,7 +56,7 @@ class Command(BaseCommand):
 			office = Office.objects.get(name=officename)
 			self.create_templates(office, starttime, endtime, interval)
 		except Office.DoesNotExist:
-			print 'E: Office does not exists.'
-			sys.exit(1)
+			raise CommandError("Office does not exists.")
+
 
 # vim: set ts=4 sts=4 sw=4 noet:

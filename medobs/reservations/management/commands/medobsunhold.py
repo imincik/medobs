@@ -7,7 +7,7 @@ from medobs.reservations.models import Reservation
 
 
 class Command(BaseCommand):
-	help = "Automaticaly unhold holded 'visit reservations' done before given expire time"
+	help = "Cancel holding of reservation after given time"
 
 	def add_arguments(self, parser):
 		parser.add_argument('expiretime', type=float, help='Format: MM')
@@ -17,12 +17,13 @@ class Command(BaseCommand):
 		expire = options['expiretime']
 		expiretime = datetime.datetime.now() - datetime.timedelta(minutes=expire)
 		
-		print 'Unholding reservations done before %s' % (expiretime)
+		print 'Cancelling holding of reservations done before %s' % (expiretime)
 		for reservation in Reservation.objects.filter(reservation_time__lte=(expiretime), status=Reservation.STATUS_IN_HELD):
 			print '* %s' % (reservation)
 			reservation.status = Reservation.STATUS_ENABLED
 			reservation.reservation_time = None
 			reservation.reserved_by = ""
 			reservation.save()
+
 
 # vim: set ts=4 sts=4 sw=4 noet:

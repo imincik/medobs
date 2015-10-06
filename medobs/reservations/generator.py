@@ -19,7 +19,7 @@ def generate_reservations(templates, console_logging=False):
 
 	for office, templates in office_templates.iteritems():
 		if console_logging:
-			print '\nOffice: %s' % office
+			print 'Office: %s' % office
 			print 'Days to generate: %d' % office.days_to_generate
 
 		templates_exceptions = list(Reservation_exception.objects.filter(office=office))
@@ -76,3 +76,5 @@ def generate_reservations(templates, console_logging=False):
 			transaction.savepoint_commit(sid)
 		except ValueError:
 			transaction.savepoint_rollback(sid)
+
+# vim: set ts=4 sts=4 sw=4 noet:
