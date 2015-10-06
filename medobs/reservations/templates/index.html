@@ -83,7 +83,7 @@
 {% endblock %}
 
 {% block footer_js_page %}
-{% if DATEPICKER_I18N_FILE %}<script type="text/javascript" src="{{ STATIC_URL }}{{ DATEPICKER_I18N_FILE }}"></script>{% endif %}
+{% if LANGUAGE_CODE != "en-us" %}<script type="text/javascript" src="{{ STATIC_URL }}js/i18n/jquery.ui.datepicker-{{ LANGUAGE_CODE }}.js"></script>{% endif %}
 <script type="text/javascript">
 $(function() {
 	function display_message(title, text) {

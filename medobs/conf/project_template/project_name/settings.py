@@ -56,12 +56,6 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = False
 
-# jQuery UI datepicker translation file name
-# The translation files are available in the UI source code:
-# http://jquery-ui.googlecode.com/svn/trunk/ui/i18n/
-# Example: "js/i18n/jquery.ui.datepicker-sk.js"
-DATEPICKER_I18N_FILE = "js/i18n/jquery.ui.datepicker-en.js"
-
 
 ### OTHER ###
 SITE_ID = 1
@@ -102,7 +96,6 @@ TEMPLATES = [{
 			'django.template.context_processors.tz',
 			'django.contrib.messages.context_processors.messages',
 			'medobs.context_processors.version',
-			'medobs.context_processors.datepicker_i18n_file',
 		],
 	},
 }]
@@ -116,5 +109,6 @@ try:
 	from settings_custom import *
 except ImportError:
 	pass
+
 
 # vim: set ts=4 sts=4 sw=4 noet:
