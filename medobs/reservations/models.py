@@ -97,7 +97,7 @@ class Office(models.Model):
 	def _get_last_day(self, dt):
 		return self._get_first_day(dt, 0, 1) + dt_timedelta(-1)
 
-class Office_phone(models.Model):
+class Phone(models.Model):
 	number = models.CharField(_("number"), max_length=50)
 	office = models.ForeignKey(Office, verbose_name=_("office"),
 			related_name="phone_numbers")

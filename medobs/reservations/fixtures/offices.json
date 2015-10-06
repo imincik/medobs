@@ -36,7 +36,7 @@
     "number": "0001",
     "office": 1
   },
-  "model": "reservations.office_phone",
+  "model": "reservations.phone",
   "pk": 1
 },
 {
@@ -44,7 +44,7 @@
     "number": "0002",
     "office": 1
   },
-  "model": "reservations.office_phone",
+  "model": "reservations.phone",
   "pk": 2
 },
 {
@@ -52,7 +52,7 @@
     "number": "0001",
     "office": 2
   },
-  "model": "reservations.office_phone",
+  "model": "reservations.phone",
   "pk": 3
 },
 {

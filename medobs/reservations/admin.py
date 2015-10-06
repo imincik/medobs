@@ -14,7 +14,7 @@ from localflavor.cz.forms import CZBirthNumberField
 
 from medobs.reservations import filters
 from medobs.reservations.forms import VisitReservationForm
-from medobs.reservations.models import Examination_kind, Office, Office_phone, Patient, Command
+from medobs.reservations.models import Examination_kind, Office, Phone, Patient, Command
 from medobs.reservations.models import Visit_reservation_exception, Visit_reservation, Template
 from medobs.reservations.decorators import view_async_task, Process
 from medobs.reservations import generator
@@ -138,7 +138,7 @@ class ExaminationKindInline(admin.TabularInline):
 	}
 
 class OfficePhoneInline(admin.TabularInline):
-    model = Office_phone
+    model = Phone
     extra = 1
 
 class OfficeAdmin(admin.ModelAdmin):
