@@ -56,8 +56,8 @@ class Office(models.Model):
 	email = models.EmailField(_("e-mail"), blank=True)
 	order = models.PositiveIntegerField(_("order"),
 		help_text=_("Office order on user page."))
-	public = models.BooleanField(_("public"),
-		help_text=_("If enabled, office will be visible on user page without authentication."))
+	authenticated_only = models.BooleanField(_("authenticated only"),
+		help_text=_("If enabled, office will be visible for non-authenticated users."))
 	published = models.BooleanField(_("published"), default=True,
 		help_text=_("If enabled, office will be published."))
 	days_to_generate = models.PositiveSmallIntegerField(_("days to generate"), default=7,

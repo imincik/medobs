@@ -15,7 +15,7 @@ def get_offices(user):
 	if user.is_authenticated():
 		return Office.objects.filter(published=True)
 	else:
-		return Office.objects.filter(published=True, public=True)
+		return Office.objects.filter(published=True, authenticated_only=True)
 
 def send_notification(reservation):
 	try:

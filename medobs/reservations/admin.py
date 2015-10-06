@@ -142,12 +142,13 @@ class OfficePhoneInline(admin.TabularInline):
     extra = 1
 
 class OfficeAdmin(admin.ModelAdmin):
-	list_display = ("name", "order", "street", "zip_code", "city", "email", "days_to_generate", "published", "public")
+	list_display = ("name", "order", "street", "zip_code", "city", "email", "days_to_generate", "published",
+		"authenticated_only")
 	inlines = (ExaminationKindInline, OfficePhoneInline)
 	ordering = ("name",)
 	fieldsets = (
 		(None, {"fields": ("name", "street", "zip_code", "city", "email", "note")}),
-		(_("Settings"), {"fields": ("order", "days_to_generate", "published", "public")}),
+		(_("Settings"), {"fields": ("order", "days_to_generate", "published", "authenticated_only")}),
 	)
 	formfield_overrides = {
 		models.TextField: {

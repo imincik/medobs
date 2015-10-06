@@ -22,7 +22,7 @@ def front_page(request):
 		if request.user.is_authenticated():
 			office = Office.objects.filter(published=True)[0]
 		else:
-			office = Office.objects.filter(published=True, public=True)[0]
+			office = Office.objects.filter(published=True, authenticated_only=True)[0]
 	except IndexError:
 		return render_to_response( "missing_config.html", {},
 			context_instance=RequestContext(request))
@@ -38,7 +38,7 @@ class BadStatus(Exception):
 def office_page(request, office_id, for_date=None):
 	office = get_object_or_404(Office, published=True, pk=office_id)
 
-	if not request.user.is_authenticated() and not office.public: # forbidden office
+	if not request.user.is_authenticated() and not office.authenticated_only: # authentication required
 		return HttpResponseRedirect("/")
 
 	reschedule_reservation = request.GET.get('reschedule')
@@ -397,7 +397,7 @@ def list_offices(request):
 			"city": office.city,
 			"email": office.email,
 			"order": office.order,
-			"public": office.public,
+			"authenticated_only": office.authenticated_only,
 			"phones": [phone.number for phone in office.phone_numbers.all()],
 		} for office in Office.objects.filter(published=True)]
 	return HttpResponse(json.dumps(response_data), "application/json")
