@@ -8,6 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.sites.models import Site
 from django.contrib.admin.views.main import ChangeList
 from django.contrib.admin.views.decorators import staff_member_required
+from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from localflavor.cz.forms import CZBirthNumberField
 
@@ -93,7 +94,15 @@ class PatientAdmin(admin.ModelAdmin):
 		self.readonly_fields = () if obj is None else ("ident_hash",)
 		form = super(PatientAdmin, self).get_form(request, obj=obj, **kwargs)
 		if obj is None:
-			form.base_fields['ident_hash'] = CZBirthNumberField(label=_('Birth number'), widget=form.base_fields['ident_hash'].widget)
+			def unique_ident_hash(value):
+				if Patient.objects.filter(ident_hash=Patient.get_ident_hash(value)).exists():
+					raise ValidationError(_("Patient with a given identification number already exists."))
+			orig_field = form.base_fields['ident_hash']
+			form.base_fields['ident_hash'] = CZBirthNumberField(
+				label=_('Birth number'),
+				widget=orig_field.widget,
+				validators=orig_field.validators+[unique_ident_hash]
+			)
 		return form
 
 admin.site.register(Patient, PatientAdmin)
