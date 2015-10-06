@@ -4,7 +4,7 @@
     "city": "City",
     "name": "First Office",
     "email": "first@medobs.io",
-    "note": "This is first example medical office.",
+    "note": "This is first example office.",
     "public": true,
     "street": "Street 1",
     "published": true,
@@ -12,7 +12,7 @@
     "order": 10,
     "zip_code": "0001"
   },
-  "model": "reservations.medical_office",
+  "model": "reservations.office",
   "pk": 1
 },
 {
@@ -20,7 +20,7 @@
     "city": "City",
     "name": "Second Office",
     "email": "second@medobs.io",
-    "note": "This is second example medical office.",
+    "note": "This is second example office.",
     "public": true,
     "street": "Street 2",
     "published": true,
@@ -28,7 +28,7 @@
     "order": 20,
     "zip_code": "0001"
   },
-  "model": "reservations.medical_office",
+  "model": "reservations.office",
   "pk": 2
 },
 {

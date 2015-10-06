@@ -47,17 +47,17 @@ class Patient(models.Model):
 			self.ident_hash = get_hexdigest(self.ident_hash)
 		super(Patient, self).save(*args, **kwargs)
 
-class Medical_office(models.Model):
+class Office(models.Model):
 	name = models.CharField(_("name"), max_length=100, unique=True)
 	street = models.TextField(_("street"))
 	zip_code = models.CharField(_("zip code"), max_length=20)
 	city = models.CharField(_("city"), max_length=100)
 	email = models.EmailField(_("e-mail"), blank=True)
-	order = models.PositiveIntegerField(_("order"), help_text=_("Order of medical offices on reservation page."))
+	order = models.PositiveIntegerField(_("order"), help_text=_("Office order on user page."))
 	public = models.BooleanField(_("public"),
-		help_text=_("Check if you want to make this medical office to be visible without authentication."))
+		help_text=_("Check if you want to make this office to be visible on user page without authentication."))
 	published = models.BooleanField(_("published"), default=True,
-		help_text=_("Check if you want to make this medical office to be published."))
+		help_text=_("Check if you want to make this office to be published."))
 	days_to_generate = models.PositiveSmallIntegerField(_("days to generate"), default=7, help_text=_("Number of days to generate reservations."))
 	note = models.TextField(_("note"), blank=True)
 
@@ -97,7 +97,7 @@ class Medical_office(models.Model):
 
 class Office_phone(models.Model):
 	number = models.CharField(_("number"), max_length=50)
-	office = models.ForeignKey(Medical_office, verbose_name=_("medical office"),
+	office = models.ForeignKey(Office, verbose_name=_("office"),
 			related_name="phone_numbers")
 
 	class Meta:
@@ -117,7 +117,7 @@ class Visit_template(models.Model):
 		(6, _("Saturday")),
 		(7, _("Sunday")),
 	)
-	office = models.ForeignKey(Medical_office, verbose_name=_("medical office"),
+	office = models.ForeignKey(Office, verbose_name=_("office"),
 			related_name="templates")
 	day = models.PositiveSmallIntegerField(_("week day"), choices=DAYS)
 	starting_time = models.TimeField(_("time"))
@@ -139,7 +139,7 @@ class Visit_template(models.Model):
 
 class Visit_reservation_exception(models.Model):
 	title = models.CharField(_("title"), max_length=255, blank=True)
-	office = models.ForeignKey(Medical_office, verbose_name=_("medical office"),
+	office = models.ForeignKey(Office, verbose_name=_("office"),
 			related_name="disables")
 	begin = models.DateTimeField(_("begin"),
 			help_text=_("This date is included into interval."))
@@ -174,7 +174,7 @@ class Visit_reservation_exception(models.Model):
 
 class Examination_kind(models.Model):
 	title = models.TextField(_("title"))
-	office = models.ForeignKey(Medical_office, verbose_name=_("medical office"),
+	office = models.ForeignKey(Office, verbose_name=_("office"),
 		related_name="exam_kinds")
 	order = models.PositiveIntegerField(_("order"), help_text=_("Order of examination kinds."))
 	note = models.TextField(_("note"), blank=True)
@@ -201,7 +201,7 @@ class Visit_reservation(models.Model):
 
 	date = models.DateField(_("date"))
 	time = models.TimeField(_("time"))
-	office = models.ForeignKey(Medical_office, verbose_name=_("medical office"),
+	office = models.ForeignKey(Office, verbose_name=_("office"),
 			related_name="visit_reservations")
 	authenticated_only = models.BooleanField(_("authenticated only"),
 			help_text=_("If true allow reservation only for authenticated users."))

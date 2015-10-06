@@ -8,7 +8,7 @@ from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 
 from medobs.reservations.decorators import command_task
-from medobs.reservations.models import Medical_office, Visit_reservation
+from medobs.reservations.models import Office, Visit_reservation
 
 
 class Command(BaseCommand):
@@ -18,7 +18,7 @@ class Command(BaseCommand):
 	def handle(self, *args, **options):
 		translation.activate(settings.LANGUAGE_CODE)
 		actual_date = date.today() + timedelta(1)
-		for office in Medical_office.objects.all():
+		for office in Office.objects.all():
 			reservations = list(office.reservations(actual_date))
 			Visit_reservation.compute_actual_status(reservations)
 			for r in reservations:

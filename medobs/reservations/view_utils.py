@@ -5,7 +5,7 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
-from medobs.reservations.models import Medical_office, Visit_reservation
+from medobs.reservations.models import Office, Visit_reservation
 
 def is_reservation_on_date(for_date, office):
 	""" Checks if reservations exist on selected date. """
@@ -13,9 +13,9 @@ def is_reservation_on_date(for_date, office):
 
 def get_offices(user):
 	if user.is_authenticated():
-		return Medical_office.objects.filter(published=True)
+		return Office.objects.filter(published=True)
 	else:
-		return Medical_office.objects.filter(published=True, public=True)
+		return Office.objects.filter(published=True, public=True)
 
 def send_notification(reservation):
 	try:

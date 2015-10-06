@@ -3,7 +3,7 @@ from django.views.generic.detail import DetailView
 
 from medobs.reservations import views
 from medobs.reservations import admin
-from medobs.reservations.models import Medical_office
+from medobs.reservations.models import Office
 
 
 urlpatterns = [
@@ -27,7 +27,7 @@ urlpatterns = [
 	url(r"^days_status/(?P<year>\d{4})/(?P<month>\d{2})/(?P<office_id>\d+)/$", views.days_status),
 	url(r"^booked/(?P<office_id>\d+)/(?P<for_date>\d{4}-\d{2}-\d{2})/$", views.booked),
 	url(r"^cancel/(?P<pk>\d+)/$", DetailView.as_view(
-		model=Medical_office,
+		model=Office,
 		context_object_name="office",
 		template_name="cancel.html",
 	)),
