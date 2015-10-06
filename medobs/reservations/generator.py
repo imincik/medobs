@@ -5,7 +5,7 @@ from datetime import timedelta as dt_timedelta
 
 from django.db import transaction
 
-from medobs.reservations.models import Visit_reservation_exception, Visit_reservation
+from medobs.reservations.models import Reservation_exception, Visit_reservation
 
 
 def generate_reservations(templates, console_logging=False):
@@ -19,10 +19,10 @@ def generate_reservations(templates, console_logging=False):
 
 	for office, templates in office_templates.iteritems():
 		if console_logging:
-			print '\nI: Office: %s' % office
-			print 'I: Days to generate: %d' % office.days_to_generate
+			print '\nOffice: %s' % office
+			print 'Days to generate: %d' % office.days_to_generate
 
-		templates_exceptions = list(Visit_reservation_exception.objects.filter(office=office))
+		templates_exceptions = list(Reservation_exception.objects.filter(office=office))
 
 		sid = transaction.savepoint()
 		today = dt_date.today()
@@ -59,7 +59,7 @@ def generate_reservations(templates, console_logging=False):
 						existing_reservation_info = day_cache.get(str(tmp.starting_time))
 						if existing_reservation_info is None:
 							if console_logging:
-								print 'I: Creating reservation: %s' % (starting_time)
+								print '* %s' % (starting_time)
 							obj = Visit_reservation(
 								date=day,
 								time=tmp.starting_time,
@@ -69,7 +69,7 @@ def generate_reservations(templates, console_logging=False):
 							)
 							obj.save()
 						elif console_logging:
-							print 'I: Reservation already exists, skipping it: %s' % (starting_time)
+							print 'Reservation already exists, skipping ... %s' % (starting_time)
 
 				day += dt_timedelta(1)
 

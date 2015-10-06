@@ -10,7 +10,7 @@ from django.contrib.admin.widgets import AdminDateWidget
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
 
-from medobs.reservations.models import Visit_reservation, Visit_reservation_exception
+from medobs.reservations.models import Visit_reservation, Reservation_exception
 
 
 class ExpirationFilter(SimpleListFilter):
@@ -46,7 +46,7 @@ class ReservationStatusFilter(SimpleListFilter):
 
 	def queryset(self, request, queryset):
 		disabled_query = Q(status=Visit_reservation.STATUS_DISABLED)
-		for exception in Visit_reservation_exception.objects.all():
+		for exception in Reservation_exception.objects.all():
 			q = exception.disabled_reservations_filter()
 			disabled_query = disabled_query | q
 

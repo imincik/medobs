@@ -15,7 +15,7 @@ from localflavor.cz.forms import CZBirthNumberField
 from medobs.reservations import filters
 from medobs.reservations.forms import VisitReservationForm
 from medobs.reservations.models import Examination_kind, Office, Phone, Patient, Command
-from medobs.reservations.models import Visit_reservation_exception, Visit_reservation, Template
+from medobs.reservations.models import Reservation_exception, Visit_reservation, Template
 from medobs.reservations.decorators import view_async_task, Process
 from medobs.reservations import generator
 
@@ -66,7 +66,7 @@ class VisitReservationAdmin(admin.ModelAdmin):
 	disable_reservations.short_description = "Disable selected reservations"
 
 	# Wrap changelist to effectively compute reservations status (filtering disabled reservations
-	# from Visit_reservation_exception records)
+	# from Reservation_exception records)
 	def get_changelist(self, request, **kwargs):
 		return ReservationsChangeList
 
@@ -118,12 +118,12 @@ class TemplateAdmin(admin.ModelAdmin):
 
 admin.site.register(Template, TemplateAdmin)
 
-class VisitReservationExceptionAdmin(admin.ModelAdmin):
+class ReservationExceptionAdmin(admin.ModelAdmin):
 	list_display = ("title", "begin", "end", "office")
 	list_filter = ("office", filters.ReservationExceptionDateFilter)
 	ordering = ("begin", "office")
 
-admin.site.register(Visit_reservation_exception, VisitReservationExceptionAdmin)
+admin.site.register(Reservation_exception, ReservationExceptionAdmin)
 
 class ExaminationKindInline(admin.TabularInline):
 	model = Examination_kind

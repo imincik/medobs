@@ -138,7 +138,7 @@ class Template(models.Model):
 	def __unicode__(self):
 		return unicode(_(u"{0} at {1}".format(self.get_day_display(), self.starting_time)))
 
-class Visit_reservation_exception(models.Model):
+class Reservation_exception(models.Model):
 	title = models.CharField(_("title"), max_length=255, blank=True)
 	office = models.ForeignKey(Office, verbose_name=_("office"),
 			related_name="disables")
@@ -238,7 +238,7 @@ class Visit_reservation(models.Model):
 			return True
 
 		status = self.status
-		exceptions = list(Visit_reservation_exception.objects.filter(office=self.office))
+		exceptions = list(Reservation_exception.objects.filter(office=self.office))
 		for exception in exceptions:
 			if exception.covers_reservation_time(self.starting_time):
 				return True
@@ -255,7 +255,7 @@ class Visit_reservation(models.Model):
 
 	@staticmethod
 	def compute_actual_status(reservations):
-		exceptions = list(Visit_reservation_exception.objects.all())
+		exceptions = list(Reservation_exception.objects.all())
 		for obj in reservations:
 			status = obj.status
 			if status != Visit_reservation.STATUS_DISABLED:
