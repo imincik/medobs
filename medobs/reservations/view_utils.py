@@ -17,12 +17,12 @@ def get_offices(user):
 	else:
 		return Office.objects.filter(published=True, authenticated_only=True)
 
-def send_notification(reservation):
+def send_notification_created(reservation):
 	try:
 		send_mail(
-			_("Confirmation of reservation"),
+			"%s - %s" % (reservation.office.name, _("reservation confirmation")),
 			render_to_string(
-				"email/first_notification.html",
+				"email/created.html",
 				{"reservation": reservation}
 			),
 			settings.DEFAULT_FROM_EMAIL,

@@ -1,0 +1,9 @@
+{% extends "email/base.html" %}
+{% load i18n %}
+
+{% block text %}
+{% blocktrans with patient=reservation.patient.full_name rdate=reservation.starting_time|date:"d.m.Y" rtime=reservation.starting_time|date:"H.i" %}
+Dear {{ patient }},
+Your reservation has been created on {{ rdate }} at {{ rtime }}.
+{% endblocktrans %}
+{% endblock %}

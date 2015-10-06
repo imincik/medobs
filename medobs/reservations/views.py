@@ -1,6 +1,6 @@
 import json
 from datetime import datetime, date, time, timedelta
-from view_utils import get_offices, is_reservation_on_date, send_notification, get_reservations_data
+from view_utils import get_offices, is_reservation_on_date, send_notification_created, get_reservations_data
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -137,7 +137,7 @@ def office_page(request, office_id, for_date=None):
 					reservation.save()
 
 					if patient.email:
-						send_notification(reservation)
+						send_notification_created(reservation)
 
 					messages.success(request, render_to_string("messages/booked.html", {
 							"reservation": reservation,
