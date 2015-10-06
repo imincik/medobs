@@ -1,12 +1,12 @@
-MEDOBS - Simple medical reservation system
-==========================================
+MEDOBS - Simple reservation system
+==================================
 
 Users actions
 -------------
-### Unauthorized user (patient)
+### Unauthorized user
  - select date and time of visit reservation and apply for reservation
 
-### Authorized user (nurse etc.)
+### Authorized user
  - same as unauthorized user
  - can see reservations status
  - can see the patient name
@@ -27,6 +27,7 @@ $ pip install -r ./requirements.txt
 
 Run following commands in source code directory to create development project:
 ```
+$ unset DJANGO_SETTINGS_MODULE
 $ export PYTHONPATH=$(pwd)
 $ mkdir dev
 $ django-admin.py startproject --template=medobs/conf/project_template devproj dev
