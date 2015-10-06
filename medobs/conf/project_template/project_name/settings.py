@@ -11,13 +11,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEBUG = True
 
 
-### EMAILS ###
+### ADMINISTRATOR ###
 ADMINS = (
 	('Administrator MEDOBS', 'medobs@email.em'),
 )
 MANAGERS = ADMINS
-
-DEFAULT_FROM_EMAIL = 'no-reply@email.em'
 
 
 ### DATABASE ###
@@ -27,6 +25,28 @@ DATABASES = {
 		'NAME': os.path.join(BASE_DIR, 'medobs.sqlite3'),
 	}
 }
+
+
+### INTERNATIONALIZATION ###
+LANGUAGES = (
+	('en-us', u'English'),
+	('sk', u'Slovak'),
+)
+LANGUAGE_CODE = 'en-us'
+TIME_ZONE = 'Europe/Bratislava'
+USE_I18N = True
+USE_L10N = True
+USE_TZ = False
+
+
+### EMAIL ###
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+DEFAULT_FROM_EMAIL = ''
+
+EMAIL_HOST = ''                   # for Google account set 'smtp.gmail.com'
+EMAIL_PORT = 587                  # for Google account set '587'
+EMAIL_USE_TLS = True              # for Google account set 'True'
 
 
 ### SECRET KEY ###
@@ -43,18 +63,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT =  os.path.join(BASE_DIR, 'media/')
-
-
-### INTERNATIONALIZATION ###
-LANGUAGES = (
-	('en-us', u'English'),
-	('sk', u'Slovak'),
-)
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'Europe/Bratislava'
-USE_I18N = True
-USE_L10N = True
-USE_TZ = False
 
 
 ### OTHER ###
