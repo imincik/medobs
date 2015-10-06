@@ -14,7 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 class Patient(models.Model):
 	first_name = models.CharField(_("first name"), max_length=100)
 	last_name = models.CharField(_("last name"), max_length=100)
-	ident_hash = models.CharField(_("identify hash"), max_length=128, unique=True)
+	ident_hash = models.CharField(_("identity hash"), max_length=128, unique=True)
 	phone_number = models.CharField(_("phone number"), max_length=100)
 	email = models.EmailField(_("e-mail"), blank=True)
 
@@ -54,11 +54,12 @@ class Office(models.Model):
 	zip_code = models.CharField(_("zip code"), max_length=20)
 	city = models.CharField(_("city"), max_length=100)
 	email = models.EmailField(_("e-mail"), blank=True)
-	order = models.PositiveIntegerField(_("order"), help_text=_("Office order on user page."))
+	order = models.PositiveIntegerField(_("order"),
+		help_text=_("Office order on user page."))
 	public = models.BooleanField(_("public"),
-		help_text=_("Check if you want to make this office visible on user page without authentication."))
+		help_text=_("If enabled, office will be visible on user page without authentication."))
 	published = models.BooleanField(_("published"), default=True,
-		help_text=_("Check if you want to make this office published."))
+		help_text=_("If enabled, office will be published."))
 	days_to_generate = models.PositiveSmallIntegerField(_("days to generate"), default=7,
 		help_text=_("Number of days to generate reservations."))
 	note = models.TextField(_("note"), blank=True)
@@ -100,7 +101,7 @@ class Office(models.Model):
 class Phone(models.Model):
 	number = models.CharField(_("number"), max_length=50)
 	office = models.ForeignKey(Office, verbose_name=_("office"),
-			related_name="phone_numbers")
+		related_name="phone_numbers")
 
 	class Meta:
 		verbose_name = _("office phone")
@@ -127,7 +128,7 @@ class Template(models.Model):
 	valid_until = models.DateField(_("valid until"), null=True, blank=True,
 			help_text=_("This date is not included into interval."))
 	authenticated_only = models.BooleanField(_("authenticated only"), default=False,
-			help_text=_("If true, allow creating reservation only for authenticated users."))
+			help_text=_("If enabled, creating reservation will be possible only for authenticated users."))
 	note = models.TextField(_("note"), blank=True)
 
 	class Meta:
@@ -177,7 +178,7 @@ class Examination_kind(models.Model):
 	title = models.TextField(_("title"))
 	office = models.ForeignKey(Office, verbose_name=_("office"),
 		related_name="exam_kinds")
-	order = models.PositiveIntegerField(_("order"), help_text=_("Order of examination kinds."))
+	order = models.PositiveIntegerField(_("order"), help_text=_("Examination kind order."))
 	note = models.TextField(_("note"), blank=True)
 
 	class Meta:
@@ -205,7 +206,7 @@ class Reservation(models.Model):
 	office = models.ForeignKey(Office, verbose_name=_("office"),
 			related_name="visit_reservations")
 	authenticated_only = models.BooleanField(_("authenticated only"),
-			help_text=_("If true allow reservation only for authenticated users."))
+			help_text=_("If enabled, creating reservation will be possible only for authenticated users"))
 	patient = models.ForeignKey(Patient, verbose_name=_("patient"), null=True, blank=True,
 			related_name="visit_reservations")
 	exam_kind = models.ForeignKey(Examination_kind, verbose_name=_("examination kind"),
