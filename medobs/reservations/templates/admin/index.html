@@ -27,14 +27,14 @@
     </div>
     {% endif %}
     {% endwith %}
-    {% with app_model=app_list|model_filter:"reservations.Medical_office" %}
+    {% with app_model=app_list|model_filter:"reservations.Office" %}
     {% if app_model %}
     <div class="module">
         <table>
             <caption>
                 <span class="section">{% trans 'Configuration' %}</span>
             </caption>
-            {% with model=app_list|model_filter:"reservations.Medical_office" %}
+            {% with model=app_list|model_filter:"reservations.Office" %}
             <tr>
                 <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
                 <td><a href="{{ model.add_url }}" class="addlink">{% trans 'Add' %}</a></td>

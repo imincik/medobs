@@ -14,15 +14,15 @@ from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
 from medobs.reservations.forms import PatientForm, PatientDetailForm
-from medobs.reservations.models import Medical_office, Patient, Visit_reservation
+from medobs.reservations.models import Office, Patient, Visit_reservation
 
 
 def front_page(request):
 	try:
 		if request.user.is_authenticated():
-			office = Medical_office.objects.filter(published=True)[0]
+			office = Office.objects.filter(published=True)[0]
 		else:
-			office = Medical_office.objects.filter(published=True, public=True)[0]
+			office = Office.objects.filter(published=True, public=True)[0]
 	except IndexError:
 		return render_to_response( "missing_config.html", {},
 			context_instance=RequestContext(request))
@@ -36,7 +36,7 @@ class BadStatus(Exception):
 	pass
 
 def office_page(request, office_id, for_date=None):
-	office = get_object_or_404(Medical_office, published=True, pk=office_id)
+	office = get_object_or_404(Office, published=True, pk=office_id)
 
 	if not request.user.is_authenticated() and not office.public: # forbidden office
 		return HttpResponseRedirect("/")
@@ -185,7 +185,7 @@ def office_page(request, office_id, for_date=None):
 	return render_to_response("index.html", data, context_instance=RequestContext(request))
 
 def date_reservations(request, for_date, office_id):
-	office = get_object_or_404(Medical_office, pk=office_id)
+	office = get_object_or_404(Office, pk=office_id)
 	for_date = datetime.strptime(for_date, "%Y-%m-%d").date()
 	data = get_reservations_data(office.reservations(for_date), all_attrs=request.user.is_authenticated())
 	response = HttpResponse(json.dumps(data), "application/json")
@@ -193,7 +193,7 @@ def date_reservations(request, for_date, office_id):
 	return response
 
 def booked(request, office_id, for_date):
-	office = get_object_or_404(Medical_office, pk=office_id)
+	office = get_object_or_404(Office, pk=office_id)
 	return render_to_response(
 		"booked.html",
 		{"office": office, "for_date": for_date},
@@ -306,7 +306,7 @@ def enable_reservation(request, r_id):
 @login_required
 def list_reservations(request, for_date, office_id):
 	for_date = datetime.strptime(for_date, "%Y-%m-%d").date()
-	office = get_object_or_404(Medical_office, pk=office_id)
+	office = get_object_or_404(Office, pk=office_id)
 
 	return render_to_response(
 		"list_reservations.html",
@@ -351,7 +351,7 @@ def patient_reservations(request):
 	raise Http404
 
 def days_status(request, year, month, office_id):
-	office = get_object_or_404(Medical_office, pk=office_id)
+	office = get_object_or_404(Office, pk=office_id)
 	year = int(year)
 	month = int(month)
 
@@ -399,7 +399,7 @@ def list_offices(request):
 			"order": office.order,
 			"public": office.public,
 			"phones": [phone.number for phone in office.phone_numbers.all()],
-		} for office in Medical_office.objects.filter(published=True)]
+		} for office in Office.objects.filter(published=True)]
 	return HttpResponse(json.dumps(response_data), "application/json")
 
 

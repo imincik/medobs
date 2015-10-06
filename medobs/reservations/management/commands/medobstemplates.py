@@ -10,7 +10,7 @@ import datetime
 from django.core.management.base import BaseCommand, CommandError
 
 from medobs.reservations.decorators import command_task
-from medobs.reservations.models import Medical_office, Visit_template
+from medobs.reservations.models import Office, Visit_template
 
 
 TEMPLATE_VALID_SINCE = '2000-01-01'
@@ -20,14 +20,14 @@ class Command(BaseCommand):
 	help = __doc__
 
 	def add_arguments(self, parser):
-		parser.add_argument('officename', type=str, nargs='?', help='Name of the medical office')
+		parser.add_argument('officename', type=str, nargs='?', help='Office name')
 		parser.add_argument('starttime', type=str, nargs='?', help='Format: HH:MM')
 		parser.add_argument('endtime', type=str, nargs='?', help='Format: HH:MM')
 		parser.add_argument('interval', type=int, nargs='?', help='Format: MM')
 
 	def print_offices_list(self):
-		print 'I: List of available medical offices:'
-		for office in Medical_office.objects.all():
+		print 'I: List of available offices:'
+		for office in Office.objects.all():
 			print '\t* %s' % office.name
 
 	@command_task("medobstemplates")
@@ -59,9 +59,9 @@ class Command(BaseCommand):
 			raise CommandError("Invalid command parameters.")
 		
 		try:
-			office = Medical_office.objects.get(name=officename)
+			office = Office.objects.get(name=officename)
 			self.create_templates(office, starttime, endtime, interval)
-		except Medical_office.DoesNotExist:
+		except Office.DoesNotExist:
 			print 'E: Office does not exists.'
 			sys.exit(1)
 
