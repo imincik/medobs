@@ -3,7 +3,7 @@ from django.views.generic.detail import DetailView
 
 from medobs.reservations import views
 from medobs.reservations import admin
-from medobs.reservations.models import Office
+from medobs.reservations.models import Reservation
 
 
 urlpatterns = [
@@ -16,7 +16,7 @@ urlpatterns = [
 	url(r"^reservations/(?P<for_date>\d{4}-\d{2}-\d{2})/list/(?P<office_id>\d+)/$", views.list_reservations),
 	url(r"^reservations/(?P<r_id>\d+)/hold/$", views.hold_reservation),
 	url(r"^reservations/(?P<r_id>\d+)/unhold/$", views.unhold_reservation),
-	url(r"^reservations/(?P<r_id>\d+)/unbook/$", views.unbook_reservation),
+	url(r"^reservations/unbook/$", views.unbook_reservation),
 	url(r"^reservations/(?P<r_id>\d+)/disable/$", views.disable_reservation),
 	url(r"^reservations/(?P<r_id>\d+)/enable/$", views.enable_reservation),
 	url(r"^reservations/(?P<r_id>\d+)/details/$", views.reservation_details),
@@ -25,11 +25,10 @@ urlpatterns = [
 	url(r"^patient/$", views.patient_details),
 	url(r"^patient/reservations/$", views.patient_reservations),
 	url(r"^days_status/(?P<year>\d{4})/(?P<month>\d{2})/(?P<office_id>\d+)/$", views.days_status),
-	url(r"^booked/(?P<office_id>\d+)/(?P<for_date>\d{4}-\d{2}-\d{2})/$", views.booked),
-	url(r"^cancel/(?P<pk>\d+)/$", DetailView.as_view(
-		model=Office,
-		context_object_name="office",
-		template_name="cancel.html",
+	url(r"^status/(?P<pk>\d+)/$", DetailView.as_view(
+		model=Reservation,
+		context_object_name="reservation",
+		template_name="message.html",
 	)),
 	url(r"^offices/$", views.list_offices),
 	url(r"^admin/generate_reservations/$", admin.generate_reservations, name="generate-reservations"),

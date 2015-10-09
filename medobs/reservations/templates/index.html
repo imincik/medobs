@@ -163,24 +163,20 @@ $(function() {
 		}
 
 		if (r.exam_kind) {
-			ritem.append($("<span></span>")
+			var info_elem = $("<span></span>")
 				.addClass("term-exam-kind")
-				.html(", " + r.exam_kind)
-			);
-		}
-
-		if (r.reserved_by || r.reservation_time) {
-			ritem.append($("<span></span>")
-				.addClass("term-info")
-				.html(" [ "+ r.reserved_by +" ]")
-				.attr("title", r.reserved_by + " " + r.reservation_time)
-			);
+				.html(", " + r.exam_kind);
+			if (r.reserved_by || r.reservation_time) {
+				info_elem.attr("title", r.reserved_by + " " + r.reservation_time)
+			}
+			ritem.append(info_elem);
 		}
 		{% if not reschedule_mode %}
 		if (r.status === "reserved" || r.status === "reschedule") {
 			actions_elem.append($("<button></button>")
 				.addClass("reschedule-button")
-				.html("R")
+				.html(">")
+				.attr("title", "{% trans "Reschedule" %}")
 				.click(function(evt) {
 					window.location.href = "?reschedule="+r.id;
 					return false;
@@ -188,96 +184,99 @@ $(function() {
 			);
 		}
 		{% endif %};
-		actions_elem
-			.append($("<button></button>")
-				.addClass("hold-button")
-				.html("H")
-				.click(function(evt) {
-					var elem = $(this).parent().parent();
-					var tab = elem.parent().parent();
-					$.getJSON("/reservations/"+ r.id +"/hold/", function(data) {
-						if (data.status_ok) {
-							elem.attr("status", "hold");
-							$(".reservation-text", elem).html("{% trans "Hold" %}");
-						} else {
-							display_message(
-								"{% trans "Message" %}",
-								"{% trans "Hold operation failed" %}"
-							);
-						}
-					});
-					return false;
-				})
-			)
-			.append($("<button></button>")
-				.addClass("unhold-button")
-				.html("U")
-				.click(function(evt) {
-					var elem = $(this).parent().parent();
-					var tab = elem.parent().parent();
-					$.getJSON("/reservations/"+ r.id +"/unhold/", function(data) {
-						if (data.status_ok) {
-							elem.attr("status", "enabled");
-							$(".term-info", elem).remove();
-							$(".reservation-text", elem).html("");
-							$(".ui-selected", tab).removeClass("ui-selected");
-						} else {
-							display_message(
-								"{% trans "Message" %}",
-								"{% trans "Unhold operation failed" %}"
-							);
-						}
-					});
-					return false;
-				})
-			)
-			{% if user.is_staff %}
-			.append($("<button></button>")
-				.addClass("enable-button")
-				.html("E")
-				.click(function(evt) {
-					var elem = $(this).parent().parent();
-					var tab = elem.parent().parent();
-					$.getJSON("/reservations/"+ r.id +"/enable/", function(data) {
-						if (data.status_ok) {
-							var status = (elem.attr("status") === "reschedule")? "reserved" : "enabled";
-							elem.attr("status", status);
-							$(".reservation-text", elem).html("");
-							$(".term-info", elem).remove();
-							$(".ui-selected", tab).removeClass("ui-selected");
-						} else {
-							display_message(
-								"{% trans "Message" %}",
-								"{% trans "Enable operation failed" %}"
-							);
-						}
-					});
-					return false;
-				})
-			)
-			.append($("<button></button>")
-				.addClass("disable-button")
-				.html("D")
-				.click(function(evt) {
-					var elem = $(this).parent().parent();
-					var tab = elem.parent().parent();
-					$.getJSON("/reservations/"+ r.id +"/disable/", function(data) {
-						if (data.status_ok) {
-							var status = (elem.attr("status") === "reserved")? "reschedule" : "disabled";
-							elem.attr("status", status);
-							$(".ui-selected", tab).removeClass("ui-selected");
-							$(".reservation-text", elem).html("{% trans "Disabled" %}");
-							$(".term-info", elem).remove();
-						} else {
-							display_message(
-								"{% trans "Message" %}",
-								"{% trans "Disable operation failed" %}"
-							);
-						}
-					});
-					return false;
-				})
-			)
+		if (r.status_editable) {
+			actions_elem
+				.append($("<button></button>")
+					.addClass("hold-button")
+					.html("*")
+					.attr("title", "{% trans "Hold" %}")
+					.click(function(evt) {
+						var elem = $(this).parent().parent();
+						var tab = elem.parent().parent();
+						$.getJSON("/reservations/"+ r.id +"/hold/", function(data) {
+							if (data.status_ok) {
+								elem.attr("status", "hold");
+								$(".reservation-text", elem).html("{% trans "Hold" %}");
+							} else {
+								display_message(
+									"{% trans "Message" %}",
+									"{% trans "Hold operation failed" %}"
+								);
+							}
+						});
+						return false;
+					})
+				)
+				.append($("<button></button>")
+					.addClass("unhold-button")
+					.html("*")
+					.attr("title", "{% trans "Unhold" %}")
+					.click(function(evt) {
+						var elem = $(this).parent().parent();
+						var tab = elem.parent().parent();
+						$.getJSON("/reservations/"+ r.id +"/unhold/", function(data) {
+							if (data.status_ok) {
+								elem.attr("status", "enabled");
+								$(".reservation-text", elem).html("");
+								$(".ui-selected", tab).removeClass("ui-selected");
+							} else {
+								display_message(
+									"{% trans "Message" %}",
+									"{% trans "Unhold operation failed" %}"
+								);
+							}
+						});
+						return false;
+					})
+				)
+				{% if user.is_staff %}
+				.append($("<button></button>")
+					.addClass("enable-button")
+					.html("+")
+					.attr("title", "{% trans "Enable" %}")
+					.click(function(evt) {
+						var elem = $(this).parent().parent();
+						var tab = elem.parent().parent();
+						$.getJSON("/reservations/"+ r.id +"/enable/", function(data) {
+							if (data.status_ok) {
+								var status = (elem.attr("status") === "reschedule")? "reserved" : "enabled";
+								elem.attr("status", status);
+								$(".reservation-text", elem).html("");
+								$(".ui-selected", tab).removeClass("ui-selected");
+							} else {
+								display_message(
+									"{% trans "Message" %}",
+									"{% trans "Enable operation failed" %}"
+								);
+							}
+						});
+						return false;
+					})
+				)
+				.append($("<button></button>")
+					.addClass("disable-button")
+					.html("-")
+					.attr("title", "{% trans "Disable" %}")
+					.click(function(evt) {
+						var elem = $(this).parent().parent();
+						var tab = elem.parent().parent();
+						$.getJSON("/reservations/"+ r.id +"/disable/", function(data) {
+							if (data.status_ok) {
+								var status = (elem.attr("status") === "reserved")? "reschedule" : "disabled";
+								elem.attr("status", status);
+								$(".ui-selected", tab).removeClass("ui-selected");
+								$(".reservation-text", elem).html("{% trans "Disabled" %}");
+							} else {
+								display_message(
+									"{% trans "Message" %}",
+									"{% trans "Disable operation failed" %}"
+								);
+							}
+						});
+						return false;
+					})
+				)
+			}
 			{% endif %};
 			actions_elem.appendTo(ritem);
 
@@ -381,6 +380,11 @@ $(function() {
 	$("<div></div>")
 		.attr("id", "confirm-dialog")
 		.html("{% trans "Are you sure you want to cancel reservation?" %}")
+		.append(
+			$('<form action="/reservations/unbook/" method="post"></form>')
+				.append($('<input id="reservation_id" type="hidden" name="reservation_id" />'))
+				.append($("{% csrf_token %}"))
+		)
 		.appendTo("body")
 		.dialog({
 			modal: true,
@@ -397,13 +401,13 @@ $(function() {
 		$("#confirm-dialog")
 			.dialog('option', 'buttons', {
 				"{% trans "Yes" %}" : function() {
-					$.getJSON("/reservations/"+ r_id +"/unbook/", function(data) {
+					/*
+					$.post("/reservations/unbook/", {reservation_id: r_id}, function(data) {
 						if (data.status_ok) {
 							var status = (elem.attr("status") === "reschedule")? "disabled" : "enabled";
 							elem.attr("status", status);
 							$(".reservation-text", elem).html("");
 							$(".term-exam-kind", elem).remove();
-							$(".term-info", elem).remove();
 							$(".ui-selected", tab).removeClass("ui-selected");
 
 						} else {
@@ -412,7 +416,10 @@ $(function() {
 								"{% trans "Cancel operation failed" %}"
 							);
 						}
-					});
+					});*/
+					var form = $('form', this);
+					$('input#reservation_id', form).val(r_id);
+					form.submit();
 					$(this).dialog("close");
 				},
 				"{% trans "Cancel" %}" : function() {

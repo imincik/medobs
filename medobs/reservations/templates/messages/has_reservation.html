@@ -1,10 +1,12 @@
 {% load i18n %}
 {% for reservation in reservations %}
 {% if user.is_authenticated %}
+<h2 class="error">{% trans "This patient has already created active reservation." %}</h2>
 {% blocktrans with r_date=reservation.starting_time|date:"d.m.Y" r_time=reservation.starting_time|date:"H.i" %}
 <p>The reservation is on <strong>{{ r_date }}</strong> at <strong>{{ r_time }}</strong>.</p>
 {% endblocktrans %}
 {% else %}
+<h2 class="error">{% trans "You have already created active reservation." %}</h2>
 {% blocktrans with r_date=reservation.date|date:"d.m.Y" r_time=reservation.time|date:"H.i" %}
 <p>Your reservation is on <strong>{{ r_date }}</strong> at <strong>{{ r_time }}</strong>.</p>
 {% endblocktrans %}

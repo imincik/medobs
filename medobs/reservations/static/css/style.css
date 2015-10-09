@@ -177,16 +177,10 @@ li[status=enabled] button.hold-button {
 	display: inline-block;
 }
 
-#ui-selectable li[status=disabled] {
+#ui-selectable li[status=disabled], #ui-selectable li[status=reschedule], #ui-selectable li[status=hold] {
 	color: #CCC;
 }
-#ui-selectable li[status=reschedule] {
-	color: #CCC;
-}
-#ui-selectable li[status=reserved] {
-}
-#ui-selectable li[status=hold] {
-}
+
 #reload {
 	position: absolute;
 	top: 0;

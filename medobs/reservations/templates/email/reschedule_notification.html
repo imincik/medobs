@@ -1,0 +1,9 @@
+{% extends "email/base.html" %}
+{% load i18n %}
+
+{% block text %}
+{% blocktrans with patient=reservation.patient.full_name old_date=old_reservation.date|date:"d.m.Y" old_time=old_reservation.time|time:"H.i" new_date=reservation.date|date:"d.m.Y" new_time=reservation.time|time:"H.i" %}
+Dear {{ patient }},
+Your reservation has been rescheduled from {{ old_date }} at {{ old_time }} to {{ new_date }} at {{ new_time }}.
+{% endblocktrans %}
+{% endblock %}

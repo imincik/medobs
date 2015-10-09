@@ -1,6 +1,6 @@
 import json
 from datetime import datetime, date, time, timedelta
-from view_utils import get_offices, is_reservation_on_date, send_notification_created, get_reservations_data
+from view_utils import get_offices, is_reservation_on_date, send_reservation_notification, send_reschedule_notificaion, send_cancel_notificaion, get_reservations_data
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -22,7 +22,7 @@ def front_page(request):
 		if request.user.is_authenticated():
 			office = Office.objects.filter(published=True)[0]
 		else:
-			office = Office.objects.filter(published=True, authenticated_only=True)[0]
+			office = Office.objects.filter(published=True, authenticated_only=False)[0]
 	except IndexError:
 		return render_to_response( "missing_config.html", {},
 			context_instance=RequestContext(request))
@@ -38,7 +38,7 @@ class BadStatus(Exception):
 def office_page(request, office_id, for_date=None):
 	office = get_object_or_404(Office, published=True, pk=office_id)
 
-	if not request.user.is_authenticated() and not office.authenticated_only: # authentication required
+	if not request.user.is_authenticated() and office.authenticated_only: # authentication required
 		return HttpResponseRedirect("/")
 
 	reschedule_reservation = request.GET.get('reschedule')
@@ -79,13 +79,12 @@ def office_page(request, office_id, for_date=None):
 			old_reservation.unbook()
 			new_reservation.save()
 			old_reservation.save()
-			messages.success(request, render_to_string("messages/reschedule.html", {
+			send_reschedule_notificaion(old_reservation, new_reservation)
+			messages.success(request, render_to_string("messages/rescheduled.html", {
 				"old_reservation": old_reservation,
 				"new_reservation": new_reservation,
 			}))
-			return HttpResponseRedirect("/booked/%d/%s/" % (
-								new_reservation.office_id,
-								actual_date.strftime("%Y-%m-%d")))
+			return HttpResponseRedirect("/status/%d/" % new_reservation.pk)
 		else:
 			form = PatientForm(request.POST)
 			form.fields["exam_kind"].queryset = office.exam_kinds.all()
@@ -107,20 +106,25 @@ def office_page(request, office_id, for_date=None):
 						raise DateInPast()
 
 					hexdigest = Patient.get_ident_hash(form.cleaned_data["ident_hash"])
-					patient, patient_created = Patient.objects.get_or_create(ident_hash=hexdigest,
-							defaults={
-								"first_name": form.cleaned_data["first_name"],
-								"last_name": form.cleaned_data["last_name"],
-								"ident_hash": form.cleaned_data["ident_hash"],
-								"phone_number": form.cleaned_data["phone_number"],
-								"email": form.cleaned_data["email"],
-							})
+					patient, patient_created = Patient.objects.get_or_create(
+						ident_hash=hexdigest,
+						defaults={
+							"first_name": form.cleaned_data["first_name"],
+							"last_name": form.cleaned_data["last_name"],
+							"ident_hash": form.cleaned_data["ident_hash"],
+							"phone_number": form.cleaned_data["phone_number"],
+							"email": form.cleaned_data["email"],
+						}
+					)
 					if not patient_created and patient.has_reservation():
-						messages.error(request, render_to_string("messages/cancel.html", {
+						messages.error(
+							request,
+							 render_to_string("messages/has_reservation.html", {
 								"reservations": patient.actual_reservations(),
 								"user": request.user,
-							}))
-						return HttpResponseRedirect("/cancel/%d/" % reservation.office_id)
+							}
+						))
+						return HttpResponseRedirect("/status/%d/" % reservation.pk)
 
 					if not patient_created:
 						patient.first_name = form.cleaned_data["first_name"]
@@ -136,15 +140,13 @@ def office_page(request, office_id, for_date=None):
 					reservation.reserved_by = request.user.username
 					reservation.save()
 
-					if patient.email:
-						send_notification_created(reservation)
+					send_reservation_notification(reservation)
 
-					messages.success(request, render_to_string("messages/booked.html", {
+					messages.success(request, render_to_string("messages/created.html", {
 							"reservation": reservation,
 						}))
-					return HttpResponseRedirect("/booked/%d/%s/" % (
-								reservation.office_id,
-								actual_date.strftime("%Y-%m-%d")))
+					return HttpResponseRedirect("/status/%d/" % reservation.pk)
+
 				except DateInPast:
 					message = _("Can't make reservation for today or day in the past.")
 				except BadStatus:
@@ -191,14 +193,6 @@ def date_reservations(request, for_date, office_id):
 	response = HttpResponse(json.dumps(data), "application/json")
 	response["Cache-Control"] = "no-cache"
 	return response
-
-def booked(request, office_id, for_date):
-	office = get_object_or_404(Office, pk=office_id)
-	return render_to_response(
-		"booked.html",
-		{"office": office, "for_date": for_date},
-		context_instance=RequestContext(request)
-	)
 
 @login_required
 def patient_details(request):
@@ -258,18 +252,37 @@ def unhold_reservation(request, r_id):
 	return response
 
 @login_required
-def unbook_reservation(request, r_id):
-	reservation = get_object_or_404(Reservation, pk=r_id)
+def unbook_reservation(request):
+	reservation = get_object_or_404(Reservation, pk=request.POST.get('reservation_id'))
+	tmp_reservation = Reservation(
+		office=reservation.office,
+		patient=reservation.patient,
+		date=reservation.date,
+		time=reservation.time,
+		exam_kind=reservation.exam_kind
+	)
 	if reservation.patient is not None:
 		reservation.unbook()
 		reservation.save()
-		response_data = {"status_ok": True}
+		send_cancel_notificaion(tmp_reservation)
+		messages.success(
+			request,
+			render_to_string(
+				"messages/canceled.html", {
+					"reservation": tmp_reservation,
+				}
+			)
+		)
 	else:
-		response_data = {"status_ok": False}
-
-	response = HttpResponse(json.dumps(response_data), "application/json")
-	response["Cache-Control"] = "no-cache"
-	return response
+		messages.error(
+			request,
+			 render_to_string(
+				"messages/cancel_failed.html", {
+					"reservation": tmp_reservation,
+				}
+			)
+		)
+	return HttpResponseRedirect("/status/%d/" % reservation.pk)
 
 @login_required
 def disable_reservation(request, r_id):
