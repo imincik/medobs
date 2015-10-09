@@ -112,6 +112,31 @@ ROOT_URLCONF = '{{ project_name }}.urls'
 WSGI_APPLICATION = '{{ project_name }}.wsgi.application'
 
 
+### LOGGING ###
+LOGGING = {
+	'version': 1,
+	'disable_existing_loggers': False,
+	'handlers': {
+		'file': {
+			'level': 'ERROR',
+			'class': 'logging.FileHandler',
+			'filename': 'medobs-error.log',
+		},
+		'console': {
+			'level': 'WARNING',
+			'class': 'logging.StreamHandler',
+		},
+	},
+	'loggers': {
+		'medobs': {
+			'handlers': ['console', 'file'],
+			'level': 'WARNING',
+			'propagate': True,
+		},
+	},
+}
+
+
 ### CUSTOM SETTINGS ###
 try:
 	from settings_custom import *
