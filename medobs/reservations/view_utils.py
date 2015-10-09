@@ -100,7 +100,9 @@ def get_reservations_data(reservations, all_attrs=True):
 		data = [{
 			"id": r.id,
 			"time": r.time.strftime("%H:%M"),
-			"status": "enabled" if r.actual_status == Reservation.STATUS_ENABLED and not r.authenticated_only else "disabled"
+			"status":
+				"enabled" if r.actual_status == Reservation.STATUS_ENABLED and not r.authenticated_only else
+				"disabled"
 		} for r in reservations]
 	return data
 

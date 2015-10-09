@@ -26,7 +26,13 @@ class ExpirationFilter(SimpleListFilter):
 	def queryset(self, request, queryset):
 		today = datetime.date.today()
 		if self.value() == '1':
-			return queryset.filter(Q(valid_since__lte=today) & (Q(valid_until__gte=today) | Q(valid_until__isnull=True)))
+			return queryset.filter(
+				Q(valid_since__lte=today)
+				& (
+					Q(valid_until__gte=today)
+					| Q(valid_until__isnull=True)
+				)
+			)
 		elif self.value() == '2':
 			return queryset.filter(valid_until__lt=today)
 
@@ -69,15 +75,30 @@ class DateRangeForm(forms.Form):
 		data = kwargs.get('data', {})
 		super(DateRangeForm, self).__init__(*args, **kwargs)
 
-		self.fields['%s__gte' % field_name] = forms.DateField(label=_('From'), localize=True, required=False,
-			widget=AdminDateWidget(attrs={'placeholder': ''}))
+		self.fields['%s__gte' % field_name] = forms.DateField(
+			label=_('From'),
+			localize=True,
+			required=False,
+			widget=AdminDateWidget(
+				attrs={'placeholder': ''}
+			)
+		)
 
-		self.fields['%s__lte' % field_name] = forms.DateField(label=_('To'), localize=True, required=False,
-			widget=AdminDateWidget(attrs={'placeholder': ''}))
+		self.fields['%s__lte' % field_name] = forms.DateField(
+			label=_('To'),
+			localize=True,
+			required=False,
+			widget=AdminDateWidget(
+				attrs={'placeholder': ''}
+			)
+		)
 
 		for param_name, value in data.iteritems():
 			if param_name not in self.fields.keys():
-				self.fields[param_name] = forms.CharField(required=False, widget=forms.HiddenInput())
+				self.fields[param_name] = forms.CharField(
+					required=False,
+					widget=forms.HiddenInput()
+				)
 
 	class Media:
 		css = {
@@ -152,16 +173,19 @@ class DateRangeFilter(admin.filters.FieldListFilter):
 			}, []),
 			'display': _('This month')
 		}
-		custom_range_selected = not today_selected and not tomorrow_selected and not this_week_selected and not this_month_selected and (since_value or upto_value)
+		custom_range_selected = \
+			not today_selected \
+			and not tomorrow_selected \
+			and not this_week_selected \
+			and not this_month_selected \
+			and (since_value or upto_value)
 		self.form = self.get_form(cl, clear_fields=(not custom_range_selected))
-		#cl.get_query_string({
-		#		self.lookup_kwarg_since: since_lookup,
-		#		self.lookup_kwarg_upto: upto_lookup
-		#	}, [])
 		yield {
 			'selected': custom_range_selected,
-			'query_string': '',#'javascript:django.jQuery("form#id_{0}").submit();'.format(self.field.name),
-			'display': _('From {0} to {1}').format(since_lookup, upto_lookup) if custom_range_selected else _('In range'),
+			'query_string': '',
+			'display':
+				_('From {0} to {1}').format(since_lookup, upto_lookup) if custom_range_selected else
+				_('In range'),
 			'form': self.form
 		}
 
@@ -182,7 +206,8 @@ class DateRangeFilter(admin.filters.FieldListFilter):
 			# get no null params
 			filter_params = dict(filter(lambda x: bool(x[1]), form.cleaned_data.items()))
 			if self.lookup_kwarg_upto in filter_params and self.lookup_kwarg_since not in filter_params:
-				q = Q(**filter_params) | Q(**{'{0}__isnull'.format(self.field_path): True})
+				q = Q(**filter_params) \
+					| Q(**{'{0}__isnull'.format(self.field_path): True})
 				return queryset.filter(q)
 			return queryset.filter(**filter_params)
 		else:
@@ -196,15 +221,32 @@ class TimeRangeForm(forms.Form):
 		data = kwargs.get('data', {})
 		super(TimeRangeForm, self).__init__(*args, **kwargs)
 		
-		self.fields['%s__gte' % field_name] = forms.TimeField(label=_('From'), localize=True, required=False,
-			widget=forms.TimeInput(format='%H:%M', attrs={'placeholder': ''}))
+		self.fields['%s__gte' % field_name] = forms.TimeField(
+			label=_('From'),
+			localize=True,
+			required=False,
+			widget=forms.TimeInput(
+				format='%H:%M',
+				attrs={'placeholder': ''}
+			)
+		)
 
-		self.fields['%s__lte' % field_name] = forms.TimeField(label=_('To'), localize=True, required=False,
-			widget=forms.TimeInput(format='%H:%M', attrs={'placeholder': ''}))
+		self.fields['%s__lte' % field_name] = forms.TimeField(
+			label=_('To'),
+			localize=True,
+			required=False,
+			widget=forms.TimeInput(
+				format='%H:%M',
+				attrs={'placeholder': ''}
+			)
+		)
 
 		for param_name, value in data.iteritems():
 			if param_name not in self.fields.keys():
-				self.fields[param_name] = forms.CharField(required=False, widget=forms.HiddenInput())
+				self.fields[param_name] = forms.CharField(
+					required=False,
+					widget=forms.HiddenInput()
+				)
 
 class TimeRangeFilter(admin.filters.FieldListFilter):
 	template = 'admin/time_filter.html'
@@ -212,8 +254,7 @@ class TimeRangeFilter(admin.filters.FieldListFilter):
 	def __init__(self, field, request, params, model, model_admin, field_path):
 		self.lookup_kwarg_since = '%s__gte' % field_path
 		self.lookup_kwarg_upto = '%s__lte' % field_path
-		super(TimeRangeFilter, self).__init__(
-			field, request, params, model, model_admin, field_path)
+		super(TimeRangeFilter, self).__init__(field, request, params, model, model_admin, field_path)
 
 	def choices(self, cl):
 		
@@ -249,12 +290,17 @@ class TimeRangeFilter(admin.filters.FieldListFilter):
 			}, []),
 			'display': _('Afternoon')
 		}
-		custom_range_selected = not morning_selected and not afternoon_selected and (since_lookup or upto_lookup)
+		custom_range_selected = \
+			not morning_selected \
+			and not afternoon_selected \
+			and (since_lookup or upto_lookup)
 		self.form = self.get_form(cl, clear_fields=(not custom_range_selected))
 		yield {
 			'selected': custom_range_selected,
 			'query_string': '',#'javascript:django.jQuery("form#id_{0}").submit();'.format(self.field.name),
-			'display': _('From {0} to {1}').format(since_lookup, upto_lookup) if custom_range_selected else _('In range'),
+			'display':
+				_('From {0} to {1}').format(since_lookup, upto_lookup) if custom_range_selected else
+				_('In range'),
 			'form': self.form
 		}
 
@@ -275,8 +321,8 @@ class TimeRangeFilter(admin.filters.FieldListFilter):
 			# get no null params
 			filter_params = dict(filter(lambda x: bool(x[1]), form.cleaned_data.items()))
 			if self.lookup_kwarg_upto in filter_params and self.lookup_kwarg_since not in filter_params:
-				from django.db.models import Q
-				q = Q(**filter_params) | Q(**{'{0}__isnull'.format(self.field_path): True})
+				q = Q(**filter_params) \
+					| Q(**{'{0}__isnull'.format(self.field_path): True})
 				return queryset.filter(q)
 			return queryset.filter(**filter_params)
 		else:
@@ -358,16 +404,19 @@ class ReservationExceptionDateFilter(admin.filters.ListFilter):
 			}, []),
 			'display': _('This month')
 		}
-		custom_range_selected = not today_selected and not tomorrow_selected and not this_week_selected and not this_month_selected and (since_value or upto_value)
+		custom_range_selected = \
+			not today_selected \
+			and not tomorrow_selected \
+			and not this_week_selected \
+			and not this_month_selected \
+			and (since_value or upto_value)
 		self.form = self.get_form(cl, clear_fields=(not custom_range_selected))
-		#cl.get_query_string({
-		#		self.lookup_kwarg_since: since_lookup,
-		#		self.lookup_kwarg_upto: upto_lookup
-		#	}, [])
 		yield {
 			'selected': custom_range_selected,
-			'query_string': '',#'javascript:django.jQuery("form#id_{0}").submit();'.format(self.field.name),
-			'display': _('From {0} to {1}').format(since_lookup, upto_lookup) if custom_range_selected else _('In range'),
+			'query_string': '',
+			'display':
+				_('From {0} to {1}').format(since_lookup, upto_lookup) if custom_range_selected else
+				_('In range'),
 			'form': self.form
 		}
 

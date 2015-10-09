@@ -12,11 +12,27 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class Patient(models.Model):
-	first_name = models.CharField(_("first name"), max_length=100)
-	last_name = models.CharField(_("last name"), max_length=100)
-	ident_hash = models.CharField(_("identity hash"), max_length=128, unique=True)
-	phone_number = models.CharField(_("phone number"), max_length=100)
-	email = models.EmailField(_("e-mail"), blank=True)
+	first_name = models.CharField(
+		_("first name"),
+		max_length=100
+	)
+	last_name = models.CharField(
+		_("last name"),
+		max_length=100
+	)
+	ident_hash = models.CharField(
+		_("identity hash"),
+		max_length=128,
+		unique=True
+	)
+	phone_number = models.CharField(
+		_("phone number"),
+		max_length=100
+	)
+	email = models.EmailField(
+		_("e-mail"),
+		blank=True
+	)
 
 	class Meta:
 		verbose_name = _("patient")
@@ -36,7 +52,8 @@ class Patient(models.Model):
 
 	def actual_reservations(self):
 		current_time = datetime.now()
-		q = Q(date=current_time.date(), time__gte=dt_time(current_time.hour, current_time.minute)) | Q(date__gt=current_time.date())
+		q = Q(date=current_time.date(), time__gte=dt_time(current_time.hour, current_time.minute)) \
+			| Q(date__gt=current_time.date())
 		return self.visit_reservations.filter(q)
 
 	def has_reservation(self):
@@ -49,20 +66,48 @@ class Patient(models.Model):
 		super(Patient, self).save(*args, **kwargs)
 
 class Office(models.Model):
-	name = models.CharField(_("name"), max_length=100, unique=True)
-	street = models.TextField(_("street"))
-	zip_code = models.CharField(_("zip code"), max_length=20)
-	city = models.CharField(_("city"), max_length=100)
-	email = models.EmailField(_("e-mail"), blank=True)
-	order = models.PositiveIntegerField(_("order"),
-		help_text=_("Office order on user page."))
-	authenticated_only = models.BooleanField(_("authenticated only"),
-		help_text=_("If enabled, office will be visible for non-authenticated users."))
-	published = models.BooleanField(_("published"), default=True,
-		help_text=_("If enabled, office will be published."))
-	days_to_generate = models.PositiveSmallIntegerField(_("days to generate"), default=7,
-		help_text=_("Number of days to generate reservations."))
-	note = models.TextField(_("note"), blank=True)
+	name = models.CharField(
+		_("name"),
+		max_length=100,
+		unique=True
+	)
+	street = models.TextField(
+		_("street")
+	)
+	zip_code = models.CharField(
+		_("zip code"),
+		max_length=20
+	)
+	city = models.CharField(
+		_("city"),
+		max_length=100
+	)
+	email = models.EmailField(
+		_("e-mail"),
+		blank=True
+	)
+	order = models.PositiveIntegerField(
+		_("order"),
+		help_text=_("Office order on user page.")
+	)
+	authenticated_only = models.BooleanField(
+		_("authenticated only"),
+		help_text=_("If enabled, office will be visible only for authenticated users.")
+	)
+	published = models.BooleanField(
+		_("published"),
+		default=True,
+		help_text=_("If enabled, office will be published.")
+	)
+	days_to_generate = models.PositiveSmallIntegerField(
+		_("days to generate"),
+		default=7,
+		help_text=_("Number of days to generate reservations.")
+	)
+	note = models.TextField(
+		_("note"),
+		blank=True
+	)
 
 	class Meta:
 		verbose_name = _("office")
@@ -99,9 +144,15 @@ class Office(models.Model):
 		return self._get_first_day(dt, 0, 1) + dt_timedelta(-1)
 
 class Phone(models.Model):
-	number = models.CharField(_("number"), max_length=50)
-	office = models.ForeignKey(Office, verbose_name=_("office"),
-		related_name="phone_numbers")
+	number = models.CharField(
+		_("number"),
+		max_length=50
+	)
+	office = models.ForeignKey(
+		Office,
+		verbose_name=_("office"),
+		related_name="phone_numbers"
+	)
 
 	class Meta:
 		verbose_name = _("office phone")
@@ -120,16 +171,37 @@ class Template(models.Model):
 		(6, _("Saturday")),
 		(7, _("Sunday")),
 	)
-	office = models.ForeignKey(Office, verbose_name=_("office"), related_name="templates")
-	day = models.PositiveSmallIntegerField(_("week day"), choices=DAYS)
-	starting_time = models.TimeField(_("time"))
-	valid_since = models.DateField(_("valid since"),
-			help_text=_("This date is included into interval."))
-	valid_until = models.DateField(_("valid until"), null=True, blank=True,
-			help_text=_("This date is not included into interval."))
-	authenticated_only = models.BooleanField(_("authenticated only"), default=False,
-			help_text=_("If enabled, creating reservation will be possible only for authenticated users."))
-	note = models.TextField(_("note"), blank=True)
+	office = models.ForeignKey(
+		Office,
+		verbose_name=_("office"),
+		related_name="templates"
+	)
+	day = models.PositiveSmallIntegerField(
+		_("week day"),
+		choices=DAYS
+	)
+	starting_time = models.TimeField(
+		_("time")
+	)
+	valid_since = models.DateField(
+		_("valid since"),
+		help_text=_("This date is included into interval.")
+	)
+	valid_until = models.DateField(
+		_("valid until"),
+		null=True,
+		blank=True,
+		help_text=_("This date is not included into interval.")
+	)
+	authenticated_only = models.BooleanField(
+		_("authenticated only"),
+		default=False,
+		help_text=_("If enabled, creating reservation will be possible only for authenticated users.")
+	)
+	note = models.TextField(
+		_("note"),
+		blank=True
+	)
 
 	class Meta:
 		verbose_name = _("template")
@@ -140,14 +212,28 @@ class Template(models.Model):
 		return unicode(_(u"{0} at {1}".format(self.get_day_display(), self.starting_time)))
 
 class Reservation_exception(models.Model):
-	title = models.CharField(_("title"), max_length=255, blank=True)
-	office = models.ForeignKey(Office, verbose_name=_("office"),
-			related_name="disables")
-	begin = models.DateTimeField(_("begin"),
-			help_text=_("This date is included into interval."))
-	end = models.DateTimeField(_("end"),
-			help_text=_("This date is included into interval."))
-	note = models.TextField(_("note"), blank=True)
+	title = models.CharField(
+		_("title"),
+		max_length=255,
+		blank=True
+	)
+	office = models.ForeignKey(
+		Office,
+		verbose_name=_("office"),
+		related_name="disables"
+	)
+	begin = models.DateTimeField(
+		_("begin"),
+		help_text=_("This date is included into interval.")
+	)
+	end = models.DateTimeField(
+		_("end"),
+		help_text=_("This date is included into interval.")
+	)
+	note = models.TextField(
+		_("note"),
+		blank=True
+	)
 
 	class Meta:
 		verbose_name = _("exception")
@@ -166,20 +252,30 @@ class Reservation_exception(models.Model):
 			return Q(office=self.office, date=self.begin.date(), time__gte=self.begin.time(), time__lt=self.end.time())
 		elif days == 1:
 			return Q(
-				office=self.office, date=self.begin.date(), time__gte=self.begin.time()) | Q(
-				office=self.office, date=self.end.date(), time__lt=self.end.time())
+				office=self.office, date=self.begin.date(), time__gte=self.begin.time()) \
+				| Q(office=self.office, date=self.end.date(), time__lt=self.end.time())
 		else:
-			return Q(
-				office=self.office, date=self.begin.date(), time__gte=self.begin.time()) | Q(
-				office=self.office, date__gt=self.begin.date(), date__lt=self.end.date()) | Q(
-				office=self.office, date=self.end.date(), time__lt=self.end.time())
+			return Q(office=self.office, date=self.begin.date(), time__gte=self.begin.time()) \
+				| Q(office=self.office, date__gt=self.begin.date(), date__lt=self.end.date()) \
+				| Q(office=self.office, date=self.end.date(), time__lt=self.end.time())
 
 class Examination_kind(models.Model):
-	title = models.TextField(_("title"))
-	office = models.ForeignKey(Office, verbose_name=_("office"),
-		related_name="exam_kinds")
-	order = models.PositiveIntegerField(_("order"), help_text=_("Examination kind order."))
-	note = models.TextField(_("note"), blank=True)
+	title = models.TextField(
+		_("title")
+	)
+	office = models.ForeignKey(
+		Office,
+		verbose_name=_("office"),
+		related_name="exam_kinds"
+	)
+	order = models.PositiveIntegerField(
+		_("order"),
+		help_text=_("Examination kind order.")
+	)
+	note = models.TextField(
+		_("note"),
+		blank=True
+	)
 
 	class Meta:
 		verbose_name = _("examination kind")
@@ -201,19 +297,49 @@ class Reservation(models.Model):
 	STATUS_RESERVED = 3
 	STATUS_RESCHEDULE = 5
 
-	date = models.DateField(_("date"))
-	time = models.TimeField(_("time"))
-	office = models.ForeignKey(Office, verbose_name=_("office"),
-			related_name="visit_reservations")
-	authenticated_only = models.BooleanField(_("authenticated only"),
-			help_text=_("If enabled, creating reservation will be possible only for authenticated users"))
-	patient = models.ForeignKey(Patient, verbose_name=_("patient"), null=True, blank=True,
-			related_name="visit_reservations")
-	exam_kind = models.ForeignKey(Examination_kind, verbose_name=_("examination kind"),
-			null=True, blank=True)
-	status = models.PositiveSmallIntegerField(_("status"), default=2, choices=STATUS_CHOICES)
-	reservation_time = models.DateTimeField(_("reservation time"), null=True, blank=True)
-	reserved_by = models.CharField(_("reserved by"), max_length=100, blank=True)
+	date = models.DateField(
+		_("date")
+	)
+	time = models.TimeField(
+		_("time")
+	)
+	office = models.ForeignKey(
+		Office,
+		verbose_name=_("office"),
+		related_name="visit_reservations"
+	)
+	authenticated_only = models.BooleanField(
+		_("authenticated only"),
+		help_text=_("If enabled, creating reservation will be possible only for authenticated users")
+	)
+	patient = models.ForeignKey(
+		Patient,
+		verbose_name=_("patient"),
+		null=True,
+		blank=True,
+		related_name="visit_reservations"
+	)
+	exam_kind = models.ForeignKey(
+		Examination_kind,
+		verbose_name=_("examination kind"),
+		null=True,
+		blank=True
+	)
+	status = models.PositiveSmallIntegerField(
+		_("status"),
+		default=2,
+		choices=STATUS_CHOICES
+	)
+	reservation_time = models.DateTimeField(
+		_("reservation time"),
+		null=True,
+		blank=True
+	)
+	reserved_by = models.CharField(
+		_("reserved by"),
+		max_length=100,
+		blank=True
+	)
 
 	class Meta:
 		verbose_name = _("reservation")
@@ -275,10 +401,22 @@ class Reservation(models.Model):
 
 
 class Command(models.Model):
-	name = models.CharField(_("name"), max_length=100, unique=True)
-	user = models.CharField(_("user"), max_length=100)
-	start_time = models.DateTimeField(_("start time"))
-	is_running = models.BooleanField(_("is running"), default=False)
+	name = models.CharField(
+		_("name"),
+		max_length=100,
+		unique=True
+	)
+	user = models.CharField(
+		_("user"),
+		max_length=100
+	)
+	start_time = models.DateTimeField(
+		_("start time")
+	)
+	is_running = models.BooleanField(
+		_("is running"),
+		default=False
+	)
 
 	@classmethod
 	@transaction.atomic

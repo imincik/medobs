@@ -33,7 +33,10 @@ def view_async_task(command):
 		def _wrapped_view(request, *args, **kwargs):
 			if Command.lock(command, request.user.get_full_name()):
 				process, response = view_func(request, *args, **kwargs)
-				multiprocessing.Process(target=async_task(command)(process.target), args=process.args).start()
+				multiprocessing.Process(
+					target=async_task(command)(process.target),
+					args=process.args
+				).start()
 				return response
 			else:
 				return HttpResponse(status=503)

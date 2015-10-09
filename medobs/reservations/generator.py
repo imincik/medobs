@@ -47,7 +47,9 @@ def generate_reservations(templates, console_logging=False):
 
 				day_cache = existing_reservations_cache.get(str(day), {})
 				for tmp in templates:
-					if tmp.day == week_day and tmp.valid_since <= day and (tmp.valid_until == None or tmp.valid_until > day):
+					if tmp.day == week_day \
+							and tmp.valid_since <= day \
+							and (tmp.valid_until == None or tmp.valid_until > day):
 						starting_time = datetime.combine(day, tmp.starting_time)
 
 						status = Reservation.STATUS_ENABLED

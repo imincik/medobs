@@ -27,16 +27,59 @@ class ReservationsChangeList(ChangeList):
 		Reservation.compute_actual_status(self.result_list)
 
 class ReservationAdmin(admin.ModelAdmin):
-	list_display = ("starting_time", "office", "admin_status_label", "authenticated_only", "patient")
-	readonly_fields = ("reservation_time", "reserved_by")
-	list_filter = ("office", "date", "time", filters.ReservationStatusFilter)
-	ordering = ("date", "time", "office")
-	search_fields = ("^patient__first_name", "^patient__last_name")
-	actions = ("enable_reservations", "disable_reservations")
+	list_display = (
+		"starting_time",
+		"office",
+		"admin_status_label",
+		"authenticated_only",
+		"patient"
+	)
+	readonly_fields = (
+		"reservation_time",
+		"reserved_by"
+	)
+	list_filter = (
+		"office",
+		"date",
+		"time",
+		filters.ReservationStatusFilter
+	)
+	ordering = (
+		"date",
+		"time",
+		"office"
+	)
+	search_fields = (
+		"^patient__first_name",
+		"^patient__last_name"
+	)
+	actions = (
+		"enable_reservations",
+		"disable_reservations"
+	)
 	form = ReservationForm
 	fieldsets = (
-		(None, {"fields": ("office", "date", "time", "status", "authenticated_only")}),
-		(_("Reservation data"), {"fields": ("patient", "exam_kind", "reservation_time", "reserved_by")}),
+		(
+			None, {
+				"fields": (
+					"office",
+					"date",
+					"time",
+					"status",
+					"authenticated_only"
+				)
+			}
+		),
+		(
+			_("Reservation data"), {
+				"fields": (
+					"patient",
+					"exam_kind",
+					"reservation_time",
+					"reserved_by"
+				)
+			}
+		),
 	)
 	save_as = True
 
@@ -78,16 +121,37 @@ admin.site.register(Reservation, ReservationAdmin)
 
 class VisitReservationInline(admin.TabularInline):
 	model = Reservation
-	readonly_fields = ("date", "time", "office", "authenticated_only", "exam_kind", "status", "reservation_time", "reserved_by")
+	readonly_fields = (
+		"date",
+		"time",
+		"office",
+		"authenticated_only",
+		"exam_kind",
+		"status",
+		"reservation_time",
+		"reserved_by"
+	)
 	can_delete = False
 	extra = 0
 	def has_add_permission(self, request):
 		return False
 
 class PatientAdmin(admin.ModelAdmin):
-	list_display = ("full_name", "phone_number", "email", "ident_hash", "has_reservation")
-	search_fields = ("last_name", "first_name")
-	ordering = ("last_name", "first_name")
+	list_display = (
+		"full_name",
+		"phone_number",
+		"email",
+		"ident_hash",
+		"has_reservation"
+	)
+	search_fields = (
+		"last_name",
+		"first_name"
+	)
+	ordering = (
+		"last_name",
+		"first_name"
+	)
 	inlines = (VisitReservationInline, )
 
 	def get_form(self, request, obj=None, **kwargs):
@@ -108,9 +172,25 @@ class PatientAdmin(admin.ModelAdmin):
 admin.site.register(Patient, PatientAdmin)
 
 class TemplateAdmin(admin.ModelAdmin):
-	list_display = ("__unicode__", "office", "starting_time", "valid_since", "valid_until", "authenticated_only")
-	list_filter = ("office", "day", "starting_time", filters.ExpirationFilter)
-	ordering = ("day", "starting_time", "office")
+	list_display = (
+		"__unicode__",
+		"office",
+		"starting_time",
+		"valid_since",
+		"valid_until",
+		"authenticated_only"
+	)
+	list_filter = (
+		"office",
+		"day",
+		"starting_time",
+		filters.ExpirationFilter
+	)
+	ordering = (
+		"day",
+		"starting_time",
+		"office"
+	)
 	save_as = True
 
 	def generateReservationsEnabled(self):
@@ -119,9 +199,20 @@ class TemplateAdmin(admin.ModelAdmin):
 admin.site.register(Template, TemplateAdmin)
 
 class ReservationExceptionAdmin(admin.ModelAdmin):
-	list_display = ("title", "begin", "end", "office")
-	list_filter = ("office", filters.ReservationExceptionDateFilter)
-	ordering = ("begin", "office")
+	list_display = (
+		"title",
+		"begin",
+		"end",
+		"office"
+	)
+	list_filter = (
+		"office",
+		filters.ReservationExceptionDateFilter
+	)
+	ordering = (
+		"begin",
+		"office"
+	)
 
 admin.site.register(Reservation_exception, ReservationExceptionAdmin)
 
@@ -142,13 +233,45 @@ class OfficePhoneInline(admin.TabularInline):
     extra = 1
 
 class OfficeAdmin(admin.ModelAdmin):
-	list_display = ("name", "order", "street", "zip_code", "city", "email", "days_to_generate", "published",
-		"authenticated_only")
-	inlines = (ExaminationKindInline, OfficePhoneInline)
+	list_display = (
+		"name",
+		"order",
+		"street",
+		"zip_code",
+		"city",
+		"email",
+		"days_to_generate",
+		"published",
+		"authenticated_only"
+	)
+	inlines = (
+		ExaminationKindInline,
+		OfficePhoneInline
+	)
 	ordering = ("name",)
 	fieldsets = (
-		(None, {"fields": ("name", "street", "zip_code", "city", "email", "note")}),
-		(_("Settings"), {"fields": ("order", "days_to_generate", "published", "authenticated_only")}),
+		(
+			None, {
+				"fields": (
+					"name",
+					"street",
+					"zip_code",
+					"city",
+					"email",
+					"note"
+				)
+			}
+		),
+		(
+			_("Settings"), {
+				"fields": (
+					"order",
+					"days_to_generate",
+					"published",
+					"authenticated_only"
+				)
+			}
+		),
 	)
 	formfield_overrides = {
 		models.TextField: {

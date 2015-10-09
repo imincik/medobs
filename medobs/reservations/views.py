@@ -1,6 +1,7 @@
 import json
 from datetime import datetime, date, time, timedelta
-from view_utils import get_offices, is_reservation_on_date, send_reservation_notification, send_reschedule_notificaion, send_cancel_notificaion, get_reservations_data
+from view_utils import get_offices, get_reservations_data, is_reservation_on_date
+from view_utils import send_reservation_notification, send_reschedule_notificaion, send_cancel_notificaion
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -24,8 +25,11 @@ def front_page(request):
 		else:
 			office = Office.objects.filter(published=True, authenticated_only=False)[0]
 	except IndexError:
-		return render_to_response( "missing_config.html", {},
-			context_instance=RequestContext(request))
+		return render_to_response(
+			"missing_config.html",
+			{},
+			context_instance=RequestContext(request)
+		)
 
 	return HttpResponseRedirect("/office/%d/" % office.id)
 
@@ -80,10 +84,15 @@ def office_page(request, office_id, for_date=None):
 			new_reservation.save()
 			old_reservation.save()
 			send_reschedule_notificaion(old_reservation, new_reservation)
-			messages.success(request, render_to_string("messages/rescheduled.html", {
-				"old_reservation": old_reservation,
-				"new_reservation": new_reservation,
-			}))
+			messages.success(
+				request,
+				render_to_string(
+					"messages/rescheduled.html", {
+						"old_reservation": old_reservation,
+						"new_reservation": new_reservation,
+					}
+				)
+			)
 			return HttpResponseRedirect("/status/%d/" % new_reservation.pk)
 		else:
 			form = PatientForm(request.POST)
@@ -119,11 +128,13 @@ def office_page(request, office_id, for_date=None):
 					if not patient_created and patient.has_reservation():
 						messages.error(
 							request,
-							 render_to_string("messages/has_reservation.html", {
-								"reservations": patient.actual_reservations(),
-								"user": request.user,
-							}
-						))
+							render_to_string(
+								"messages/has_reservation.html", {
+									"reservations": patient.actual_reservations(),
+									"user": request.user,
+								}
+							)
+						)
 						return HttpResponseRedirect("/status/%d/" % reservation.pk)
 
 					if not patient_created:
@@ -142,9 +153,14 @@ def office_page(request, office_id, for_date=None):
 
 					send_reservation_notification(reservation)
 
-					messages.success(request, render_to_string("messages/created.html", {
-							"reservation": reservation,
-						}))
+					messages.success(
+						request,
+						render_to_string(
+							"messages/created.html", {
+								"reservation": reservation,
+							}
+						)
+					)
 					return HttpResponseRedirect("/status/%d/" % reservation.pk)
 
 				except DateInPast:
@@ -164,7 +180,12 @@ def office_page(request, office_id, for_date=None):
 	office_data = {
 		"id": office.id,
 		"name": office.name,
-		"reservations": json.dumps(get_reservations_data(office.reservations(actual_date), all_attrs=request.user.is_authenticated())),
+		"reservations": json.dumps(
+			get_reservations_data(
+				office.reservations(actual_date),
+				all_attrs=request.user.is_authenticated()
+			)
+		),
 		"days_status": json.dumps(office.days_status(start_date, end_date))
 	}
 
@@ -184,12 +205,19 @@ def office_page(request, office_id, for_date=None):
 			"reschedule_mode": True,
 			"reservation": reschedule_reservation
 		})
-	return render_to_response("index.html", data, context_instance=RequestContext(request))
+	return render_to_response(
+		"index.html",
+		data,
+		context_instance=RequestContext(request)
+	)
 
 def date_reservations(request, for_date, office_id):
 	office = get_object_or_404(Office, pk=office_id)
 	for_date = datetime.strptime(for_date, "%Y-%m-%d").date()
-	data = get_reservations_data(office.reservations(for_date), all_attrs=request.user.is_authenticated())
+	data = get_reservations_data(
+		office.reservations(for_date),
+		all_attrs=request.user.is_authenticated()
+	)
 	response = HttpResponse(json.dumps(data), "application/json")
 	response["Cache-Control"] = "no-cache"
 	return response
@@ -359,8 +387,11 @@ def patient_reservations(request):
 		except Patient.DoesNotExist:
 			raise Http404
 
-		return render_to_response("patient_reservations.html", response_data,
-			context_instance=RequestContext(request))
+		return render_to_response(
+			"patient_reservations.html",
+			response_data,
+			context_instance=RequestContext(request)
+		)
 	raise Http404
 
 def days_status(request, year, month, office_id):
