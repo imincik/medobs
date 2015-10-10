@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import os
 from setuptools import setup, find_packages
 
 
@@ -20,18 +19,22 @@ exclude_from_packages = [
 	'medobs.conf.project_template',
 ]
 
+
+# requirements
+with open("requirements.txt") as f:
+    requirements = f.read().splitlines()
+
 # setup
 setup(name='medobs',
 	version=".".join(map(str, __import__('medobs').VERSION)),
-	description='GIS.lab Web application',
+	description='MEDOBS reservation system',
 	author='Peter Hyben, Marcel Dancak, Ivan Mincik',
 	author_email='hugis@tag.sk, dancakm@gmail.com, ivan.mincik@gmail.com',
 	url='https://github.com/imincik/medobs/',
 	packages=find_packages(),
 	include_package_data=True,
-	classifiers=classifiers
+	classifiers=classifiers,
+	install_requires=requirements
 )
-
-# vim: set ts=4 sts=4 sw=4 noet:
 
 # vim: set ts=4 sts=4 sw=4 noet:
