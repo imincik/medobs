@@ -1,11 +1,11 @@
-# This file is distributed under the same license as the Medobs package.
+# This file is distributed under the same license as the MEDOBS package.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Medobs\n"
+"Project-Id-Version: MEDOBS\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-23 10:46+0200\n"
-"PO-Revision-Date: 2011-05-24 13:32+0200\n"
+"POT-Creation-Date: 2015-10-10 13:13+0200\n"
+"PO-Revision-Date: 2015-10-10 13:13+0200\n"
 "Last-Translator: Ivan Mincik <ivan.mincik@gmail.com>\n"
 "Language-Team: Slovak <None>\n"
 "Language: sk\n"
@@ -14,15 +14,42 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2\n"
 
-#: admin.py:27
+#: admin.py:74
 msgid "Reservation data"
 msgstr "Údaje o rezervácii"
 
-#: admin.py:68 forms.py:17
+#: admin.py:87 filters.py:46
+msgid "Available"
+msgstr "Voľný"
+
+#: admin.py:88 filters.py:50 templates/index.html:154
+#: templates/index.html.py:268
+msgid "Disabled"
+msgstr "Vypnutý"
+
+#: admin.py:89 filters.py:48 templates/index.html:154
+#: templates/index.html.py:192 templates/index.html:199
+msgid "Hold"
+msgstr "Podržaný"
+
+#: admin.py:90
+msgid "Reserved"
+msgstr "Rezervovaný"
+
+#: admin.py:91 filters.py:49 templates/index.html:18
+#: templates/index.html.py:179
+msgid "Reschedule"
+msgstr "Preobjednať"
+
+#: admin.py:163
+msgid "Patient with a given identification number already exists."
+msgstr "Pacient s týmto identifikačným číslom neexistuje"
+
+#: admin.py:166 forms.py:17
 msgid "Birth number"
 msgstr "Rodné číslo"
 
-#: admin.py:110
+#: admin.py:266
 msgid "Settings"
 msgstr "Nastavenia"
 
@@ -38,80 +65,64 @@ msgstr "Platný"
 msgid "Expirated"
 msgstr "Vyexpirovaný"
 
-#: filters.py:35 models.py:186
-msgid "status"
-msgstr "stav"
+#: filters.py:41
+msgid "availability"
+msgstr "voľný"
 
-#: filters.py:40 models.py:223
-msgid "Available"
-msgstr "Voľný"
-
-#: filters.py:41 models.py:217
+#: filters.py:47
 msgid "Reservated"
 msgstr "Rezervovaný"
 
-#: filters.py:42 models.py:225
-msgid "Hold"
-msgstr "Podržaný"
-
-#: filters.py:43 models.py:219 templates/index.html:18
-msgid "Reschedule"
-msgstr "Preobjednať"
-
-#: filters.py:44 models.py:221
-msgid "Disabled"
-msgstr "Vypnutý"
-
-#: filters.py:67 filters.py:194
+#: filters.py:79 filters.py:225
 msgid "From"
 msgstr "Od"
 
-#: filters.py:70 filters.py:197
+#: filters.py:88 filters.py:235
 msgid "To"
 msgstr "Do"
 
-#: filters.py:112 filters.py:318
+#: filters.py:138 filters.py:369
 msgid "Any date"
 msgstr "Akýkoľvek dátum"
 
-#: filters.py:121 filters.py:327
+#: filters.py:147 filters.py:378
 msgid "Today"
 msgstr "Dnes"
 
-#: filters.py:130 filters.py:336
+#: filters.py:156 filters.py:387
 msgid "Tomorrow"
 msgstr "Zajtra"
 
-#: filters.py:139 filters.py:345
+#: filters.py:165 filters.py:396
 msgid "This week"
 msgstr "Tento týždeň"
 
-#: filters.py:148 filters.py:354
+#: filters.py:174 filters.py:405
 msgid "This month"
 msgstr "Tento mesiac"
 
-#: filters.py:159 filters.py:252 filters.py:365 models.py:149
+#: filters.py:187 filters.py:302 filters.py:418
 #, python-brace-format
 msgid "From {0} to {1}"
 msgstr "Od {0} do {1}"
 
-#: filters.py:159 filters.py:252 filters.py:365
+#: filters.py:188 filters.py:303 filters.py:419
 msgid "In range"
 msgstr "V rozsahu"
 
-#: filters.py:227
+#: filters.py:273
 msgid "Any time"
 msgstr "Akýkoľvek čas"
 
-#: filters.py:236
+#: filters.py:282
 msgid "Morning"
 msgstr "Ráno"
 
-#: filters.py:245
+#: filters.py:291
 msgid "Afternoon"
 msgstr "Poobede"
 
-#: filters.py:284
+#: filters.py:335
 msgid "Range"
 msgstr "Rozsah"
 
@@ -127,262 +138,280 @@ msgstr "Zadajte správne telefónne číslo obsahujúce iba čísla."
 msgid "Select reservation time"
 msgstr "Zvoľte termín rezervácie"
 
-#: forms.py:34 templates/patient_reservations.html:8
+#: forms.py:34 templates/patient_reservations.html:13
 msgid "Examination kind"
 msgstr "Typ vyšetrenia"
 
-#: management/commands/medobsnotify.py:23
-msgid "Upcoming reservation notification"
-msgstr "Upozornenie na blížiaci sa termín rezervácie"
+#: management/commands/medobsnotify.py:28
+msgid "reservation notification"
+msgstr "upozornenie na rezerváciu"
 
-#: models.py:13
+#: models.py:16
 msgid "first name"
 msgstr "meno"
 
-#: models.py:14
+#: models.py:20
 msgid "last name"
 msgstr "priezvisko"
 
-#: models.py:15
-msgid "identify hash"
+#: models.py:24
+msgid "identity hash"
 msgstr "identifikačný kód"
 
-#: models.py:16
+#: models.py:29
 msgid "phone number"
 msgstr "telefónne číslo"
 
-#: models.py:17 models.py:49
+#: models.py:33 models.py:86
 msgid "e-mail"
 msgstr "e-mail"
 
-#: models.py:20 models.py:182
+#: models.py:38 models.py:317
 msgid "patient"
 msgstr "pacient"
 
-#: models.py:21
+#: models.py:39
 msgid "patients"
 msgstr "pacienti"
 
-#: models.py:45
+#: models.py:70 models.py:405
 msgid "name"
 msgstr "meno"
 
-#: models.py:46
+#: models.py:75
 msgid "street"
 msgstr "ulica"
 
-#: models.py:47
+#: models.py:78
 msgid "zip code"
 msgstr "PSČ"
 
-#: models.py:48
+#: models.py:82
 msgid "city"
 msgstr "mesto"
 
-#: models.py:50 models.py:155
+#: models.py:90 models.py:272
 msgid "order"
 msgstr "poradie"
 
-#: models.py:50
-msgid "Order of medical offices on reservation page."
-msgstr "Poradie záložiek ambulancií na rezervačnej stránke."
+#: models.py:91
+msgid "Office order on user page."
+msgstr "Poradie ambulancie na stránke."
 
-#: models.py:51
-msgid "public"
-msgstr "verejná"
-
-#: models.py:52
-msgid ""
-"Check if you want to make this medical office to be visible without "
-"authentication."
-msgstr ""
-"Ak je zaštrtnuté, ambulancia je viditeľná aj pre neprihlásených "
-"používateeľov."
-
-#: models.py:53
-msgid "published"
-msgstr "publikovaná"
-
-#: models.py:54
-msgid "Check if you want to make this medical office to be published."
-msgstr "Ak je zaštrtnuté, ambulancia je publikovaná."
-
-#: models.py:55
-msgid "days to generate"
-msgstr "generovať dní"
-
-#: models.py:55
-msgid "Number of days to generate reservations."
-msgstr "Počet dní pre ktoré budú generované termíny."
-
-#: models.py:56 models.py:124 models.py:141 models.py:156
-msgid "note"
-msgstr "poznámka"
-
-#: models.py:59
-msgid "office"
-msgstr "ambulancia"
-
-#: models.py:60
-msgid "offices"
-msgstr "ambulancie"
-
-#: models.py:93
-msgid "number"
-msgstr "číslo"
-
-#: models.py:94 models.py:114 models.py:135 models.py:153 models.py:178
-msgid "medical office"
-msgstr "ambulancia"
-
-#: models.py:98
-msgid "office phone"
-msgstr "telefónne číslo ambulancie"
-
-#: models.py:99
-msgid "office phones"
-msgstr "telefóne čísla ambulancie"
-
-#: models.py:106
-msgid "Monday"
-msgstr "Pondelok"
-
-#: models.py:107
-msgid "Tuesday"
-msgstr "Utorok"
-
-#: models.py:108
-msgid "Wednesday"
-msgstr "Streda"
-
-#: models.py:109
-msgid "Thursday"
-msgstr "Štvrtok"
-
-#: models.py:110
-msgid "Friday"
-msgstr "Piatok"
-
-#: models.py:111
-msgid "Saturday"
-msgstr "Sobota"
-
-#: models.py:112
-msgid "Sunday"
-msgstr "Nedeľa"
-
-#: models.py:116
-msgid "week day"
-msgstr "deň týždňa"
-
-#: models.py:117 models.py:177
-msgid "time"
-msgstr "čas"
-
-#: models.py:118
-msgid "valid since"
-msgstr "platné od"
-
-#: models.py:119 models.py:138 models.py:140
-msgid "This date is included into interval."
-msgstr "Tento dátum je zahrnutý do intervalu."
-
-#: models.py:120
-msgid "valid until"
-msgstr "platné do"
-
-#: models.py:121
-msgid "This date is not included into interval."
-msgstr "Tento dátum nie je zahrnutý do intervalu."
-
-#: models.py:122 models.py:180
+#: models.py:94 models.py:197 models.py:312
 msgid "authenticated only"
 msgstr "iba prihlásený"
 
-#: models.py:123 models.py:181
-msgid "If true allow reservation only for authenticated users."
-msgstr "Povoliť rezerváciu iba prihláseným používateľom."
+#: models.py:95
+msgid "If enabled, office will be visible only for authenticated users."
+msgstr "Ak je zapnuté, ambulancia bude viditeľná iba pre autentifikovaných používateľov."
 
-#: models.py:127
+#: models.py:98
+msgid "published"
+msgstr "publikovaná"
+
+#: models.py:100
+msgid "If enabled, office will be published."
+msgstr "Ak je zapnuté, ambulancia bude publikovaná."
+
+#: models.py:103
+msgid "days to generate"
+msgstr "generovať dní"
+
+#: models.py:105
+msgid "Number of days to generate reservations."
+msgstr "Počet dní pre ktoré budú generované termíny."
+
+#: models.py:108 models.py:202 models.py:234 models.py:276
+msgid "note"
+msgstr "poznámka"
+
+#: models.py:113 models.py:153 models.py:176 models.py:222 models.py:268
+#: models.py:308
+msgid "office"
+msgstr "ambulancia"
+
+#: models.py:114
+msgid "offices"
+msgstr "ambulancie"
+
+#: models.py:148
+msgid "number"
+msgstr "číslo"
+
+#: models.py:158
+msgid "office phone"
+msgstr "telefónne číslo ambulancie"
+
+#: models.py:159
+msgid "office phones"
+msgstr "telefóne čísla ambulancie"
+
+#: models.py:166
+msgid "Monday"
+msgstr "Pondelok"
+
+#: models.py:167
+msgid "Tuesday"
+msgstr "Utorok"
+
+#: models.py:168
+msgid "Wednesday"
+msgstr "Streda"
+
+#: models.py:169
+msgid "Thursday"
+msgstr "Štvrtok"
+
+#: models.py:170
+msgid "Friday"
+msgstr "Piatok"
+
+#: models.py:171
+msgid "Saturday"
+msgstr "Sobota"
+
+#: models.py:172
+msgid "Sunday"
+msgstr "Nedeľa"
+
+#: models.py:180
+msgid "week day"
+msgstr "deň týždňa"
+
+#: models.py:184 models.py:304
+msgid "time"
+msgstr "čas"
+
+#: models.py:187
+msgid "valid since"
+msgstr "platné od"
+
+#: models.py:188 models.py:227 models.py:231
+msgid "This date is included into interval."
+msgstr "Tento dátum je zahrnutý do intervalu."
+
+#: models.py:191
+msgid "valid until"
+msgstr "platné do"
+
+#: models.py:194
+msgid "This date is not included into interval."
+msgstr "Tento dátum nie je zahrnutý do intervalu."
+
+#: models.py:199
+msgid ""
+"If enabled, creating reservation will be possible only for authenticated "
+"users."
+msgstr "Ak je zapnuté, rezervácia bude povulená iba pre autentifikovaných používateľov."
+
+#: models.py:207
 msgid "template"
 msgstr "šablóna"
 
-#: models.py:128
+#: models.py:208
 msgid "templates"
 msgstr "šablóny"
 
-#: models.py:132
+#: models.py:212
 #, python-brace-format
 msgid "{0} at {1}"
 msgstr "{0} o {1}"
 
-#: models.py:137
-msgid "begin"
-msgstr "začiatok"
-
-#: models.py:139
-msgid "end"
-msgstr "koniec"
-
-#: models.py:144
-msgid "exception"
-msgstr "výnimka"
-
-#: models.py:145
-msgid "exceptions"
-msgstr "výnimky"
-
-#: models.py:152
+#: models.py:216 models.py:264
 msgid "title"
 msgstr "názov"
 
-#: models.py:155
-msgid "Order of examination kinds."
-msgstr "Poradie typov vyšetrení."
+#: models.py:226
+msgid "begin"
+msgstr "začiatok"
 
-#: models.py:159 models.py:184
+#: models.py:230
+msgid "end"
+msgstr "koniec"
+
+#: models.py:239
+msgid "exception"
+msgstr "výnimka"
+
+#: models.py:240
+msgid "exceptions"
+msgstr "výnimky"
+
+#: models.py:244
+#, python-brace-format
+msgid "{0} (from {1} to {2})"
+msgstr "{0} (od {1} do {2})"
+
+#: models.py:273
+msgid "Examination kind order."
+msgstr "Poradie typu vyšetrenia"
+
+#: models.py:281 models.py:324
 msgid "examination kind"
 msgstr "typ vyšetrenia"
 
-#: models.py:160
+#: models.py:282
 msgid "examinations kinds"
-msgstr "typy vyšetrenia"
+msgstr "typy vyšetrenií"
 
-#: models.py:171
+#: models.py:293
 msgid "disabled"
 msgstr "vypnutý"
 
-#: models.py:172
+#: models.py:294
 msgid "enabled"
 msgstr "zapnutý"
 
-#: models.py:173
+#: models.py:295
 msgid "hold"
 msgstr "podržaný"
 
-#: models.py:176
+#: models.py:301
 msgid "date"
 msgstr "dátum"
 
-#: models.py:187
+#: models.py:313
+msgid ""
+"If enabled, creating reservation will be possible only for authenticated "
+"users"
+msgstr "Ak je zapnuté, rezervácia bude povolená iba pre prihlásených používateľov."
+
+#: models.py:329
+msgid "status"
+msgstr "stav"
+
+#: models.py:334
 msgid "reservation time"
 msgstr "čas rezervácie"
 
-#: models.py:188
-msgid "reservated by"
+#: models.py:339
+msgid "reserved by"
 msgstr "rezervovaný kým"
 
-#: models.py:191
+#: models.py:345
 msgid "reservation"
 msgstr "rezervácia"
 
-#: models.py:192
+#: models.py:346
 msgid "reservations"
 msgstr "rezervácie"
 
+#: models.py:410
+msgid "user"
+msgstr ""
+
+#: models.py:414
+msgid "start time"
+msgstr "čas začiatku"
+
+#: models.py:417
+msgid "is running"
+msgstr "beží"
+
 #: templates/admin/base_site.html:4 templates/admin/base_site.html.py:12
 msgid "MEDOBS administration"
-msgstr "MEDOBS administrácia"
+msgstr "Administrácia MEDOBS"
 
 #: templates/admin/date_filter.html:34
 msgid "Submit date"
@@ -433,26 +462,38 @@ msgstr "Prázdny"
 msgid "Unknown content"
 msgstr "Neznámy obsah"
 
-#: templates/admin/reservations/visit_reservation/patient_search_field.html:6
-#: templates/index.html:70
+#: templates/admin/reservations/reservation/change_form.html:6
+#: templates/index.html:71
+msgid "Reschedule reservation"
+msgstr "Preobjednať"
+
+#: templates/admin/reservations/reservation/patient_search_field.html:6
+#: templates/index.html:73
 msgid "Cancel reservation"
 msgstr "Zrušiť rezerváciu"
 
-#: templates/admin/reservations/visit_reservation/patient_search_field.html:11
+#: templates/admin/reservations/reservation/patient_search_field.html:11
 msgid "Patient with this birth number doesn't exist"
 msgstr "Pacient s týmto rodným číslom neexistuje"
 
-#: templates/admin/reservations/visit_reservation/patient_search_field.html:12
+#: templates/admin/reservations/reservation/patient_search_field.html:12
 msgid "Find patient by birth number."
-msgstr "Vyhľadať pacienta podľa rodného čísla"
+msgstr "Vyhľadať pacienta podľa rodného čísla."
+
+#: templates/admin/reservations/template/change_form.html:24
+#: templates/admin/reservations/template/change_form.html:29
+#: templates/admin/reservations/template/change_list.html:24
+#: templates/admin/reservations/template/change_list.html:28
+msgid "Generate reservations"
+msgstr "Vygenerovať rezervácie"
 
 #: templates/admin/time_filter.html:30
 msgid "Submit time"
 msgstr "Zvoliť čas"
 
 #: templates/base.html:6 templates/base.html.py:22
-msgid "MEDOBS &ndash; medical reservation system"
-msgstr "MEDOBS &ndash; medicínsky rezervačný systém"
+msgid "MEDOBS &ndash; reservation system"
+msgstr "MEDOBS &ndash; rezervačný systém"
 
 #: templates/base.html:22
 msgid "version"
@@ -466,46 +507,45 @@ msgstr "odhlásiť sa"
 msgid "login"
 msgstr "prihlásiť sa"
 
-#: templates/booked.html:15 templates/cancel.html:18
-#: templates/email/first_notification.html:6
-msgid ""
-"If you want to change or cancel your reservation call us on phone number:"
-msgstr ""
-"Ak si želáte zmeniť alebo zrušiť vašu rezerváciu zavolajte na naše telefónne "
-"čísla:"
-
-#: templates/booked.html:22 templates/cancel.html:24
-msgid "Back to front page"
-msgstr "Späť na úvodnú stránku"
-
-#: templates/cancel.html:13
-msgid "This patient has already created active reservation."
-msgstr "Tento pacient už má vytvorenú aktívnu rezerváciu."
-
-#: templates/cancel.html:16
-msgid "You have already created active reservation."
-msgstr "Už máte vytvorenú aktívnu rezerváciu."
-
-#: templates/email/first_notification.html:3
-#, python-format
+#: templates/email/cancel_notification.html:5
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "Your reservation has been created on %(rdate)s at %(rtime)s.\n"
 msgid ""
 "\n"
-"Your reservation has been created on %(rdate)s at %(rtime)s.\n"
+"Dear %(patient)s,\n"
+"Your reservation on %(rdate)s at %(rtime)s has been canceled.\n"
 msgstr ""
 "\n"
 "Vaša rezervácia bola vytvorená na %(rdate)s o %(rtime)s.\n"
 
-#: templates/email/second_notification.html:3
-#, python-format
-msgid "We are waiting for you tomorrow at %(rtime)s in the medical office."
-msgstr "Čakáme vás zajtra o %(rtime)s v našej ambulancii."
-
-#: templates/email/second_notification.html:4
+#: templates/email/reschedule_notification.html:5
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "Your reservation has been created on %(rdate)s at %(rtime)s.\n"
 msgid ""
-"If you want to change or cancel your reservation, call us on phone number:"
+"\n"
+"Dear %(patient)s,\n"
+"Your reservation has been rescheduled from %(old_date)s at %(old_time)s to "
+"%(new_date)s at %(new_time)s.\n"
 msgstr ""
-"Ak si želáte zmeniť alebo zrušiť vašu rezerváciu zavolajte na naše telefónne "
-"čísla:"
+"\n"
+"Vaša rezervácia bola vytvorená na %(rdate)s o %(rtime)s.\n"
+
+#: templates/email/reservation_notification.html:5
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "Your reservation has been created on %(rdate)s at %(rtime)s.\n"
+msgid ""
+"\n"
+"Dear %(patient)s,\n"
+"Your reservation has been created on %(rdate)s at %(rtime)s.\n"
+msgstr ""
+"\n"
+"Vaša rezervácia bola vytvorená na %(rdate)s o %(rtime)s.\n"
 
 #: templates/index.html:27
 msgid "Fill all required fields to complete reservation"
@@ -515,73 +555,138 @@ msgstr "Vyplňte všetky povinné polia pre dokončenie rezervácie"
 msgid "Required fields"
 msgstr "Povinné polia"
 
-#: templates/index.html:47 templates/patient_reservations.html:5
-msgid "Date"
-msgstr "Dátum"
-
-#: templates/index.html:48 templates/patient_reservations.html:6
-msgid "Time"
-msgstr "Čas"
-
-#: templates/index.html:56
-msgid "Day:"
-msgstr "Deň:"
-
-#: templates/index.html:58
-msgid "List of reservations"
-msgstr "Zoznam rezervácií"
-
-#: templates/index.html:59
-msgid "Reload"
-msgstr "Obnoviť"
-
-#: templates/index.html:64
-msgid "Make reservation"
-msgstr "Vytvoriť rezerváciu"
-
-#: templates/index.html:68
-msgid "Reschedule reservation"
-msgstr "Preobjednať"
-
-#: templates/index.html:74
-msgid "Cancel"
-msgstr "Zrušiť"
-
-#: templates/index.html:76
+#: templates/index.html:44
 msgid "Reset"
 msgstr "Vynulovať"
 
-#: templates/index.html:175 templates/index.html.py:196
-#: templates/index.html:219 templates/index.html.py:241
-#: templates/index.html:398
+#: templates/index.html:50 templates/patient_reservations.html:10
+msgid "Date"
+msgstr "Dátum"
+
+#: templates/index.html:51 templates/patient_reservations.html:11
+msgid "Time"
+msgstr "Čas"
+
+#: templates/index.html:59
+msgid "Day:"
+msgstr "Deň:"
+
+#: templates/index.html:61
+msgid "List of reservations"
+msgstr "Zoznam rezervácií"
+
+#: templates/index.html:62
+msgid "Reload"
+msgstr "Obnoviť"
+
+#: templates/index.html:67
+msgid "Make reservation"
+msgstr "Vytvoriť rezerváciu"
+
+#: templates/index.html:77 templates/index.html.py:425
+msgid "Cancel"
+msgstr "Zrušiť"
+
+#: templates/index.html:202 templates/index.html.py:224
+#: templates/index.html:248 templates/index.html.py:271
+#: templates/index.html:415
 msgid "Message"
 msgstr "Správa"
 
-#: templates/index.html:176
+#: templates/index.html:203
 msgid "Hold operation failed"
 msgstr "Podržanie termínu zlyhalo"
 
-#: templates/index.html:197
+#: templates/index.html:213
+msgid "Unhold"
+msgstr "Zrušiť podržanie"
+
+#: templates/index.html:225
 msgid "Unhold operation failed"
 msgstr "Zrušenie podržania termínu zlyhalo"
 
-#: templates/index.html:220
+#: templates/index.html:236
+msgid "Enable"
+msgstr "Zapnuť"
+
+#: templates/index.html:249
 msgid "Enable operation failed"
 msgstr "Zapnutie termínu zlyhalo"
 
-#: templates/index.html:242
+#: templates/index.html:259
+msgid "Disable"
+msgstr "Vypnuť"
+
+#: templates/index.html:272
 msgid "Disable operation failed"
 msgstr "Vypnutie termínu zlyhalo"
 
-#: templates/index.html:399
+#: templates/index.html:382
+msgid "Are you sure you want to cancel reservation?"
+msgstr "Ste si istý, že chcete zrušiť rezerváciu?"
+
+#: templates/index.html:395
+msgid "Confirm"
+msgstr "Potvrdiť"
+
+#: templates/index.html:403
+msgid "Yes"
+msgstr "Áno"
+
+#: templates/index.html:416
 msgid "Cancel operation failed"
 msgstr "Zrušenie termínu zlyhalo"
 
-#: templates/index.html:419
+#: templates/index.html:446
 msgid "Reservation is not available"
 msgstr "Rezervácia nie je dostupná"
 
-#: templates/messages/booked.html:2
+#: templates/message.html:16
+msgid ""
+"If you want to change or cancel your reservation call us on phone number:"
+msgstr ""
+"Ak si želáte zmeniť alebo zrušiť vašu rezerváciu zavolajte na naše telefónne "
+"čísla:"
+
+#: templates/message.html:23
+msgid "Back to front page"
+msgstr "Späť na úvodnú stránku"
+
+#: templates/messages/cancel_failed.html:2
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "The reservation on <strong>%(r_date)s</strong> at <strong>%(r_time)s</"
+#| "strong>\n"
+#| "for <strong>%(r_patient)s</strong> has been booked.\n"
+msgid ""
+"\n"
+"<h2 class=\"error\">Failed to cancel reservation on <strong>%(r_date)s</"
+"strong> at <strong>%(r_time)s</strong>\n"
+"for <strong>%(r_patient)s</strong>.<h2>\n"
+msgstr ""
+"\n"
+"Rezervácia <strong>%(r_date)s</strong> o <strong>%(r_time)s</strong>\n"
+"pre <strong>%(r_patient)s</strong> bola vytvorená.\n"
+
+#: templates/messages/canceled.html:2
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "The reservation on <strong>%(r_date)s</strong> at <strong>%(r_time)s</"
+#| "strong>\n"
+#| "for <strong>%(r_patient)s</strong> has been booked.\n"
+msgid ""
+"\n"
+"The reservation on <strong>%(r_date)s</strong> at <strong>%(r_time)s</"
+"strong>\n"
+"for <strong>%(r_patient)s</strong> has been canceled.\n"
+msgstr ""
+"\n"
+"Rezervácia <strong>%(r_date)s</strong> o <strong>%(r_time)s</strong>\n"
+"pre <strong>%(r_patient)s</strong> bola vytvorená.\n"
+
+#: templates/messages/created.html:2
 #, python-format
 msgid ""
 "\n"
@@ -593,32 +698,73 @@ msgstr ""
 "Rezervácia <strong>%(r_date)s</strong> o <strong>%(r_time)s</strong>\n"
 "pre <strong>%(r_patient)s</strong> bola vytvorená.\n"
 
-#: templates/messages/cancel.html:3
-#, python-format
+#: templates/messages/has_reservation.html:4
+msgid "This patient has already created active reservation."
+msgstr "Tento pacient už má vytvorenú aktívnu rezerváciu."
+
+#: templates/messages/has_reservation.html:5
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "The reservation is on <strong>%(r_date)s</strong> at <strong>%(r_time)s</"
+#| "strong>.\n"
 msgid ""
 "\n"
-"The reservation is on <strong>%(r_date)s</strong> at <strong>%(r_time)s</"
-"strong>.\n"
+"<p>The reservation is on <strong>%(r_date)s</strong> at <strong>%(r_time)s</"
+"strong>.</p>\n"
 msgstr ""
 "\n"
 "Rezervácia je <strong>%(r_date)s</strong> o <strong>%(r_time)s</strong>\n"
 
-#: templates/messages/cancel.html:7
-#, python-format
+#: templates/messages/has_reservation.html:9
+msgid "You have already created active reservation."
+msgstr "Už máte vytvorenú aktívnu rezerváciu."
+
+#: templates/messages/has_reservation.html:10
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "Your reservation is on <strong>%(r_date)s</strong> at <strong>%(r_time)s</"
+#| "strong>.\n"
 msgid ""
 "\n"
-"Your reservation is on <strong>%(r_date)s</strong> at <strong>%(r_time)s</"
-"strong>.\n"
+"<p>Your reservation is on <strong>%(r_date)s</strong> at <strong>%(r_time)s</"
+"strong>.</p>\n"
 msgstr ""
 "\n"
 "Vaša rezervácia je <strong>%(r_date)s</strong> o <strong>%(r_time)s</"
 "strong>\n"
 
+#: templates/messages/rescheduled.html:2
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "The reservation on <strong>%(r_date)s</strong> at <strong>%(r_time)s</"
+#| "strong>\n"
+#| "for <strong>%(r_patient)s</strong> has been booked.\n"
+msgid ""
+"\n"
+"<strong>%(patient)s</strong> has been rescheduled from <strong>%(old_date)s</"
+"strong> at <strong>%(old_time)s</strong> to <strong>%(new_date)s</strong> at "
+"<strong>%(new_time)s.\n"
+msgstr ""
+"\n"
+"Rezervácia <strong>%(r_date)s</strong> o <strong>%(r_time)s</strong>\n"
+"pre <strong>%(r_patient)s</strong> bola vytvorená.\n"
+
 #: templates/missing_config.html:12
 msgid "Missing basic configuration."
 msgstr "Chýba základná konfigurácia."
 
-#: templates/patient_reservations.html:7
+#: templates/patient_reservations.html:4
+msgid "Phone"
+msgstr ""
+
+#: templates/patient_reservations.html:5
+msgid "E-mail"
+msgstr "E-mail"
+
+#: templates/patient_reservations.html:12
 msgid "Medical office"
 msgstr "Ambulancia"
 
@@ -634,14 +780,22 @@ msgstr "Heslo"
 msgid "Log in"
 msgstr "Prihlásiť sa"
 
-#: view_utils.py:23
-msgid "Confirmation of reservation"
-msgstr "Potvrdenie rezervácie"
+#: view_utils.py:39
+msgid "reservation confirmation"
+msgstr "potvrdenie rezervácie"
 
-#: views.py:154
-msgid "Forbidden to make reservation for today or for date in the past."
-msgstr "Nie je možné rezervovať termín na dnes alebo na deň v minulosti."
+#: view_utils.py:50
+msgid "reservation canceled"
+msgstr "rezervácia zrušená"
 
-#: views.py:156
+#: view_utils.py:61
+msgid "reservation rescheduled"
+msgstr "rezervácia preobjednaná"
+
+#: views.py:167
+msgid "Can't make reservation for today or day in the past."
+msgstr "Nie je možné vytvoriť rezervováciu na dnes alebo na deň v minulosti."
+
+#: views.py:169
 msgid "Can't make reservation. Please try again."
 msgstr "Nie je možné vytvoriť rezerváciu. Prosím vyskúšajte znova."
