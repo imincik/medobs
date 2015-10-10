@@ -381,7 +381,7 @@ $(function() {
 		.attr("id", "confirm-dialog")
 		.html("{% trans "Are you sure you want to cancel reservation?" %}")
 		.append(
-			$('<form action="/reservations/unbook/" method="post"></form>')
+			$('<form action="/reservations/cancel/" method="post"></form>')
 				.append($('<input id="reservation_id" type="hidden" name="reservation_id" />'))
 				.append($("{% csrf_token %}"))
 		)
@@ -402,7 +402,7 @@ $(function() {
 			.dialog('option', 'buttons', {
 				"{% trans "Yes" %}" : function() {
 					/*
-					$.post("/reservations/unbook/", {reservation_id: r_id}, function(data) {
+					$.post("/reservations/cancel/", {reservation_id: r_id}, function(data) {
 						if (data.status_ok) {
 							var status = (elem.attr("status") === "reschedule")? "disabled" : "enabled";
 							elem.attr("status", status);

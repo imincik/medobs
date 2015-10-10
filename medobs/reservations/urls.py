@@ -16,7 +16,7 @@ urlpatterns = [
 	url(r"^reservations/(?P<for_date>\d{4}-\d{2}-\d{2})/list/(?P<office_id>\d+)/$", views.list_reservations),
 	url(r"^reservations/(?P<r_id>\d+)/hold/$", views.hold_reservation),
 	url(r"^reservations/(?P<r_id>\d+)/unhold/$", views.unhold_reservation),
-	url(r"^reservations/unbook/$", views.unbook_reservation),
+	url(r"^reservations/cancel/$", views.cancel_reservation),
 	url(r"^reservations/(?P<r_id>\d+)/disable/$", views.disable_reservation),
 	url(r"^reservations/(?P<r_id>\d+)/enable/$", views.enable_reservation),
 	url(r"^reservations/(?P<r_id>\d+)/details/$", views.reservation_details),

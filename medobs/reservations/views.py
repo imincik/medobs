@@ -80,7 +80,7 @@ def office_page(request, office_id, for_date=None):
 			actual_date = new_reservation.date
 			new_reservation.patient = old_reservation.patient
 			new_reservation.exam_kind = old_reservation.exam_kind
-			old_reservation.unbook()
+			old_reservation.cancel()
 			new_reservation.save()
 			old_reservation.save()
 			send_reschedule_notificaion(old_reservation, new_reservation)
@@ -280,7 +280,7 @@ def unhold_reservation(request, r_id):
 	return response
 
 @login_required
-def unbook_reservation(request):
+def cancel_reservation(request):
 	reservation = get_object_or_404(Reservation, pk=request.POST.get('reservation_id'))
 	tmp_reservation = Reservation(
 		office=reservation.office,
@@ -290,7 +290,7 @@ def unbook_reservation(request):
 		exam_kind=reservation.exam_kind
 	)
 	if reservation.patient is not None:
-		reservation.unbook()
+		reservation.cancel()
 		reservation.save()
 		send_cancel_notificaion(tmp_reservation)
 		messages.success(

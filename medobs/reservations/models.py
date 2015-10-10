@@ -372,7 +372,7 @@ class Reservation(models.Model):
 
 		return False
 
-	def unbook(self):
+	def cancel(self):
 		if self.status != self.STATUS_DISABLED:
 			self.status = self.STATUS_ENABLED
 		self.patient = None
