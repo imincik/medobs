@@ -1,13 +1,11 @@
-import os
+import os, sys
 import json
 import datetime
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "devproj.settings")
 
 from medobs.reservations.models import Office, Phone, Examination_kind, Patient, Template, Reservation_exception, Reservation
 
 
-with open("medobs-reservations.json") as f:
+with open(sys.argv[1]) as f:
 	data = json.load(f)
 	# sobj - serialized object
 	# Import models without foreign key relation
@@ -16,6 +14,7 @@ with open("medobs-reservations.json") as f:
 	for sobj in data:
 
 		if sobj['model'] == 'reservations.medical_office':
+                        print sobj
 			fields = sobj['fields']
 			fields['authenticated_only'] = not bool(fields.pop('public'))
 			office = Office(pk=sobj['pk'], **fields)
@@ -23,6 +22,7 @@ with open("medobs-reservations.json") as f:
 			offices[office.pk] = office
 
 		elif sobj['model'] == 'reservations.patient':
+                        print sobj
 			if len(patients) < 100:
 				fields = sobj['fields']
 				patient = Patient(pk=sobj['pk'], **fields)
@@ -35,12 +35,14 @@ with open("medobs-reservations.json") as f:
 		model = sobj['model']
 
 		if model == 'reservations.office_phone':
+                        print sobj
 			fields = sobj['fields']
 			fields['office'] = offices[fields['office']]
 			phone = Phone(pk=sobj['pk'], **fields)
 			phone.save()
 
 		elif model == 'reservations.examination_kind':
+                        print sobj
 			fields = sobj['fields']
 			exam_kind_map = {}
 			for office_pk in fields['office']:
@@ -51,12 +53,14 @@ with open("medobs-reservations.json") as f:
 			exam_kinds[sobj['pk']] = exam_kind_map
 
 		elif model == 'reservations.visit_template':
+                        print sobj
 			fields = sobj['fields']
 			fields['office'] = offices[fields['office']]
 			template = Template(pk=sobj['pk'], **fields)
 			template.save()
 
 		elif model == 'reservations.visit_disable_rule':
+                        print sobj
 			fields = sobj['fields']
 			fields['office'] = offices[fields['office']]
 			reservation_exception = Reservation_exception(pk=sobj['pk'], **fields)
@@ -65,7 +69,9 @@ with open("medobs-reservations.json") as f:
 	# Import reservations
 	status_transform = {1: 1, 2: 2, 3: 2, 4: 4}
 	for sobj in data:
-		if sobj['model'] == 'reservations.visit_reservation':
+
+                if sobj['model'] == 'reservations.visit_reservation':
+                        print sobj
 			fields = sobj['fields']
 			starting_time = datetime.datetime.strptime(fields['starting_time'], "%Y-%m-%d %H:%M:%S")
 			reservation = Reservation(
