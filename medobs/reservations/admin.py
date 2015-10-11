@@ -141,7 +141,6 @@ class PatientAdmin(admin.ModelAdmin):
 		"full_name",
 		"phone_number",
 		"email",
-		"ident_hash",
 		"has_reservation"
 	)
 	search_fields = (
