@@ -164,7 +164,7 @@ def office_page(request, office_id, for_date=None):
 					return HttpResponseRedirect("/status/%d/" % reservation.pk)
 
 				except DateInPast:
-					message = _("Can't make reservation for today or day in the past.")
+					message = _("Can't make reservation for current day or day in the past.")
 				except BadStatus:
 					message = _("Can't make reservation. Please try again.")
 					reservation_id = 0

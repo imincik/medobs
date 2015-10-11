@@ -1,4 +1,4 @@
 {% load i18n %}
-{% blocktrans with patient=new_reservation.patient old_date=old_reservation.date|date:"d.m.Y" old_time=old_reservation.time|time:"H.i" new_date=new_reservation.date|date:"d.m.Y" new_time=new_reservation.time|time:"H.i" %}
-<strong>{{ patient }}</strong> has been rescheduled from <strong>{{ old_date }}</strong> at <strong>{{ old_time }}</strong> to <strong>{{ new_date }}</strong> at <strong>{{ new_time }}.
+{% blocktrans with r_patient=new_reservation.patient old_date=old_reservation.date|date:"d.m.Y" old_time=old_reservation.time|time:"H.i" new_date=new_reservation.date|date:"d.m.Y" new_time=new_reservation.time|time:"H.i" %}
+The reservation for {{ r_patient }} has been changed from {{ old_date }} at {{ old_time }} to {{ new_date }} at {{ new_time }}.
 {% endblocktrans %}
