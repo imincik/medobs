@@ -23,11 +23,10 @@ with open(sys.argv[1]) as f:
 
 		elif sobj['model'] == 'reservations.patient':
                         print sobj
-			if len(patients) < 100:
-				fields = sobj['fields']
-				patient = Patient(pk=sobj['pk'], **fields)
-				patient.save()
-				patients[patient.pk] = patient
+			fields = sobj['fields']
+			patient = Patient(pk=sobj['pk'], **fields)
+			patient.save()
+			patients[patient.pk] = patient
 
 	# Import other models (except reservations)
 	exam_kinds = {}
