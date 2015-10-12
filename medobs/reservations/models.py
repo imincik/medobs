@@ -281,6 +281,7 @@ class Examination_kind(models.Model):
 		verbose_name = _("examination kind")
 		verbose_name_plural = _("examinations kinds")
 		ordering = ("order",)
+		unique_together = (("office", "order"),)
 
 	def __unicode__(self):
 		return self.title
