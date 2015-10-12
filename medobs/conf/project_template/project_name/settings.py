@@ -120,7 +120,7 @@ LOGGING = {
 		'file': {
 			'level': 'ERROR',
 			'class': 'logging.FileHandler',
-			'filename': 'medobs-error.log',
+			'filename': '/tmp/medobs-error.log',
 		},
 		'console': {
 			'level': 'WARNING',
