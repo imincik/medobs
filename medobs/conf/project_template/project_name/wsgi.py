@@ -1,5 +1,5 @@
 """
-WSGI config for webgis project.
+WSGI config for {{ project_name }} project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -8,10 +8,12 @@ https://docs.djangoproject.com/en/1.8/howto/deployment/wsgi/
 """
 
 import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "devproj.settings")
-
-from medobs.reservations.models import Command
-Command.objects.select_for_update().update(is_running=False)
 
 from django.core.wsgi import get_wsgi_application
+from medobs.reservations.models import Command
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "{{ project_name }}.settings")
+
+Command.objects.select_for_update().update(is_running=False)
+
 application = get_wsgi_application()
