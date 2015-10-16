@@ -11,6 +11,7 @@
 			<th>{% trans "Time" %}</th>
 			<th>{% trans "Medical office" %}</th>
 			<th>{% trans "Examination kind" %}</th>
+			<th>{% trans "Reservation time" %}</th>
 		</tr>
 	{% for r in patient.visit_reservations.all %}
 		<tr{% if not r.passed %} class="future"{% endif %}>
@@ -18,6 +19,7 @@
 			<td>{{ r.time }}</td>
 			<td>{{ r.office.name }}</td>
 			<td>{{ r.exam_kind.title }}</td>
+			<td>{{ r.reservation_time }}</td>
 		</tr>
 	{% endfor %}
 	</tbody>
