@@ -157,6 +157,15 @@ class DateRangeFilter(admin.filters.FieldListFilter):
 			'query_string': cl.get_query_string({}, [self.lookup_kwarg_since, self.lookup_kwarg_upto]),
 			'display': _('Any date')
 		}
+		since_today_selected = since_value == today and upto_value is None
+		yield {
+			'selected': since_today_selected,
+			'query_string': cl.get_query_string({
+				self.lookup_kwarg_since: today,
+				self.lookup_kwarg_upto: None
+			}, []),
+			'display': _('Since today')
+		}
 		today_selected = since_value == today and upto_value == today
 		yield {
 			'selected': today_selected,
@@ -194,7 +203,8 @@ class DateRangeFilter(admin.filters.FieldListFilter):
 			'display': _('This month')
 		}
 		custom_range_selected = \
-			not today_selected \
+			not since_today_selected \
+			and not today_selected \
 			and not tomorrow_selected \
 			and not this_week_selected \
 			and not this_month_selected \
