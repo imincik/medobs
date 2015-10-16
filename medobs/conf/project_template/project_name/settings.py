@@ -117,20 +117,21 @@ LOGGING = {
 	'version': 1,
 	'disable_existing_loggers': False,
 	'handlers': {
-		'file': {
-			'level': 'ERROR',
-			'class': 'logging.FileHandler',
-			'filename': '/tmp/medobs-error.log',
-		},
 		'console': {
-			'level': 'WARNING',
+			'level': 'DEBUG',
 			'class': 'logging.StreamHandler',
+		},
+		'syslog': {
+			'level': 'WARNING',
+			'class': 'logging.handlers.SysLogHandler',
+			'facility': 'local7',
+			'address': '/dev/log',
 		},
 	},
 	'loggers': {
 		'medobs': {
-			'handlers': ['console', 'file'],
-			'level': 'WARNING',
+			'handlers': ['console', 'syslog'],
+			'level': 'INFO',
 			'propagate': True,
 		},
 	},
