@@ -76,13 +76,31 @@ class PatientSearchWidget(forms.Select):
 		return media
 
 
+class ExaminationKindWidget(forms.Select):
+
+	def render(self, name, value, attrs=None, choices=()):
+		self.offices = dict(Examination_kind.objects.values_list('pk', 'office'))
+		return super(ExaminationKindWidget, self).render(name, value, attrs=attrs, choices=choices)
+
+	def render_option(self, selected_choices, option_value, option_label):
+		# Insert office id into option items
+		html = super(ExaminationKindWidget, self).render_option(selected_choices, option_value, option_label)
+		html = html.replace('<option ', '<option office="{0}" '.format(self.offices.get(option_value, '')))
+		return html
+
+	@property
+	def media(self):
+		return Media(js=[static('js/exam_kind_widget.js')])
+
+
 class ReservationForm(forms.ModelForm):
 	time = forms.TimeField(widget=forms.TimeInput(format='%H:%M'))
 	class Meta:
 		model = Reservation
 		exclude = ()
 		widgets = {
-			'patient': PatientSearchWidget
+			'patient': PatientSearchWidget,
+			'exam_kind': ExaminationKindWidget
 		}
 
 # vim: set ts=4 sts=4 sw=4 noet:
