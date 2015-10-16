@@ -18,7 +18,7 @@
 	{% if r.status == "reserved" %}
 	<tr>
 		<td>{{ r.time }}</td>
-		<td>{{ r.patient }}</td>
+		<td>{{ r.patient.name }}</td>
 		<td>{{ r.exam_kind }}</td>
 		<td>{{ r.phone_number }}</td>
 		<td>{{ r.email }}</td>
