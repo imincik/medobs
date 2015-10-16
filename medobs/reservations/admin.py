@@ -147,6 +147,9 @@ class PatientAdmin(admin.ModelAdmin):
 		"last_name",
 		"first_name"
 	)
+	list_filter = (
+		filters.ActiveReservationFilter,
+	)
 	ordering = (
 		"last_name",
 		"first_name"

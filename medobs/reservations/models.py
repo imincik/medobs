@@ -59,6 +59,7 @@ class Patient(models.Model):
 	def has_reservation(self):
 		return self.actual_reservations().exists()
 	has_reservation.boolean = True
+	has_reservation.short_description = _('active reservation')
 
 	def save(self, *args, **kwargs):
 		if not self.id:

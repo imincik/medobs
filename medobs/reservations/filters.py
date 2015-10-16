@@ -13,6 +13,26 @@ from django.db.models import Q
 from medobs.reservations.models import Reservation, Reservation_exception
 
 
+class ActiveReservationFilter(SimpleListFilter):
+	title = _("active reservation")
+	parameter_name = 'active_reservation'
+
+	def lookups(self, request, model_admin):
+		return (
+			('yes', _('Yes')),
+			('no', _('No')),
+		)
+
+	def queryset(self, request, queryset):
+		current_time = datetime.datetime.now()
+		q = Q(visit_reservations__date=current_time.date(), visit_reservations__time__gte=current_time.time()) \
+			| Q(visit_reservations__date__gt=current_time.date())
+
+		if self.value() == 'yes':
+			return queryset.filter(q).distinct()
+		elif self.value() == 'no':
+			return queryset.exclude(q)
+
 class ExpirationFilter(SimpleListFilter):
 	title = _("expiration")
 	parameter_name = 'expiration'
