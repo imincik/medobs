@@ -3,8 +3,6 @@ from datetime import date as dt_date
 from datetime import time as dt_time
 from datetime import timedelta as dt_timedelta
 
-from django.db import transaction
-
 from medobs.reservations.models import Reservation_exception, Reservation
 
 
@@ -24,7 +22,6 @@ def generate_reservations(templates, console_logging=False):
 
 		templates_exceptions = list(Reservation_exception.objects.filter(office=office))
 
-		sid = transaction.savepoint()
 		today = dt_date.today()
 		end_day = today + dt_timedelta(office.days_to_generate)
 
@@ -41,23 +38,23 @@ def generate_reservations(templates, console_logging=False):
 				existing_reservations_cache[date_key][str(time)] = {'pk': pk, 'status': status}
 
 		day = today
-		try:
-			while day <= end_day:
-				week_day = day.isoweekday()
+		while day <= end_day:
+			week_day = day.isoweekday()
 
-				day_cache = existing_reservations_cache.get(str(day), {})
-				for tmp in templates:
-					if tmp.day == week_day \
-							and tmp.valid_since <= day \
-							and (tmp.valid_until == None or tmp.valid_until > day):
-						starting_time = datetime.combine(day, tmp.starting_time)
+			day_cache = existing_reservations_cache.get(str(day), {})
+			for tmp in templates:
+				if tmp.day == week_day \
+						and tmp.valid_since <= day \
+						and (tmp.valid_until == None or tmp.valid_until > day):
+					starting_time = datetime.combine(day, tmp.starting_time)
 
-						status = Reservation.STATUS_ENABLED
-						for templ_exception in templates_exceptions:
-							if templ_exception.covers_reservation_time(starting_time):
-								status = Reservation.STATUS_DISABLED
-								break
+					status = Reservation.STATUS_ENABLED
+					for templ_exception in templates_exceptions:
+						if templ_exception.covers_reservation_time(starting_time):
+							status = Reservation.STATUS_DISABLED
+							break
 
+					try:
 						existing_reservation_info = day_cache.get(str(tmp.starting_time))
 						if existing_reservation_info is None:
 							if console_logging:
@@ -72,11 +69,9 @@ def generate_reservations(templates, console_logging=False):
 							obj.save()
 						elif console_logging:
 							print 'Reservation already exists, skipping ... %s' % (starting_time)
+					except ValueError:
+						print "Error: Failed to create reservation %s" % starting_time
 
-				day += dt_timedelta(1)
-
-			transaction.savepoint_commit(sid)
-		except ValueError:
-			transaction.savepoint_rollback(sid)
+			day += dt_timedelta(1)
 
 # vim: set ts=4 sts=4 sw=4 noet:
