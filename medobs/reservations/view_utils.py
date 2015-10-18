@@ -38,7 +38,7 @@ def send_reservation_notification(reservation):
 			reservation.patient.email,
 			u"%s - %s" % (reservation.office.name, _("reservation confirmation")),
 			render_to_string(
-				"email/reservation_notification.html",
+				"email/created.html",
 				{"reservation": reservation}
 			)
 		)
@@ -49,7 +49,7 @@ def send_cancel_notificaion(reservation):
 			reservation.patient.email,
 			u"%s - %s" % (reservation.office.name, _("reservation canceled")),
 			render_to_string(
-				"email/cancel_notification.html",
+				"email/cancelled.html",
 				{"reservation": reservation}
 			)
 		)
@@ -60,7 +60,7 @@ def send_reschedule_notificaion(old_reservation, reservation):
 			reservation.patient.email,
 			u"%s - %s" % (reservation.office.name, _("reservation rescheduled")),
 			render_to_string(
-				"email/reschedule_notification.html",
+				"email/rescheduled.html",
 				{"old_reservation": old_reservation, "reservation": reservation}
 			)
 		)

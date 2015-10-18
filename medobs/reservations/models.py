@@ -382,6 +382,10 @@ class Reservation(models.Model):
 		self.reservation_time = None
 		self.reserved_by = ""
 
+	def get_actual_status(self):
+		self.compute_actual_status([self])
+		return self.actual_status
+
 	@staticmethod
 	def compute_actual_status(reservations):
 		exceptions = list(Reservation_exception.objects.all())

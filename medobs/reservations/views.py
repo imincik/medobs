@@ -77,6 +77,17 @@ def office_page(request, office_id, for_date=None):
 		if action == "reschedule":
 			old_reservation = get_object_or_404(Reservation, pk=request.POST.get("old_reservation"))
 			new_reservation = get_object_or_404(Reservation, pk=request.POST.get("reservation"))
+			if new_reservation.patient or new_reservation.get_actual_status() == Reservation.STATUS_DISABLED:
+				messages.error(
+					request,
+					render_to_string(
+						"messages/reschedule_failed.html", {
+							"old_reservation": old_reservation,
+							"new_reservation": new_reservation,
+						}
+					)
+				)
+				return HttpResponseRedirect("/status/%d/" % new_reservation.pk)
 			actual_date = new_reservation.date
 			new_reservation.patient = old_reservation.patient
 			new_reservation.exam_kind = old_reservation.exam_kind
@@ -129,7 +140,7 @@ def office_page(request, office_id, for_date=None):
 						messages.error(
 							request,
 							render_to_string(
-								"messages/has_reservation.html", {
+								"messages/creation_failed.html", {
 									"reservations": patient.actual_reservations(),
 									"user": request.user,
 								}
@@ -306,7 +317,7 @@ def cancel_reservation(request):
 			request,
 			 render_to_string(
 				"messages/cancel_failed.html", {
-					"reservation": tmp_reservation,
+					"reservation": tmp_reservation
 				}
 			)
 		)
@@ -350,7 +361,7 @@ def list_reservations(request, for_date, office_id):
 	office = get_object_or_404(Office, pk=office_id)
 
 	return render_to_response(
-		"list_reservations.html",
+		"list/office.html",
 		{
 			"for_date": for_date,
 			"office": office,
@@ -388,7 +399,7 @@ def patient_reservations(request):
 			raise Http404
 
 		return render_to_response(
-			"patient_reservations.html",
+			"list/patient.html",
 			response_data,
 			context_instance=RequestContext(request)
 		)

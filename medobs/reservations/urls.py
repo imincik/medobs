@@ -28,7 +28,7 @@ urlpatterns = [
 	url(r"^status/(?P<pk>\d+)/$", DetailView.as_view(
 		model=Reservation,
 		context_object_name="reservation",
-		template_name="message.html",
+		template_name="messages/base.html",
 	)),
 	url(r"^offices/$", views.list_offices),
 	url(r"^admin/generate_reservations/$", admin.generate_reservations, name="generate-reservations"),
