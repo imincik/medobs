@@ -13,9 +13,15 @@
 			<th>{% trans "Examination kind" %}</th>
 			<th>{% trans "Reservation time" %}</th>
 		</tr>
-	{% for r in patient.actual_reservations %}
+	{% for r in patient.visit_reservations.all %}
 		<tr{% if not r.passed %} class="future"{% endif %}>
-			<td><a href="{% url 'reservations:office-on-date' r.office.pk r.date|slugify %}">{{ r.date }}</a></td>
+			<td>
+				{% if r.passed %}
+				{{ r.date }}
+				{% else %}
+				<a href="{% url 'reservations:office-on-date' r.office.pk r.date|slugify %}">{{ r.date }}</a>
+				{% endif %}
+			</td>
 			<td>{{ r.time }}</td>
 			<td>{{ r.office.name }}</td>
 			<td>{{ r.exam_kind.title }}</td>
