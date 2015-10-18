@@ -295,10 +295,10 @@ admin.FieldListFilter.register(lambda f: f and isinstance(f, models.DateField), 
 
 
 def generate_template_reservations(template_pk):
-	generator.generate_reservations(Template.objects.filter(pk=template_pk), console_logging=False)
+	generator.generate_reservations(Template.objects.filter(pk=template_pk), logging=False)
 
 def generate_all_reservations():
-	generator.generate_reservations(Template.objects.all(), console_logging=False)
+	generator.generate_reservations(Template.objects.all(), logging=False)
 
 @staff_member_required
 @view_async_task("medobsgen")

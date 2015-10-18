@@ -10,7 +10,7 @@ class Command(BaseCommand):
 
 	@command_task("medobsgen")
 	def handle(self, *args, **options):
-		generator.generate_reservations(Template.objects.all(), console_logging=True)
+		generator.generate_reservations(Template.objects.all(), logging=True)
 
 
 # vim: set ts=4 sts=4 sw=4 noet:

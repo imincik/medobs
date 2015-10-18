@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from datetime import date as dt_date
 from datetime import time as dt_time
@@ -6,7 +7,9 @@ from datetime import timedelta as dt_timedelta
 from medobs.reservations.models import Reservation_exception, Reservation
 
 
-def generate_reservations(templates, console_logging=False):
+logger = logging.getLogger('medobs.generator')
+
+def generate_reservations(templates, logging=False):
 	#templates = templates if type(templates) == list else list(templates)
 	office_templates = {}
 	for template in templates:
@@ -16,9 +19,9 @@ def generate_reservations(templates, console_logging=False):
 			office_templates[template.office] = [template]
 
 	for office, templates in office_templates.iteritems():
-		if console_logging:
-			print 'Office: %s' % office
-			print 'Days to generate: %d' % office.days_to_generate
+		if logging:
+			logger.info('Office: %s' % office)
+			logger.info('Days to generate: %d' % office.days_to_generate)
 
 		templates_exceptions = list(Reservation_exception.objects.filter(office=office))
 
@@ -38,6 +41,7 @@ def generate_reservations(templates, console_logging=False):
 				existing_reservations_cache[date_key][str(time)] = {'pk': pk, 'status': status}
 
 		day = today
+
 		while day <= end_day:
 			week_day = day.isoweekday()
 
@@ -57,8 +61,6 @@ def generate_reservations(templates, console_logging=False):
 					try:
 						existing_reservation_info = day_cache.get(str(tmp.starting_time))
 						if existing_reservation_info is None:
-							if console_logging:
-								print '* %s' % (starting_time)
 							obj = Reservation(
 								date=day,
 								time=tmp.starting_time,
@@ -67,10 +69,13 @@ def generate_reservations(templates, console_logging=False):
 								authenticated_only=tmp.authenticated_only
 							)
 							obj.save()
-						elif console_logging:
-							print 'Reservation already exists, skipping ... %s' % (starting_time)
-					except ValueError:
-						print "Error: Failed to create reservation %s" % starting_time
+							if logging:
+								logger.info('* %s' % (starting_time))
+						elif logging:
+							logger.info('Reservation already exists, skipping ... %s' % (starting_time))
+
+					except Exception:
+						logger.exception("Failed to create reservation: %s" % starting_time)
 
 			day += dt_timedelta(1)
 

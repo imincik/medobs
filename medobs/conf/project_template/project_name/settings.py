@@ -131,9 +131,14 @@ LOGGING = {
 	'loggers': {
 		'medobs': {
 			'handlers': ['console', 'syslog'],
-			'level': 'INFO',
+			'level': 'WARNING',
 			'propagate': True,
 		},
+		'medobs.generator': {
+			'handlers': ['console'],
+			'level': 'INFO',
+			'propagate': True,
+		}
 	},
 }
 
