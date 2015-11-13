@@ -1,22 +1,6 @@
 MEDOBS - Simple reservation system
 ==================================
 
-Users actions
--------------
-### Unauthorized user
- - select date and time of visit reservation and apply for reservation
-
-### Authorized user
- - same as unauthorized user
- - can see reservations status
- - can see the patient name
- - can make "authorized only" reservation
- - can hold free reservation for future use
- - can unhold reservation
- - can cancel reservation
- - can print simple and detailed list of reservations for selected day
-
-
 Development
 -----------
 Create Python virtualenv
