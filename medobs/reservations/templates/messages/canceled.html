@@ -1,0 +1,4 @@
+{% load i18n %}
+{% blocktrans with r_date=reservation.starting_time|date:"d.m.Y" r_time=reservation.starting_time|date:"H.i" r_patient=reservation.patient %}
+The reservation for {{ r_patient }} on {{ r_date }} at {{ r_time }} has been cancelled.
+{% endblocktrans %}

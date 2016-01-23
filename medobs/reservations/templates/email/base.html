@@ -1,0 +1,8 @@
+{% load i18n %}
+{% block text %}{% endblock %}
+--
+{{ reservation.office.name }}
+{{ reservation.office.street }}
+{{ reservation.office.city }} {{ reservation.office.zip_code }}
+email: {{ reservation.office.email }}
+phone: {% for n in reservation.office.phone_numbers.all %}{{ n }}{% if not loop.last %},{% endif %}{% endfor %}

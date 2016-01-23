@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block head_css %}
+<style type="text/css">
+	h2 { color: #090; }
+	h2.error { color: #900; }
+</style>
+{% endblock %}
+
+{% block page_container %}
+<div class="grid_12">
+	{% for message in messages %}<h2>{{ message|safe }}</h2>{% endfor %}
+
+	{% if not user.is_authenticated %}
+	<p>{% trans "If you want to change or cancel your reservation call us on phone number:" %}</p>
+
+	<ul id="phones">
+		{% for n in office.phone_numbers.all %}<li>{{ n }}</li>{% endfor %}
+	</ul>
+
+	{% endif %}
+	<p><a href="/office/{{ reservation.office.id }}/{{ reservation.date|date:"Y-m-d" }}/">{% trans "Back to front page" %}</a></p>
+</div>
+{% endblock %}

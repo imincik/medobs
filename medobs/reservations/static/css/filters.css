@@ -1,0 +1,19 @@
+#changelist-filter {
+	width: 225px!important;
+	border-bottom: 2px solid #DDDDDD!important;
+	bottom: 0;
+	overflow-y: auto;
+}
+
+.change-list .filtered form .results, .change-list .filtered form .paginator, .filtered #toolbar, .filtered div.xfull {
+	margin-right: 225px !important;
+}
+
+.filtered form .actions {
+	margin-right: 225px !important;
+}
+
+.change-list .filtered {
+	background: repeat-y scroll right top #FFFFFF !important;
+	min-height: 655px!important;
+}

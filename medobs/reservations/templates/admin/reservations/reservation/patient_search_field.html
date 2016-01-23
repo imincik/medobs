@@ -1,0 +1,14 @@
+{% load i18n %}
+<div class="pacient-search-field">
+	<div class="label-row">
+		<input {% for name, value in field_attrs.iteritems %} {{ name }}="{{ value }}"{% endfor %} type="hidden" />
+		<input {% for name, value in label_attrs.iteritems %} {{ name }}="{{ value }}"{% endfor %} type="text" readonly="readonly" value={{ selected_patient_label }} />
+		<a id="patient_clear" class="deletelink" href="javascript:void(0)" title="{% trans "Cancel reservation" %}"></a>
+	</div>
+	<div class="search-row">
+		<input {% for name, value in search_attrs.iteritems %} {{ name }}="{{ value }}"{% endfor %} />
+		<a id="patient_search" class="searchlink" href="javascript:void(0)" title="Search"></a>
+		<p class="search-error" id="id_patient_search_error">{% trans "Patient with this birth number doesn't exist" %}</p>
+		<p class="help">{% trans "Find patient by birth number." %}</p>
+	</div>
+</div>

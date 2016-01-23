@@ -1,0 +1,32 @@
+{% load i18n %}
+<h3>{{ title|capfirst }}</h3>
+{{ spec.form.media }}
+<style>
+    .timerange_form input {
+      width: 5.6em;
+    }
+    li p {
+      margin-bottom: 0px;
+    }
+    .submit-link {
+      margin-left: 10px;
+    }
+    .timerange_form label {
+      display: inline-block;
+      min-width: 35px;
+    }
+</style>
+
+<form id="id_{{spec.field.name}}" class='timerange_form' method="GET" action="">
+<ul>
+{% for choice in choices %}
+    <li{% if choice.selected %} class="selected"{% endif %}>
+      <a href="{{ choice.query_string|iriencode }}">{{ choice.display }}</a>
+      {% if choice.form %}
+      {{ choice.form.as_p }}
+      {% endif %}
+    </li>
+{% endfor %}
+<li><a class="submit-link" href="#" onclick="django.jQuery('#id_{{spec.field.name}}').submit();">{% trans "Submit time" %}</a></li>
+</ul>
+</form>

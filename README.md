@@ -1,27 +1,39 @@
-Medical reservation system
-==========================
-Simple system for making reservations and display timetables.
+MEDOBS - Simple reservation system
+==================================
 
-Requirement
+Development
 -----------
- - django 1.3+
+Create Python virtualenv
+```
+$ mkvirtualenv medobs
+$ pip install -r ./requirements.txt
+```
 
-Users actions
--------------
+Run following commands in source code directory to create development project:
+```
+$ unset DJANGO_SETTINGS_MODULE
+$ export PYTHONPATH=$(pwd)
+$ mkdir dev
+$ django-admin.py startproject --template=medobs/conf/project_template devproj dev
+$ cd dev
+$ export DJANGO_SETTINGS_MODULE=devproj.settings
+$ python ./manage.py migrate
+```
 
-### Unauthorized user (patient)
- - select date and time of visit reservation and book for it if it is empty
+Create superuser account
+```
+$ python ./manage.py createsuperuser --username admin --email admin@dev.io
+```
 
-### Authorized user (nurse etc.)
- - same as unauthorized user
- - can see visit reservation status
- - can see name of patient on booked reservation
- - can book patient on "authorized only" reservation
- - click on reservation hold it
- - unbook patient
- - unhold reservation
- - print simple and detail reservation list for selected day
+Create offices and generate reservations
+```
+$ python ./manage.py loaddata ../medobs/reservations/fixtures/offices.json
+$ python ./manage.py medobstemplates "First Office" "08:00" "16:00" 30
+$ python ./manage.py medobstemplates "Second Office" "08:00" "16:00" 30
+$ python ./manage.py medobsgen
+```
 
-### Staff user (administrator)
- - enable/disable reservation
- - has access to adminstration page
+Start development server
+```
+$ python ./manage.py runserver
+```

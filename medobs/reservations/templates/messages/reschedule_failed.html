@@ -1,0 +1,6 @@
+{% load i18n %}
+<h2 class="error">
+{% blocktrans with r_patient=old_reservation.patient new_date=new_reservation.date|date:"d.m.Y" new_time=new_reservation.time|time:"H.i" %}
+Failed to reschedule reservation for {{ r_patient }} to {{ new_date }} at {{ new_time }}.
+{% endblocktrans %}
+</h2>

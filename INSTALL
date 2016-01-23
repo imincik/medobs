@@ -1,0 +1,11 @@
+Install MEDOBS
+==============
+$ python setup.py install
+
+
+Create Django project:
+======================
+$ django-admin.py startproject --template=medobs/conf/project_template/ <project name> [<project directory>]
+
+$ cd <project directory>
+$ python manage.py migrate

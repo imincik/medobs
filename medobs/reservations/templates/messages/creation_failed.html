@@ -1,0 +1,14 @@
+{% load i18n %}
+<h2 class="error">
+{% for reservation in reservations %}
+{% if user.is_authenticated %}
+{% blocktrans with r_date=reservation.starting_time|date:"d.m.Y" r_time=reservation.starting_time|date:"H.i" %}
+Can't create reservation. Active reservation on {{ r_date }} at {{ r_time }} is already exists.
+{% endblocktrans %}
+{% else %}
+{% blocktrans %}
+Can't create reservation. Active reservation already exists.
+{% endblocktrans %}
+{% endif %}
+{% endfor %}
+</h2>
