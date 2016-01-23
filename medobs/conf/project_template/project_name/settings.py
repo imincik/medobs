@@ -116,18 +116,6 @@ WSGI_APPLICATION = '{{ project_name }}.wsgi.application'
 LOGGING = {
 	'version': 1,
 	'disable_existing_loggers': False,
-	'handlers': {
-		'console': {
-			'level': 'DEBUG',
-			'class': 'logging.StreamHandler',
-		},
-		'syslog': {
-			'level': 'WARNING',
-			'class': 'logging.handlers.SysLogHandler',
-			'facility': 'local7',
-			'address': '/dev/log',
-		},
-	},
 	'loggers': {
 		'medobs': {
 			'handlers': ['console', 'syslog'],
@@ -140,6 +128,18 @@ LOGGING = {
 			'propagate': True,
 		}
 	},
+	'handlers': {
+		'console': {
+			'level': 'DEBUG',
+			'class': 'logging.StreamHandler',
+		},
+		'syslog': {
+			'level': 'WARNING',
+			'class': 'logging.handlers.SysLogHandler',
+			'facility': 'local7',
+			'address': '/dev/log',
+		},
+	}
 }
 
 
